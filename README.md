@@ -5,19 +5,7 @@
 
 ## Summary
 
-Construction sites change continuously, creating a reality capture problem. This project proposes a modular computing system that can be retrofitted onto heavy equipment to provide structured information about the site.
-
-The broader application areas are:
-
-- Safety monitoring
-- Earthwork progress tracking
-- Future autonomy workflows
-
-For this prototype, we focus on an excavator-mounted system that:
-
-1. Captures data in real time
-2. Packages data for different levels of analysis
-3. Analyzes localization, excavated volume, and material composition
+Construction sites change continuously, creating a reality capture problem. Our goal is to build a modular computing system that can be retrofitted on heavy equipment to provide structured information about the site. The application of the system is centred around safety, progress tracking and autonomy workflows. For this project, we focus on an excavator-mounted system that (1) captures data in real time, (2) packages data for different levels of analysis, and (3) analyses its localization, the excavated volume, and its composition. 
 
 ## Project Goal
 
@@ -55,21 +43,9 @@ A key goal of the project is to determine:
 
 ## Design Constraints
 
-### Robustness vs. Perfection
+- Robustness vs. Perfection: Construction sites are dusty, cluttered, occluded, and constantly changing. The system prioritizes robust, best-effort outputs over perfect reconstruction. When the system is inaccurate, it should explicitly communicate the reason, such as sensor failure, occlusion or localization noise.
 
-Construction sites are dusty, cluttered, occluded, and constantly changing. The system prioritizes robust, best-effort outputs over perfect reconstruction.
-
-When the system is inaccurate, it should explicitly communicate the reason, such as:
-
-- Sensor failure
-- Occlusion
-- Localization noise
-
-### Remote Connectivity
-
-Construction sites may have limited connectivity, making centralized processing difficult. However, due to the size and weight limitations of the toy excavator prototype, the project may initially assume centralized processing.
-
-The long-term goal is to run urgent perception tasks in real time on equipment, while non-urgent analytics can remain batch-processed or cloud-based.
+- Remote Connectivity: Construction sites may have limited connectivity, making centralized processing difficult. However, due to the size and weight limitations of the toy excavator prototype, the project may initially assume centralized processing. The long-term goal is to run urgent perception tasks in real time on equipment, while non-urgent analytics can remain batch-processed or cloud-based.
 
 ## System Tasks
 
@@ -124,8 +100,8 @@ This coupling is intended to make the perception pipeline computationally effici
 The system should produce:
 
 - Volume excavated vs. time logs
-- Excavation completion heatmaps
-- Per-cell volume change estimates
+- Excavation completion heatmaps as per-cell volume change estimates
+- Reconstructed Surface view history
 
 The heatmap output should ingest the SLAM map and sensor data to show spatial progress across the excavation area.
 
@@ -181,88 +157,17 @@ The system should operate within an on-machine compute budget or be structured t
 ## Evaluation Plan
 
 The project will evaluate the system on one realistic multi-cycle digging session and measure:
-
-### 1. Runtime Performance
-
-The system should keep up with the sensor stream and process each new frame fast enough to be usable during operation.
-
-### 2. Accuracy and Stability
-
-The estimated excavated volume and progress heatmaps should remain within approximately **10–15% error** and should not fluctuate wildly under slight localization noise.
+- Runtime Performance: The system should keep up with the sensor stream and process each new frame fast enough to be usable during operation.
+- Accuracy and Stability: The estimated excavated volume and progress heatmaps should remain within approximately **10–15% error** and should not fluctuate wildly under slight localization noise.
 
 ## Long-Term Vision
 
-Although the prototype is focused on excavation progress monitoring, the system is intended to define a reusable core layer for construction reality capture.
-
-The broader goal is to create a modular perception stack that can be adapted to other construction-site tasks by defining:
-
-- Data packaging requirements
-- Output levels of detail
-- Computational tradeoffs
-- Accuracy and robustness constraints
+Although the prototype is focused on excavation progress monitoring, when we design this pipeline, we hope to structure it in a way that it can be adapted to any reality capture task for a construction site in the future by defining the data packaging and the pros and cons from the outputs based on the level of detail and computational requirement. In other words, theoretically we will define the core layer of the system robust to any task but end-to-end test it for excavation progress monitoring within the scope of the class. 
 
 ## Biggest Risks
 
-### 1. Physical Testbed Risk
+- Physical Testbed Risk: The project depends on having a stable experimental environment for the 1:14-scale toy excavator. Without a fixed space for the excavator, sand, and sensing equipment, it will be difficult to collect consistent data. High-resolution ground truth after every excavation cycle is also difficult to obtain, making the testbed a foundational dependency.
 
-The project depends on having a stable experimental environment for the 1:14-scale toy excavator. Without a fixed space for the excavator, sand, and sensing equipment, it will be difficult to collect consistent data.
+- Sensing and SLAM Risk: LiDAR- or camera-based localization on a small, noisy platform introduces significant uncertainty. If SLAM drifts, fails, or cannot maintain a stable map, downstream perception tasks may fail.
 
-High-resolution ground truth after every excavation cycle is also difficult to obtain, making the testbed a foundational dependency.
-
-### 2. Sensing and SLAM Risk
-
-LiDAR- or camera-based localization on a small, noisy platform introduces significant uncertainty. If SLAM drifts, fails, or cannot maintain a stable map, downstream perception tasks may fail.
-
-This affects:
-
-- Geometry reconstruction
-- Change detection
-- Volume estimation
-- Temporal progress analysis
-
-### 3. Dynamic Earthwork Risk
-
-Earthwork is difficult because the terrain is actively changing during observation. Dust, occlusions, moving machinery, and changing geometry make it difficult to recover clean, temporally consistent signals.
-
-If the system cannot handle this dynamic environment, it will be difficult to reliably compute:
-
-- What was excavated
-- Where it was excavated
-- When it was excavated
-
-## Repository Structure
-
-```text
-.
-├── data/                  # Logged sensor data and ground truth measurements
-├── hardware/              # Hardware choices, mounting notes, and calibration files
-├── localization/          # SLAM, GPS, IMU, or encoder-based localization code
-├── perception/            # RGB, LiDAR, and fused excavation tracking algorithms
-├── outputs/               # Volume logs, heatmaps, and visualizations
-├── tests/                 # Evaluation scripts and test sequences
-└── README.md              # Project overview and documentation
-```
-
-## Planned Pipeline
-
-```text
-Excavator-mounted sensors
-        ↓
-Time-stamped RGB + LiDAR + GPS/IMU data
-        ↓
-Sensor calibration and synchronization
-        ↓
-Localization / SLAM
-        ↓
-Surface reconstruction and/or scoop-volume estimation
-        ↓
-Excavated volume estimation
-        ↓
-Spatial progress heatmap
-        ↓
-Runtime, accuracy, and robustness evaluation
-```
-
-## Status
-
-This project is currently in the planning and prototyping phase.
+- Dynamic Earthwork Risk: Earthwork is difficult because the terrain is actively changing during observation. Dust, occlusions, moving machinery, and changing geometry make it difficult to recover clean, temporally consistent signals.
