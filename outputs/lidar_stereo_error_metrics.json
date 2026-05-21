@@ -1,0 +1,9 @@
+{
+  "valid_lidar_points": 58,
+  "stereo_point_count": 5738,
+  "mean_error": 0.2722249463129027,
+  "median_error": 0.2768410016882391,
+  "rmse": 0.2733998054596252,
+  "90th_percentile": 0.30002537957286723,
+  "max_error": 0.3090253621571957
+}

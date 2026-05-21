@@ -1,0 +1,23 @@
+{
+  "timestamp_unix_sec": 1779335750.2855155,
+  "rgb1_camera_index": 0,
+  "rgb2_camera_index": 2,
+  "lidar_port": "COM5",
+  "baudrate": 460800,
+  "rgb1_shape": [
+    720,
+    1280,
+    3
+  ],
+  "rgb2_shape": [
+    720,
+    1280,
+    3
+  ],
+  "lidar_columns": [
+    "angle_degrees",
+    "distance_meters",
+    "quality"
+  ],
+  "lidar_points": 58
+}

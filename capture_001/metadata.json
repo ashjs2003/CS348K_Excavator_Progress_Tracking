@@ -1,0 +1,18 @@
+{
+  "timestamp_ms": 1779251390958,
+  "camera_index": 0,
+  "lidar_port": "COM5",
+  "baudrate": 460800,
+  "image_shape": [
+    720,
+    1280,
+    3
+  ],
+  "lidar_columns": [
+    "angle_deg",
+    "distance_mm",
+    "quality"
+  ],
+  "min_dist_mm": 10,
+  "max_dist_mm": 10000
+}

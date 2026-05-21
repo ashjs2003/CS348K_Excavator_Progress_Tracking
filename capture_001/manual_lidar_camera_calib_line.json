@@ -1,0 +1,22 @@
+{
+  "yaw_deg": 137,
+  "pitch_deg": -116,
+  "roll_deg": -31,
+  "tx_mm": -162,
+  "ty_mm": -77,
+  "tz_mm": 134,
+  "fx": 1004,
+  "fy": 1001,
+  "cx": 853.9999999999967,
+  "cy": 609.9999999999999,
+  "min_dist_mm": 100,
+  "max_dist_mm": 1000,
+  "lidar_min_angle_deg": 0,
+  "lidar_max_angle_deg": 360,
+  "show_rest": true,
+  "dot_size": 3,
+  "line_fit_mean_error_px": 99.54547963937888,
+  "line_fit_max_error_px": 241.5352945635831,
+  "line_fit_direction": "forward",
+  "line_fit_num_points": 84
+}
