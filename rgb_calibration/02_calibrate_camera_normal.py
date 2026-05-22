@@ -2,19 +2,32 @@
 Step 2: run normal OpenCV pinhole camera calibration.
 
 Run:
-    python 02_calibrate_camera_normal.py
+    python 02_calibrate_camera_normal.py --camera rgb1
+    python 02_calibrate_camera_normal.py --camera rgb2 --copy-to-config
 """
 
+import argparse
+import shutil
 from pathlib import Path
 
 import cv2
 import numpy as np
 
+from calib_targets import resolve_camera
 
 CHECKERBOARD = (9, 6)
 SQUARE_SIZE = 0.025  # meters
-IMAGE_DIR = Path("calibration_images")
-OUTPUT_FILE = Path("camera_calibration_normal.npz")
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Calibrate RGB1 or RGB2 from checkerboard images.")
+    parser.add_argument("--camera", choices=["rgb1", "rgb2"], default="rgb1")
+    parser.add_argument(
+        "--copy-to-config",
+        action="store_true",
+        help="Also copy the result into config/ for stereo and LiDAR scripts",
+    )
+    return parser.parse_args()
 
 
 def make_object_points():
@@ -65,10 +78,18 @@ def mean_reprojection_error(objpoints, imgpoints, rvecs, tvecs, camera_matrix, d
 
 
 def main():
-    image_paths = sorted(IMAGE_DIR.glob("*.png")) + sorted(IMAGE_DIR.glob("*.jpg"))
+    args = parse_args()
+    target = resolve_camera(args.camera)
+    image_dir = target["image_dir"]
+    output_file = target["local_npz"]
+
+    image_paths = sorted(image_dir.glob("*.png")) + sorted(image_dir.glob("*.jpg"))
     if not image_paths:
-        print(f"Error: no images found in {IMAGE_DIR.resolve()}")
+        print(f"Error: no images found in {image_dir.resolve()}")
+        print(f"Run: python 01_capture_checkerboard_images.py --camera {args.camera}")
         return
+
+    print(f"Calibrating {target['label']} from {image_dir.resolve()}")
 
     obj_template = make_object_points()
     objpoints = []
@@ -119,7 +140,7 @@ def main():
     print(f"Mean reprojection error: {mean_error}")
 
     np.savez(
-        OUTPUT_FILE,
+        output_file,
         camera_matrix=camera_matrix,
         dist_coeffs=dist_coeffs,
         image_size=np.array(image_size),
@@ -128,7 +149,14 @@ def main():
         rms_error=np.array(rms),
         mean_reprojection_error=np.array(mean_error),
     )
-    print(f"Saved {OUTPUT_FILE.resolve()}")
+    print(f"Saved {output_file.resolve()}")
+
+    if args.copy_to_config:
+        shutil.copy2(output_file, target["config_npz"])
+        print(f"Copied to {target['config_npz'].resolve()}")
+    else:
+        print(f"For the full pipeline, copy to: {target['config_npz'].resolve()}")
+        print(f"  cp {output_file} {target['config_npz']}")
 
 
 if __name__ == "__main__":

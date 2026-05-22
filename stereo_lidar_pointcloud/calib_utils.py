@@ -76,6 +76,28 @@ def load_stereo_rgb1_to_rgb2():
     )
 
 
+def stereo_rectify_R1_rgb1(rgb1_calib, rgb2_calib, image_size):
+    """
+    Rotation from undistorted RGB1 coordinates into rectified RGB1 coordinates.
+
+    Stereo point clouds from cv2.reprojectImageTo3D(Q) live in the rectified frame.
+    LiDAR extrinsics are calibrated on undistorted (non-rectified) RGB1 images.
+    """
+    _, R_rgb1_to_rgb2, t_rgb1_to_rgb2 = load_stereo_rgb1_to_rgb2()
+    R1, _, _, _, _, _, _ = cv2.stereoRectify(
+        rgb1_calib["K"],
+        rgb1_calib["dist"],
+        rgb2_calib["K"],
+        rgb2_calib["dist"],
+        image_size,
+        R_rgb1_to_rgb2,
+        t_rgb1_to_rgb2,
+        flags=cv2.CALIB_ZERO_DISPARITY,
+        alpha=0,
+    )
+    return R1.astype(np.float64)
+
+
 def open_camera(index, image_size):
     """Open a Windows webcam and request the calibrated resolution."""
     cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)

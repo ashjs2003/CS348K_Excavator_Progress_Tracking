@@ -22,17 +22,18 @@ import cv2
 import numpy as np
 from rplidar import RPLidar, RPLidarException
 
+from hardware_settings import (
+    BAUDRATE,
+    LIDAR_PORT,
+    LIDAR_TO_RGB1_FILE,
+    RGB1_CALIBRATION_FILE,
+    RGB1_CAMERA_INDEX,
+    RGB2_CALIBRATION_FILE,
+    RGB2_CAMERA_INDEX,
+    STEREO_EXTRINSICS_FILE,
+)
 
-RGB1_CALIBRATION_FILE = Path("../config/camera_calibration_rgb1.npz")
-RGB2_CALIBRATION_FILE = Path("../config/camera_calibration_rgb2_approx.npz")
-LIDAR_TO_RGB1_FILE = Path("../config/lidar_to_camera_extrinsics.npz")
-STEREO_EXTRINSICS_FILE = Path("stereo_rgb1_rgb2_extrinsics.npz")
 OUT_IMAGE = Path("live_lidar_to_both_cameras.png")
-
-RGB1_CAMERA_INDEX = 0
-RGB2_CAMERA_INDEX = 2
-LIDAR_PORT = "COM5"
-BAUDRATE = 460800
 
 WINDOW = "Live LiDAR Overlay: RGB1 + RGB2"
 MIN_DISTANCE_M = 0.02

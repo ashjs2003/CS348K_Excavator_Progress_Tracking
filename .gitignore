@@ -21,3 +21,7 @@ Thumbs.db
 
 # Local runtime logs
 *.log
+
+# ML depth repos (clone + large weights)
+third_party/FoundationStereo/
+third_party/Depth-Anything-V2/

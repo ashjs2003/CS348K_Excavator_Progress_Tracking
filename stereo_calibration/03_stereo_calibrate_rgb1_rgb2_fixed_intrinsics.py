@@ -10,16 +10,21 @@ Run:
     python 03_stereo_calibrate_rgb1_rgb2_fixed_intrinsics.py
 """
 
+import sys
 from pathlib import Path
 
 import cv2
 import numpy as np
 
+from hardware_settings import (
+    RGB1_CALIBRATION_FILE,
+    RGB2_CALIBRATION_FILE,
+    STEREO_EXTRINSICS_FILE,
+    STEREO_PAIRS_DIR,
+)
 
-RGB1_CALIBRATION_FILE = Path("../config/camera_calibration_rgb1.npz")
-RGB2_CALIBRATION_FILE = Path("../config/camera_calibration_rgb2_approx.npz")
-PAIR_DIR = Path("stereo_pairs")
-OUT_FILE = Path("stereo_rgb1_rgb2_extrinsics.npz")
+PAIR_DIR = STEREO_PAIRS_DIR
+OUT_FILE = STEREO_EXTRINSICS_FILE
 
 
 def load_calibration(path):
@@ -48,7 +53,12 @@ def detect_refined_corners(image, checkerboard):
     flags = cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_NORMALIZE_IMAGE
     found, corners = cv2.findChessboardCorners(gray, checkerboard, flags)
 
-    if not found and hasattr(cv2, "findChessboardCornersSB"):
+    # findChessboardCornersSB can segfault on macOS; classic detector only there.
+    if (
+        not found
+        and sys.platform != "darwin"
+        and hasattr(cv2, "findChessboardCornersSB")
+    ):
         sb_flags = cv2.CALIB_CB_EXHAUSTIVE + cv2.CALIB_CB_ACCURACY
         found, corners = cv2.findChessboardCornersSB(gray, checkerboard, sb_flags)
 
@@ -59,6 +69,14 @@ def detect_refined_corners(image, checkerboard):
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 40, 0.001)
     corners = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
     return True, corners
+
+
+def normalize_imgpoints(corners):
+    """OpenCV stereoCalibrate expects contiguous float32 (N, 1, 2) arrays."""
+    points = np.asarray(corners, dtype=np.float32)
+    if points.ndim == 2:
+        points = points.reshape(-1, 1, 2)
+    return np.ascontiguousarray(points)
 
 
 def stereo_pair_paths():
@@ -105,8 +123,8 @@ def main():
             continue
 
         objpoints.append(objp.copy())
-        imgpoints1.append(corners1)
-        imgpoints2.append(corners2)
+        imgpoints1.append(normalize_imgpoints(corners1))
+        imgpoints2.append(normalize_imgpoints(corners2))
         used_pair_ids.append(pair_id)
         print(f"Using pair {pair_id}")
 
@@ -114,11 +132,13 @@ def main():
         print("Error: need at least 3 usable stereo pairs. More is better.")
         return
 
-    K1 = rgb1_calib["camera_matrix"].copy()
-    d1 = rgb1_calib["dist_coeffs"].copy()
-    K2 = rgb2_calib["camera_matrix"].copy()
-    d2 = rgb2_calib["dist_coeffs"].copy()
+    K1 = rgb1_calib["camera_matrix"].astype(np.float64).copy()
+    d1 = rgb1_calib["dist_coeffs"].astype(np.float64).copy()
+    K2 = rgb2_calib["camera_matrix"].astype(np.float64).copy()
+    d2 = rgb2_calib["dist_coeffs"].astype(np.float64).copy()
+    image_size = tuple(int(v) for v in rgb1_calib["image_size"])
 
+    print(f"Running stereoCalibrate on {len(objpoints)} pairs...")
     rms, K1, d1, K2, d2, R, t, E, F = cv2.stereoCalibrate(
         objpoints,
         imgpoints1,
@@ -127,7 +147,7 @@ def main():
         d1,
         K2,
         d2,
-        rgb1_calib["image_size"],
+        image_size,
         flags=cv2.CALIB_FIX_INTRINSIC,
         criteria=(cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 1e-6),
     )

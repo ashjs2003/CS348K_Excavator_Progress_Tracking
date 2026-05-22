@@ -5,13 +5,9 @@ Run:
     python 01_copy_rgb1_intrinsics_to_rgb2.py
 """
 
-from pathlib import Path
-
 import numpy as np
 
-
-RGB1_CALIBRATION_FILE = Path("../config/camera_calibration_rgb1.npz")
-RGB2_APPROX_CALIBRATION_FILE = Path("camera_calibration_rgb2_approx.npz")
+from hardware_settings import RGB1_CALIBRATION_FILE, RGB2_APPROX_CALIBRATION_FILE
 
 
 def main():

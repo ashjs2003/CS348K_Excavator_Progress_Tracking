@@ -11,6 +11,7 @@ Controls:
 """
 
 from pathlib import Path
+import sys
 import time
 
 import cv2
@@ -26,9 +27,12 @@ from calibration_settings import (
     MIN_CAPTURE_DISTANCE_M,
 )
 
-CAMERA_INDEX = 0
-LIDAR_PORT = "COM5"
-BAUDRATE = 460800
+_STEREO_CALIB_DIR = Path(__file__).resolve().parents[1] / "stereo_calibration"
+if str(_STEREO_CALIB_DIR) not in sys.path:
+    sys.path.insert(0, str(_STEREO_CALIB_DIR))
+from hardware_settings import BAUDRATE, LIDAR_PORT, RGB1_CAMERA_INDEX
+
+CAMERA_INDEX = RGB1_CAMERA_INDEX
 CHECKERBOARD = CHECKERBOARD_INNER_CORNERS
 MIN_DISTANCE_M = MIN_CAPTURE_DISTANCE_M
 MAX_DISTANCE_M = MAX_CAPTURE_DISTANCE_M

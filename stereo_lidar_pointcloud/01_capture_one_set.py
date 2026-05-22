@@ -3,14 +3,19 @@ Capture one synchronized-ish RGB1 + RGB2 + 2D LiDAR set.
 
 Run:
     python 01_capture_one_set.py
+    python 01_capture_one_set.py --label carpet
+
+Each save creates a new folder under outputs/runs/<timestamp>_<label>/capture/.
 
 Controls:
-    s - save one set into capture/
+    s - save one set
     q - quit
 """
 
+import argparse
 from pathlib import Path
 import json
+import sys
 import time
 
 import cv2
@@ -19,14 +24,26 @@ from rplidar import RPLidar, RPLidarException
 
 from calib_utils import load_camera_calibration, open_camera
 
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+_STEREO_CALIB = _REPO_ROOT / "stereo_calibration"
+if str(_STEREO_CALIB) not in sys.path:
+    sys.path.insert(0, str(_STEREO_CALIB))
+from hardware_settings import BAUDRATE, LIDAR_PORT, RGB1_CAMERA_INDEX, RGB2_CAMERA_INDEX
+from output_runs import create_run_dir, write_run_info
 
-RGB1_CAMERA_INDEX = 0
-RGB2_CAMERA_INDEX = 2
-LIDAR_PORT = "COM5"
-BAUDRATE = 460800
-REPO_ROOT = Path(__file__).resolve().parents[1]
-OUT_DIR = REPO_ROOT / "capture"
 WINDOW = "Capture RGB1 + RGB2"
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--label",
+        default="capture",
+        help="Tag for this run folder, e.g. carpet, cardboard (default: capture)",
+    )
+    return parser.parse_args()
 
 
 def clean_lidar_startup(lidar):
@@ -61,23 +78,27 @@ def side_by_side(left, right):
     return np.hstack([left, right])
 
 
-def save_capture(frame1, frame2, lidar_rows, metadata):
-    OUT_DIR.mkdir(exist_ok=True)
-    cv2.imwrite(str(OUT_DIR / "rgb1.png"), frame1)
-    cv2.imwrite(str(OUT_DIR / "rgb2.png"), frame2)
+def save_capture(capture_dir, frame1, frame2, lidar_rows, metadata):
+    capture_dir.mkdir(parents=True, exist_ok=True)
+    cv2.imwrite(str(capture_dir / "rgb1.png"), frame1)
+    cv2.imwrite(str(capture_dir / "rgb2.png"), frame2)
     np.savetxt(
-        OUT_DIR / "lidar_scan.csv",
+        capture_dir / "lidar_scan.csv",
         lidar_rows,
         delimiter=",",
         header="angle_degrees,distance_meters,quality",
         comments="",
     )
-    with open(OUT_DIR / "metadata.json", "w") as f:
+    with open(capture_dir / "metadata.json", "w") as f:
         json.dump(metadata, f, indent=2)
-    print(f"Saved capture to {OUT_DIR.resolve()}")
+    print(f"Saved capture to {capture_dir.resolve()}")
 
 
 def main():
+    args = parse_args()
+    run_dir = None
+    capture_dir = None
+
     rgb1_calib = load_camera_calibration("camera_calibration_rgb1.npz")
     rgb2_calib = load_camera_calibration("camera_calibration_rgb2.npz", "camera_calibration_rgb2_approx.npz")
     image_size = rgb1_calib["image_size"]
@@ -90,8 +111,8 @@ def main():
     actual2 = (int(cap2.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap2.get(cv2.CAP_PROP_FRAME_HEIGHT)))
     print(f"RGB1 actual resolution: {actual1[0]}x{actual1[1]}")
     print(f"RGB2 actual resolution: {actual2[0]}x{actual2[1]}")
+    print(f"Label for next save: {args.label} (new folder under outputs/runs/)")
     print("Press s to save one set, q to quit.")
-
     last_lidar_rows = np.empty((0, 3), dtype=float)
 
     try:
@@ -121,6 +142,11 @@ def main():
                         should_quit = True
                         break
                     if key == ord("s"):
+                        if run_dir is None:
+                            run_dir = create_run_dir(args.label)
+                            capture_dir = run_dir / "capture"
+                            write_run_info(run_dir, label=args.label, step="capture")
+                            print(f"Run folder: {run_dir.resolve()}")
                         metadata = {
                             "timestamp_unix_sec": time.time(),
                             "rgb1_camera_index": RGB1_CAMERA_INDEX,
@@ -132,7 +158,12 @@ def main():
                             "lidar_columns": ["angle_degrees", "distance_meters", "quality"],
                             "lidar_points": int(len(last_lidar_rows)),
                         }
-                        save_capture(frame1, frame2, last_lidar_rows, metadata)
+                        save_capture(capture_dir, frame1, frame2, last_lidar_rows, metadata)
+                        write_run_info(
+                            run_dir,
+                            last_capture_unix_sec=metadata["timestamp_unix_sec"],
+                            lidar_points=metadata["lidar_points"],
+                        )
             except RPLidarException as exc:
                 print(f"LiDAR stream error: {exc}")
                 print("Resetting LiDAR stream...")

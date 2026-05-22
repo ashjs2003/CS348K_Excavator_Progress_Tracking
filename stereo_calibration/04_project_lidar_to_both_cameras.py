@@ -17,12 +17,15 @@ import argparse
 import cv2
 import numpy as np
 
+from hardware_settings import (
+    LIDAR_TO_RGB1_FILE,
+    RGB1_CALIBRATION_FILE,
+    RGB2_CALIBRATION_FILE,
+    STEREO_EXTRINSICS_FILE,
+    STEREO_PAIRS_DIR,
+)
 
-RGB1_CALIBRATION_FILE = Path("../config/camera_calibration_rgb1.npz")
-RGB2_CALIBRATION_FILE = Path("../config/camera_calibration_rgb2_approx.npz")
-LIDAR_TO_RGB1_FILE = Path("../config/lidar_to_camera_extrinsics.npz")
-STEREO_EXTRINSICS_FILE = Path("stereo_rgb1_rgb2_extrinsics.npz")
-STEREO_PAIR_DIR = Path("stereo_pairs")
+STEREO_PAIR_DIR = STEREO_PAIRS_DIR
 DEFAULT_LIDAR_SCAN = Path("lidar_scan.npy")
 OUT_IMAGE = Path("lidar_projected_to_both_cameras.png")
 WINDOW = "LiDAR projected to RGB1 and RGB2"

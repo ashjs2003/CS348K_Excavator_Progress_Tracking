@@ -9,16 +9,20 @@ Controls:
     q - quit
 """
 
-from pathlib import Path
+import sys
 
 import cv2
 import numpy as np
 
+from hardware_settings import (
+    RGB1_CALIBRATION_FILE,
+    RGB1_CAMERA_INDEX,
+    RGB2_CAMERA_INDEX,
+    STEREO_PAIRS_DIR,
+    open_camera,
+)
 
-RGB1_CALIBRATION_FILE = Path("../config/camera_calibration_rgb1.npz")
-OUT_DIR = Path("stereo_pairs")
-RGB1_CAMERA_INDEX = 0
-RGB2_CAMERA_INDEX = 2
+OUT_DIR = STEREO_PAIRS_DIR
 
 
 def load_rgb1_settings():
@@ -26,18 +30,6 @@ def load_rgb1_settings():
     image_size = tuple(data["image_size"].astype(int))
     checkerboard = tuple(data["checkerboard_size"].astype(int))
     return image_size, checkerboard
-
-
-def open_camera(index, image_size):
-    cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
-    if not cap.isOpened():
-        cap = cv2.VideoCapture(index)
-    if not cap.isOpened():
-        raise RuntimeError(f"Could not open camera index {index}.")
-
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, int(image_size[0]))
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, int(image_size[1]))
-    return cap
 
 
 def next_pair_index():
@@ -54,7 +46,7 @@ def next_pair_index():
 def detect_checkerboard(frame, checkerboard):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    if hasattr(cv2, "findChessboardCornersSB"):
+    if sys.platform != "darwin" and hasattr(cv2, "findChessboardCornersSB"):
         flags = cv2.CALIB_CB_EXHAUSTIVE + cv2.CALIB_CB_ACCURACY
         found, corners = cv2.findChessboardCornersSB(gray, checkerboard, flags)
         if found:
@@ -90,7 +82,9 @@ def main():
     image_size, checkerboard = load_rgb1_settings()
 
     cap1 = open_camera(RGB1_CAMERA_INDEX, image_size)
+    cap1.read()  # warm up RGB1 before opening RGB2 (helps some macOS USB setups)
     cap2 = open_camera(RGB2_CAMERA_INDEX, image_size)
+    cap2.read()
     pair_index = next_pair_index()
 
     actual1 = (

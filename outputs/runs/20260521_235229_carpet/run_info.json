@@ -1,0 +1,49 @@
+{
+  "label": "carpet",
+  "step": "capture",
+  "run_dir": "/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/20260521_235229_carpet",
+  "last_capture_unix_sec": 1779432749.6194959,
+  "lidar_points": 406,
+  "disparity_method": "carpet",
+  "disparity_coverage_pct": 4.333116319444445,
+  "stereo_point_count": 39934,
+  "stereo_point_count_downsampled": 1204,
+  "lidar_validation": {
+    "valid_lidar_points": 406,
+    "stereo_point_count": 1204,
+    "mean_error": 0.7478388939931099,
+    "median_error": 0.8363419884921051,
+    "rmse": 0.871401322286438,
+    "90th_percentile": 1.402675483829035,
+    "max_error": 1.7591538505318496
+  },
+  "dav2_coverage_pct": 100.0,
+  "dav2_point_count": 921600,
+  "dav2_point_count_downsampled": 2253,
+  "dav2_scale_info": {
+    "variant": "inverse",
+    "scale": -0.03476529199646157,
+    "shift_m": 1.2514010051419064,
+    "reference_valid_pixels": 39934,
+    "fit_correlation": -0.04740462063045493,
+    "K": [
+      [
+        1356.0016364890487,
+        0.0,
+        311.7842788696289
+      ],
+      [
+        0.0,
+        1356.0016364890487,
+        269.0066452026367
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "scale_reference": "auto",
+    "encoder": "vits"
+  }
+}

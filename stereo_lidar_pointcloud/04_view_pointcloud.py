@@ -8,24 +8,31 @@ Run:
     python 04_view_pointcloud.py --mode both
 """
 
-from pathlib import Path
 import argparse
+import sys
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 from pointcloud_utils import read_ply
 
-
-REPO_ROOT = Path(__file__).resolve().parents[1]
-OUT_DIR = REPO_ROOT / "outputs"
-STEREO_CLOUD = OUT_DIR / "stereo_pointcloud_downsampled.ply"
-LIDAR_CLOUD = OUT_DIR / "lidar_points_in_rgb1_frame.ply"
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+from output_runs import add_run_cli_arguments, handle_list_runs, resolve_run_paths
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["stereo", "lidar", "both"], default="both")
+    parser.add_argument(
+        "--stereo-backend",
+        choices=["opencv", "foundation", "dav2", "compare", "compare-all"],
+        default="opencv",
+        help="opencv | foundation | dav2 | compare (opencv+FS) | compare-all (all three)",
+    )
+    add_run_cli_arguments(parser)
     parser.add_argument("--max-points", type=int, default=80000, help="Maximum stereo points to draw")
     parser.add_argument("--point-size", type=float, default=2.0, help="Stereo point size")
     parser.add_argument("--brightness", type=float, default=2.0, help="Brightness multiplier for stereo RGB")
@@ -73,47 +80,25 @@ def print_color_stats(label, colors):
     )
 
 
-def main():
-    args = parse_args()
-    all_points = []
-    fig = plt.figure(figsize=(11, 8))
-    ax = fig.add_subplot(111, projection="3d")
+def plot_stereo_on_ax(ax, stereo_cloud, args, label):
+    stereo_points, stereo_colors = read_ply(stereo_cloud)
+    if len(stereo_points) == 0:
+        raise RuntimeError(f"No points loaded from {stereo_cloud}")
+    stereo_points, stereo_colors = sample_points(stereo_points, stereo_colors, args.max_points)
+    stereo_colors = enhance_colors(stereo_colors, args.brightness, args.gamma)
+    ax.scatter(
+        stereo_points[:, 0],
+        stereo_points[:, 1],
+        stereo_points[:, 2],
+        c=stereo_colors,
+        s=args.point_size,
+        depthshade=args.depth_shade,
+        label=label,
+    )
+    return stereo_points
 
-    if args.mode in ("stereo", "both"):
-        stereo_points, stereo_colors = read_ply(STEREO_CLOUD)
-        if len(stereo_points) == 0:
-            raise RuntimeError(f"No points loaded from {STEREO_CLOUD}")
-        stereo_points, stereo_colors = sample_points(stereo_points, stereo_colors, args.max_points)
-        print_color_stats("Stereo raw", stereo_colors)
-        stereo_colors = enhance_colors(stereo_colors, args.brightness, args.gamma)
-        print_color_stats("Stereo displayed", stereo_colors)
-        ax.scatter(
-            stereo_points[:, 0],
-            stereo_points[:, 1],
-            stereo_points[:, 2],
-            c=stereo_colors,
-            s=args.point_size,
-            depthshade=args.depth_shade,
-            label="stereo",
-        )
-        all_points.append(stereo_points)
 
-    if args.mode in ("lidar", "both"):
-        lidar_points, _ = read_ply(LIDAR_CLOUD)
-        if len(lidar_points) == 0:
-            raise RuntimeError(f"No points loaded from {LIDAR_CLOUD}")
-        ax.scatter(
-            lidar_points[:, 0],
-            lidar_points[:, 1],
-            lidar_points[:, 2],
-            c="red",
-            s=12,
-            label="lidar",
-        )
-        all_points.append(lidar_points)
-
-    # Coordinate frame is in the rectified/RGB1 camera coordinate system.
-    axis_len = 0.25
+def add_axes_gizmo(ax, axis_len=0.25):
     ax.quiver(0, 0, 0, axis_len, 0, 0, color="r", linewidth=2)
     ax.quiver(0, 0, 0, 0, axis_len, 0, color="g", linewidth=2)
     ax.quiver(0, 0, 0, 0, 0, axis_len, color="b", linewidth=2)
@@ -121,13 +106,67 @@ def main():
     ax.text(0, axis_len, 0, "Y", color="g")
     ax.text(0, 0, axis_len, "Z", color="b")
 
-    if all_points:
-        set_equal_axes(ax, np.vstack(all_points))
-    ax.set_xlabel("X m")
-    ax.set_ylabel("Y m")
-    ax.set_zlabel("Z m")
-    ax.legend()
-    ax.set_title(f"Stereo/LiDAR point cloud ({args.mode})")
+
+def main():
+    args = parse_args()
+    if handle_list_runs(args):
+        return
+    paths = resolve_run_paths(args.run)
+    lidar_cloud = paths.validation / "lidar_points_in_rgb1_frame.ply"
+    if paths.run_dir:
+        print(f"Run: {paths.run_dir.name}")
+
+    if args.stereo_backend == "compare-all":
+        fig = plt.figure(figsize=(20, 6))
+        axes = [fig.add_subplot(131, projection="3d"), fig.add_subplot(132, projection="3d"), fig.add_subplot(133, projection="3d")]
+        backends = [("", "OpenCV"), ("_foundation", "FoundationStereo"), ("_dav2", "Depth Anything V2")]
+    elif args.stereo_backend == "compare":
+        fig = plt.figure(figsize=(16, 7))
+        axes = [fig.add_subplot(121, projection="3d"), fig.add_subplot(122, projection="3d")]
+        backends = [("", "OpenCV"), ("_foundation", "FoundationStereo")]
+    else:
+        suffix = {"opencv": "", "foundation": "_foundation", "dav2": "_dav2"}[args.stereo_backend]
+        fig = plt.figure(figsize=(11, 8))
+        axes = [fig.add_subplot(111, projection="3d")]
+        backends = [(suffix, args.stereo_backend)]
+
+    for ax, (suffix, name) in zip(axes, backends):
+        panel_points = []
+        if args.mode in ("stereo", "both"):
+            stereo_cloud = paths.stereo / f"stereo_pointcloud_downsampled{suffix}.ply"
+            pts = plot_stereo_on_ax(ax, stereo_cloud, args, label=f"stereo ({name})")
+            panel_points.append(pts)
+
+        if args.mode in ("lidar", "both") and len(axes) == 1:
+            if not lidar_cloud.is_file():
+                raise FileNotFoundError(
+                    f"{lidar_cloud} missing. Run: python 03_validate_with_lidar.py --run {args.run}"
+                )
+            lidar_points, _ = read_ply(lidar_cloud)
+            ax.scatter(
+                lidar_points[:, 0],
+                lidar_points[:, 1],
+                lidar_points[:, 2],
+                c="red",
+                s=12,
+                label="lidar",
+            )
+            panel_points.append(lidar_points)
+
+        add_axes_gizmo(ax)
+        if panel_points:
+            set_equal_axes(ax, np.vstack(panel_points))
+        ax.set_xlabel("X m")
+        ax.set_ylabel("Y m")
+        ax.set_zlabel("Z m")
+        ax.legend()
+        ax.set_title(f"{name} — {args.mode}")
+
+    if args.mode in ("lidar", "both") and len(axes) > 1:
+        print("Note: compare mode shows stereo only; run --stereo-backend opencv --mode both for LiDAR overlay.")
+
+    fig.suptitle(f"Run {paths.run_dir.name if paths.run_dir else 'legacy'}")
+    plt.tight_layout()
     plt.show()
 
 
