@@ -1,4 +1,4 @@
-# Checkpoint 2
+﻿# Checkpoint 2
 
 We set out to evaluate the best configuration of LiDARs and cameras to mount on an excavator so we could accurately capture the volume of material excavated, localize where excavation happened, and reconstruct the terrain over time. Full-scale field trials were not feasible within our budget and timeline, so we prototyped on a **1:18-scale toy excavator** using **two low-cost RGB cameras** and **one inexpensive 360° 2D LiDAR** purchased online. Scale quickly became the central problem: at toy dimensions, these sensors only delivered on the order of **±50 mm** accuracy and effectively required a **much larger excavation** than our sandbox could provide before depth and volume estimates became meaningful. While conversations with construction professionals revelaed that current earthwork progress tracking often needs accuracy on the order of **0.1 sq ft (92.9 sq cm)**, in order to use this platform for autonomous or teleoperation purposes this peception system needs to operate with milimeter level accuracy. 
 
@@ -33,23 +33,44 @@ We set out to evaluate the best configuration of LiDARs and cameras to mount on 
 
 ## Hardware Calibration
 
-### 1. RGB intrinsics (`rgb_calibration/`)
+### 1. RGB intrinsics (`01_rgb_calibration/`)
 
-- Captured 20–30 checkerboard images per camera with varied pose (center, corners, tilt, near/far).
-- Ran **pinhole** calibration (`02_calibrate_camera_normal.py`) and live undistortion checks.
-- Ran **fisheye** calibration (`02b_calibrate_camera_fisheye.py`) when wide-angle warp was excessive.
-- Stored intrinsics under `config/` (e.g. `camera_calibration_rgb1.npz`, approximate RGB2 intrinsics).
+**System design intent:** each RGB stream must first become a stable metric pinhole camera. Without this, every later stereo, LiDAR overlay, and point-cloud step inherits lens distortion as geometric error.
 
-**Intent:** Stable undistortion and projection before any LiDAR or stereo fusion.
+| Camera | Images / detections | Coverage | Reprojection mean / p90 | Notes |
+|--------|---------------------|----------|--------------------------|-------|
+| L / RGB1 | 23 / 23 | 76% | 1.147 / 1.589 px | Usable, but a few higher-error poses remain. |
+| R / RGB2 | 26 / 26 | 100% | 0.884 / 1.187 px | Stronger frame coverage and lower reprojection error. |
 
-### 2. Stereo extrinsics RGB1 ↔ RGB2 (`stereo_calibration/`)
+Key calibration evidence:
 
-- Copied RGB1 intrinsics to seed RGB2 (`01_copy_rgb1_intrinsics_to_rgb2.py`).
-- Captured **synchronized checkerboard pairs** (`02_capture_stereo_checkerboard_pairs.py`).
-- Estimated **stereo extrinsics with fixed RGB1 intrinsics** (`03_stereo_calibrate_rgb1_rgb2_fixed_intrinsics.py`).
-- Visualized LiDAR in both camera frames (`04_project_lidar_to_both_cameras.py`, `05_live_lidar_to_both_cameras.py`).
+![L distorted vs undistorted](01_rgb_calibration/outputs/L/distorted_vs_undistorted.png)
+![R distorted vs undistorted](01_rgb_calibration/outputs/R/distorted_vs_undistorted.png)
+![L reprojection error](01_rgb_calibration/outputs/L/reprojection_error_plot.png)
+![R reprojection error](01_rgb_calibration/outputs/R/reprojection_error_plot.png)
 
-**Intent:** Rectified stereo geometry and baseline for metric `Q`-matrix depth.
+The design decision after Stage 01 is to keep normal pinhole intrinsics as the downstream default because they integrate directly with OpenCV stereo and LiDAR projection, while retaining fisheye calibration as a diagnostic alternative.
+
+### 2. Stereo extrinsics RGB1 to RGB2 (`02_stereo_calibration/`)
+
+**System design intent:** stereo calibration should turn two individually calibrated cameras into a rectified metric baseline. This is the gate before trusting disparity or a `Q`-matrix point cloud.
+
+| Metric | Result |
+|--------|-------:|
+| Evaluated stereo pairs | 21 |
+| Baseline | 0.0540 m |
+| Stereo RMS calibration error | 21.703 px |
+| Epipolar error before rectification, mean / p90 | 7.278 / 15.663 px |
+| Rectification vertical error, mean / p90 | 5.660 / 10.832 px |
+
+Key stereo evidence:
+
+![Stereo rectified alignment example](02_stereo_calibration/outputs/stereo_rectified_alignment_example.png)
+![Stereo epipolar error plot](02_stereo_calibration/outputs/stereo_calibration_epipolar_error_plot.png)
+![Stereo rectification vertical error plot](02_stereo_calibration/outputs/stereo_calibration_rectification_vertical_error_plot.png)
+![Stereo error histograms](02_stereo_calibration/outputs/stereo_calibration_error_histograms.png)
+
+The Stage 02 result is intentionally treated as a system warning, not a final success: the short toy-scale baseline and remaining rectification error make dense metric depth fragile. This justifies using LiDAR as an independent cross-check and documenting failure modes before scaling to excavation-volume claims.
 
 ### 3. LiDAR ↔ RGB1 extrinsics (`lidar_camera_calibration/`)
 
@@ -117,7 +138,7 @@ Our LiDAR versus stereo checks show median errors near **0.65 - 0.84 m** on a wo
 
 - Modular calibration pipelines: `rgb_calibration/`, `stereo_calibration/`, `lidar_camera_calibration/`.
 - Runnable fusion and comparison stack: `stereo_lidar_pointcloud/` with versioned runs under `outputs/runs/`.
-- Hardware configuration: `stereo_calibration/hardware_settings.py`, `config/`.
+- Hardware and calibration-file configuration: `config.yaml`.
 - Run metadata and validation summaries: `run_info.json`, `validation/lidar_stereo_error_metrics.json`.
 
 ---
@@ -161,4 +182,5 @@ python compare_stereo_methods.py --run 20260521_235229_carpet
 Optional compare all methods view: `python 04_view_pointcloud.py --run 20260521_235229_carpet --stereo-backend compare-all --mode stereo`
 
 FoundationStereo is not supported on macOS (CUDA required). Use the same `--run` id on both machines so OpenCV, DA-V2, and Foundation results stay comparable.
+
 
