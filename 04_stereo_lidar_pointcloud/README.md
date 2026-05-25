@@ -58,8 +58,8 @@ Your **main project Python** (OpenCV, capture, LiDAR) stays separate from option
 
 Calibration files are selected by the repo-level `../config.yaml`:
 
-- `rgb1_intrinsics`
-- `rgb2_intrinsics`
+- `left_intrinsics` (RGB1 / left camera)
+- `right_intrinsics` (RGB2 / right camera)
 - `stereo_rgb1_rgb2_extrinsics`
 - `lidar_to_rgb1_extrinsics` (for LiDAR validation / overlays)
 
@@ -133,19 +133,24 @@ python 02_make_depth_anything_pointcloud.py --run latest --reuse-rectified
 python 02_make_stereo_pointcloud_foundation.py --run latest --reuse-rectified
 ```
 
-### 3. Validate vs LiDAR
+### 3. Structured evaluation (recommended)
 
-Default compares OpenCV cloud to LiDAR:
+Ray depth, free-space violations, photometric (M1/M3), cross-method, consensus PNG:
+
+```bash
+python 06_evaluate_run.py --run latest
+python 07_generate_eval_report.py --run latest
+python 08_generate_eval_charts.py --run latest
+python compare_stereo_methods.py --run latest
+```
+
+Writes `evaluation_summary.json`, `EVAL_REPORT.md`, charts (`chart_*.png`), `consensus_depth_std.png`, etc.
+
+Single method only (subset of 06):
 
 ```bash
 python 03_validate_with_lidar.py --run latest
-```
-
-Per method:
-
-```bash
 python 03_validate_with_lidar.py --run latest --stereo-suffix _dav2 --metrics-suffix _dav2
-python 03_validate_with_lidar.py --run latest --stereo-suffix _foundation --metrics-suffix _foundation
 ```
 
 ### 4. View
@@ -178,10 +183,11 @@ python 05_project_lidar_overlay.py --run latest
 ### Quick stats table
 
 ```bash
+python 06_evaluate_run.py --run latest
 python compare_stereo_methods.py --run latest
 ```
 
-Prints disparity/depth coverage, ranges, and LiDAR validation medians (if you ran step 3 for each method).
+Prints coverage, **ray median**, **free-space violation %**, photometric error, and cross-method stats from `evaluation_summary.json`.
 
 ### Output files (same run, `stereo/` folder)
 

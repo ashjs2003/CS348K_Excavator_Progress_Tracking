@@ -1,34 +1,41 @@
 """
-Validate the stereo point cloud against the 2D LiDAR scan.
+Validate depth / point cloud against 2D LiDAR (ray depth + optional NN cloud).
 
-Run:
-    python 03_validate_with_lidar.py
-    python 03_validate_with_lidar.py --run 20260521_143022_carpet
+Prefer running the full scorecard:
+    python 06_evaluate_run.py --run latest
+
+This script evaluates one method (same metrics as 06, subset):
+    python 03_validate_with_lidar.py --run latest
+    python 03_validate_with_lidar.py --run latest --stereo-suffix _dav2 --metrics-suffix _dav2
 """
 
 import argparse
-import csv
 import json
 import sys
 from pathlib import Path
 
-import cv2
 import numpy as np
 
-from calib_utils import (
-    load_camera_calibration,
-    load_lidar_to_rgb1,
-    lidar_polar_to_xyz,
-    read_lidar_csv,
-    stereo_rectify_R1_rgb1,
-    transform_points,
-)
-from pointcloud_utils import nearest_neighbor_distances, read_ply, write_ply
-
-_REPO_ROOT = Path(__file__).resolve().parents[1]
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_REPO_ROOT = _SCRIPT_DIR.parent
+if str(_SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPT_DIR))
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
+
 from output_runs import add_run_cli_arguments, handle_list_runs, resolve_run_paths, write_run_info
+from evaluation.depth_maps import METHODS, load_metric_depth, load_or_compute_stereo_geometry
+from evaluation.lidar_ray_metrics import (
+    compute_lidar_ray_metrics,
+    compute_nn_cloud_metrics,
+    lidar_points_in_rectified_frame,
+    write_ray_per_point_csv,
+)
+from calib_utils import project_rectified_points
+from pointcloud_utils import write_ply
+
+# Map CLI suffix to method key
+SUFFIX_TO_METHOD = {v["suffix"]: k for k, v in METHODS.items()}
 
 
 def parse_args():
@@ -37,13 +44,15 @@ def parse_args():
     parser.add_argument(
         "--stereo-suffix",
         default="",
-        help="Filename suffix for stereo PLY, e.g. _foundation → stereo_pointcloud_downsampled_foundation.ply",
+        help="PLY suffix, e.g. _foundation → stereo_pointcloud_downsampled_foundation.ply",
     )
     parser.add_argument(
         "--metrics-suffix",
         default="",
-        help="Suffix for metrics JSON, e.g. _foundation → lidar_stereo_error_metrics_foundation.json",
+        help="JSON suffix, e.g. _foundation → lidar_ray_depth_metrics_foundation.json",
     )
+    parser.add_argument("--ray-inlier-tau", type=float, default=0.05)
+    parser.add_argument("--free-space-tau", type=float, default=0.03)
     return parser.parse_args()
 
 
@@ -52,98 +61,70 @@ def main():
     if handle_list_runs(args):
         return
     paths = resolve_run_paths(args.run)
-    lidar_csv = paths.lidar_csv
-    stereo_cloud = paths.stereo / f"stereo_pointcloud_downsampled{args.stereo_suffix}.ply"
     validation_dir = paths.validation
     validation_dir.mkdir(parents=True, exist_ok=True)
-    lidar_cloud_out = validation_dir / "lidar_points_in_rgb1_frame.ply"
-    metrics_out = validation_dir / f"lidar_stereo_error_metrics{args.metrics_suffix}.json"
-    per_point_out = validation_dir / f"lidar_stereo_error_per_point{args.metrics_suffix}.csv"
+
+    suffix = args.metrics_suffix if args.metrics_suffix is not None else args.stereo_suffix
+    method = SUFFIX_TO_METHOD.get(suffix, "opencv")
 
     if paths.run_dir:
-        print(f"Run: {paths.run_dir.name}")
+        print(f"Run: {paths.run_dir.name}  method: {method}")
     print(f"Writing validation outputs to {validation_dir}")
 
-    lidar_path, R_lidar_to_rgb1, t_lidar_to_rgb1 = load_lidar_to_rgb1()
+    geometry = load_or_compute_stereo_geometry(paths.stereo, paths.rgb1_image, paths.rgb2_image)
+    points_rect, lidar_path = lidar_points_in_rectified_frame(
+        paths.lidar_csv, geometry["image_size"], geometry
+    )
     print(f"Loaded LiDAR-to-RGB1 extrinsics: {lidar_path}")
 
-    rgb1_calib = load_camera_calibration("camera_calibration_rgb1.npz")
-    rgb2_calib = load_camera_calibration("camera_calibration_rgb2.npz", "camera_calibration_rgb2_approx.npz")
-    image1 = cv2.imread(str(paths.rgb1_image))
-    if image1 is None:
-        raise RuntimeError(f"Could not load {paths.rgb1_image}")
-    image_size = (image1.shape[1], image1.shape[0])
-    R1 = stereo_rectify_R1_rgb1(rgb1_calib, rgb2_calib, image_size)
-
-    lidar_scan = read_lidar_csv(lidar_csv)
-    points_lidar = lidar_polar_to_xyz(lidar_scan)
-    points_rgb1 = transform_points(points_lidar, R_lidar_to_rgb1, t_lidar_to_rgb1)
-    # Stereo cloud from step 02 is in rectified RGB1 frame; rotate LiDAR to match.
-    points_rgb1_rect = transform_points(points_rgb1, R1, np.zeros(3))
-    colors = np.tile(np.array([[1.0, 0.05, 0.05]]), (len(points_rgb1_rect), 1))
-    write_ply(lidar_cloud_out, points_rgb1_rect, colors)
-
-    stereo_points, _ = read_ply(stereo_cloud)
-    if len(stereo_points) == 0:
+    depth_m = load_metric_depth(paths.stereo, method, geometry)
+    if depth_m is None:
         raise RuntimeError(
-            f"No points in {stereo_cloud}. Re-run 02_make_stereo_pointcloud.py and check "
-            f"{paths.stereo / 'disparity_preview.png'} and {paths.stereo / 'rectification_check.png'}."
+            f"No depth map for method {method!r}. Run the matching 02_make_* script first."
         )
 
-    distances, nearest_indices = nearest_neighbor_distances(points_rgb1_rect, stereo_points)
-    rows = []
-    for index, (point, nearest_index, error) in enumerate(zip(points_rgb1_rect, nearest_indices, distances)):
-        nearest = stereo_points[nearest_index]
-        rows.append([
-            index,
-            point[0],
-            point[1],
-            point[2],
-            nearest[0],
-            nearest[1],
-            nearest[2],
-            error,
-        ])
+    write_ply(validation_dir / "lidar_points_in_rgb1_frame.ply", points_rect,
+              np.tile(np.array([[1.0, 0.05, 0.05]]), (len(points_rect), 1)))
 
-    errors = np.asarray(distances, dtype=float)
-    if len(errors) == 0:
-        raise RuntimeError("No LiDAR points could be compared to the stereo cloud.")
+    ray = compute_lidar_ray_metrics(
+        depth_m,
+        points_rect,
+        geometry["P1"],
+        ray_inlier_tau=args.ray_inlier_tau,
+        free_space_tau=args.free_space_tau,
+    )
 
-    metrics = {
-        "valid_lidar_points": int(len(points_rgb1_rect)),
-        "stereo_point_count": int(len(stereo_points)),
-        "mean_error": float(np.mean(errors)),
-        "median_error": float(np.median(errors)),
-        "rmse": float(np.sqrt(np.mean(errors**2))),
-        "90th_percentile": float(np.percentile(errors, 90)),
-        "max_error": float(np.max(errors)),
-    }
+    uv, z_lidar, proj_valid = project_rectified_points(geometry["P1"], points_rect)
+    z_est = np.full(len(points_rect), np.nan)
+    h, w = depth_m.shape
+    for i in np.flatnonzero(proj_valid):
+        col, row = int(round(uv[i, 0])), int(round(uv[i, 1]))
+        if 0 <= col < w and 0 <= row < h:
+            z = depth_m[row, col]
+            if np.isfinite(z) and z > 0:
+                z_est[i] = z
+    write_ray_per_point_csv(
+        validation_dir / f"lidar_ray_per_point{suffix}.csv",
+        points_rect, uv, z_lidar, z_est, proj_valid, np.isfinite(z_est),
+    )
 
-    with open(metrics_out, "w") as f:
-        json.dump(metrics, f, indent=2)
+    ray_path = validation_dir / f"lidar_ray_depth_metrics{suffix}.json"
+    ray_path.write_text(json.dumps(ray, indent=2) + "\n")
 
-    with open(per_point_out, "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow([
-            "index",
-            "lidar_rgb1_x_m",
-            "lidar_rgb1_y_m",
-            "lidar_rgb1_z_m",
-            "nearest_stereo_x_m",
-            "nearest_stereo_y_m",
-            "nearest_stereo_z_m",
-            "nearest_error_m",
-        ])
-        writer.writerows(rows)
+    stereo_cloud = paths.stereo / f"stereo_pointcloud_downsampled{args.stereo_suffix}.ply"
+    nn = compute_nn_cloud_metrics(points_rect, stereo_cloud)
+    if nn is not None:
+        nn["valid_lidar_points"] = int(len(points_rect))
+        legacy_path = validation_dir / f"lidar_stereo_error_metrics{suffix}.json"
+        legacy_path.write_text(json.dumps(nn, indent=2) + "\n")
+        if paths.run_dir:
+            key = "lidar_validation" if not suffix else f"lidar_validation{suffix}"
+            write_run_info(paths.run_dir, **{key: nn})
 
-    if paths.run_dir:
-        info_key = "lidar_validation" if not args.metrics_suffix else f"lidar_validation{args.metrics_suffix}"
-        write_run_info(paths.run_dir, **{info_key: metrics})
-
-    print(f"Saved {lidar_cloud_out}")
-    print(f"Saved {metrics_out}")
-    print(f"Saved {per_point_out}")
-    print(json.dumps(metrics, indent=2))
+    print(f"Saved {ray_path}")
+    if nn is not None:
+        print(f"Saved {legacy_path} (NN cloud)")
+    print(json.dumps(ray, indent=2))
 
 
 if __name__ == "__main__":

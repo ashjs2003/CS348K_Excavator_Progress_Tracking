@@ -42,9 +42,9 @@ def find_file(*names):
 def load_camera_calibration(*names):
     """Load OpenCV camera intrinsics from an npz file."""
     if "camera_calibration_rgb1.npz" in names:
-        path = calibration_file("rgb1_intrinsics")
+        path = calibration_file("left_intrinsics")
     elif "camera_calibration_rgb2.npz" in names or "camera_calibration_rgb2_approx.npz" in names:
-        path = calibration_file("rgb2_intrinsics")
+        path = calibration_file("right_intrinsics")
     else:
         path = find_file(*names)
     data = np.load(path)
@@ -174,6 +174,28 @@ def transform_points(points, R, t):
     if len(points) == 0:
         return points.copy()
     return (R @ points.T).T + t.reshape(1, 3)
+
+
+def project_rectified_points(P1, points_rect):
+    """
+    Project 3D points in the rectified left camera frame to pixel coordinates.
+
+    Uses P1 from cv2.stereoRectify (zero distortion in rectified coordinates).
+    Returns (uv, z, valid) with uv shape (N, 2).
+    """
+    points = np.asarray(points_rect, dtype=np.float64)
+    if len(points) == 0:
+        return np.empty((0, 2)), np.empty(0), np.empty(0, dtype=bool)
+
+    z = points[:, 2]
+    valid = z > 0.05
+    fx, fy = P1[0, 0], P1[1, 1]
+    cx, cy = P1[0, 2], P1[1, 2]
+    u = np.full(len(points), np.nan)
+    v = np.full(len(points), np.nan)
+    u[valid] = fx * points[valid, 0] / z[valid] + cx
+    v[valid] = fy * points[valid, 1] / z[valid] + cy
+    return np.column_stack([u, v]), z, valid
 
 
 def project_camera_points(points_camera, K, dist, image_shape):
