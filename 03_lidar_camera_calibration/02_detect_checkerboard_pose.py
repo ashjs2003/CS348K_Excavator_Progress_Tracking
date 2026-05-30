@@ -20,7 +20,7 @@ from utils.project_config import calibration_file
 CHECKERBOARD = (9, 6)
 SQUARE_SIZE = 0.025  # meters
 RGB_CALIBRATION_FILE = calibration_file("left_intrinsics")
-PAIR_DIR = Path("pairs")
+PAIR_DIR = Path("data")
 POSE_DIR = Path("checkerboard_poses")
 OUT_FILE = POSE_DIR / "checkerboard_poses.npz"
 
@@ -78,7 +78,7 @@ def main():
     normals = []
     plane_points = []
 
-    for image_path in sorted(PAIR_DIR.glob("pair_*_image.png")):
+    for image_path in sorted(PAIR_DIR.glob("pair_*_rgb_L.png")):
         pair_id = image_path.stem.split("_")[1]
         image = cv2.imread(str(image_path))
         if image is None:

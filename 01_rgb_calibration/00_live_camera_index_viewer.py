@@ -36,7 +36,7 @@ def parse_args():
         "--indices",
         nargs="+",
         type=int,
-        default=[0, 1, 2, 3],
+        default=[0, 1, 2, 3, 4, 5],
         help="Camera indices to try opening.",
     )
     return parser.parse_args()

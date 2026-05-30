@@ -24,7 +24,7 @@ if str(_REPO_ROOT) not in sys.path:
 from utils.project_config import calibration_file
 
 RGB_CALIBRATION_FILE = calibration_file("left_intrinsics")
-PAIR_DIR = Path("pairs")
+PAIR_DIR = Path("data")
 OUT_FILE = calibration_file("lidar_to_rgb1_manual_extrinsics")
 OPT_EXTRINSICS_FILE = calibration_file("lidar_to_rgb1_extrinsics")
 WINDOW = "Manual LiDAR Camera Overlay"
@@ -172,7 +172,7 @@ def draw_overlay(image, lidar_points, params, camera_matrix, pair_label):
 
 
 def load_pair(pair_id, K, dist):
-    image_path = PAIR_DIR / f"pair_{pair_id}_image.png"
+    image_path = PAIR_DIR / f"pair_{pair_id}_rgb_L.png"
     lidar_path = PAIR_DIR / f"pair_{pair_id}_lidar.csv"
 
     image = cv2.imread(str(image_path))
@@ -187,7 +187,7 @@ def load_pair(pair_id, K, dist):
 
 def main():
     pair_id = sys.argv[1] if len(sys.argv) > 1 else None
-    image_paths = sorted(PAIR_DIR.glob("pair_*_image.png"))
+    image_paths = sorted(PAIR_DIR.glob("pair_*_rgb_L.png"))
     if not image_paths:
         print("Error: no pairs found. Run 01_capture_rgb_lidar_pairs.py first.")
         return

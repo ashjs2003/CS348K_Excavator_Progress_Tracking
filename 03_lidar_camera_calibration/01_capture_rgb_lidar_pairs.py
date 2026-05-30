@@ -5,8 +5,8 @@ Run:
     python 01_capture_rgb_lidar_pairs.py
 
 Controls:
-    s - save current RGB frame and latest LiDAR scan
-    p - capture a fresh RGB frame and full LiDAR scan, then select board LiDAR points
+    s - save current left/right RGB frames and latest LiDAR scan
+    p - capture fresh left/right RGB frames and full LiDAR scan, then select board LiDAR points
     q - quit
 """
 
@@ -19,7 +19,6 @@ import numpy as np
 from rplidar import RPLidar, RPLidarException
 
 from calibration_settings import (
-    CHECKERBOARD_INNER_CORNERS,
     EXPECTED_SEGMENT_LENGTH_M,
     GOOD_LENGTH_TOLERANCE_M,
     GOOD_LINE_RMS_M,
@@ -33,27 +32,29 @@ if str(_REPO_ROOT) not in sys.path:
 
 from utils.project_config import calibration_file, camera_index, lidar_baudrate, lidar_port
 
-CAMERA_INDEX = camera_index("L")
+LEFT_CAMERA_INDEX = camera_index("L")
+RIGHT_CAMERA_INDEX = camera_index("R")
 BAUDRATE = lidar_baudrate()
 LIDAR_PORT = lidar_port()
-CHECKERBOARD = CHECKERBOARD_INNER_CORNERS
 MIN_DISTANCE_M = MIN_CAPTURE_DISTANCE_M
 MAX_DISTANCE_M = MAX_CAPTURE_DISTANCE_M
-RGB_CALIBRATION_FILE = calibration_file("left_intrinsics")
-OUT_DIR = Path("pairs")
+LEFT_RGB_CALIBRATION_FILE = calibration_file("left_intrinsics")
+RIGHT_RGB_CALIBRATION_FILE = calibration_file("right_intrinsics")
+OUT_DIR = Path("data")
 SELECTED_DIR = Path("selected_lidar_points")
 LIDAR_VIEW_SIZE = 800
+RGB_PREVIEW_MAX_WIDTH = 1200
 MIN_SAVE_POINTS = 10
 FRESH_CAPTURE_SCANS = 3
 
 
-def load_calibrated_image_size():
-    data = np.load(RGB_CALIBRATION_FILE)
+def load_calibrated_image_size(calibration_path):
+    data = np.load(calibration_path)
     return tuple(data["image_size"].astype(int))
 
 
 def next_pair_index():
-    existing = sorted(OUT_DIR.glob("pair_*_image.png"))
+    existing = sorted(OUT_DIR.glob("pair_*_rgb_L.png"))
     indices = []
     for path in existing:
         try:
@@ -63,12 +64,12 @@ def next_pair_index():
     return max(indices, default=-1) + 1
 
 
-def open_camera(image_size):
-    cap = cv2.VideoCapture(CAMERA_INDEX, cv2.CAP_DSHOW)
+def open_camera(camera_label, camera_index_value, image_size):
+    cap = cv2.VideoCapture(camera_index_value, cv2.CAP_DSHOW)
     if not cap.isOpened():
-        cap = cv2.VideoCapture(CAMERA_INDEX)
+        cap = cv2.VideoCapture(camera_index_value)
     if not cap.isOpened():
-        raise RuntimeError(f"Could not open RGB camera index {CAMERA_INDEX}.")
+        raise RuntimeError(f"Could not open RGB {camera_label} camera index {camera_index_value}.")
 
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, int(image_size[0]))
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, int(image_size[1]))
@@ -105,8 +106,8 @@ def scan_to_array(scan):
     return np.array(rows, dtype=float)
 
 
-def capture_fresh_pair(cap, scan_iterator):
-    """Wait for new LiDAR scans, keep the fullest one, then grab a fresh RGB frame."""
+def capture_fresh_pair(left_cap, right_cap, scan_iterator):
+    """Wait for new LiDAR scans, keep the fullest one, then grab fresh RGB frames."""
     print("Capturing a fresh full LiDAR scan...")
     best_lidar_points = None
 
@@ -116,37 +117,18 @@ def capture_fresh_pair(cap, scan_iterator):
         if best_lidar_points is None or len(lidar_points) > len(best_lidar_points):
             best_lidar_points = lidar_points
 
-    ret, frame = cap.read()
-    if not ret:
-        print("Not saved: failed to read a fresh RGB frame.")
-        return None, None, False
+    left_ok, left_frame = left_cap.read()
+    right_ok, right_frame = right_cap.read()
+    if not left_ok or not right_ok:
+        print("Not saved: failed to read one or both fresh RGB frames.")
+        return None, None, None, False
 
     if best_lidar_points is None or len(best_lidar_points) < MIN_SAVE_POINTS:
         print("Not saved: fresh LiDAR scan has too few points.")
-        return frame, best_lidar_points, False
-
-    checkerboard_found, _ = detect_checkerboard(frame)
-    if not checkerboard_found:
-        print("Not saved: checkerboard was not detected in fresh RGB image.")
-        return frame, best_lidar_points, False
+        return left_frame, right_frame, best_lidar_points, False
 
     print(f"Fresh capture ready: {len(best_lidar_points)} LiDAR points.")
-    return frame, best_lidar_points, True
-
-
-def detect_checkerboard(frame):
-    """Detect checkerboard in the live RGB frame so bad pairs are obvious."""
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-    if hasattr(cv2, "findChessboardCornersSB"):
-        flags = cv2.CALIB_CB_EXHAUSTIVE + cv2.CALIB_CB_ACCURACY
-        found, corners = cv2.findChessboardCornersSB(gray, CHECKERBOARD, flags)
-        if found:
-            return True, corners.astype(np.float32)
-
-    flags = cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_NORMALIZE_IMAGE
-    found, corners = cv2.findChessboardCorners(gray, CHECKERBOARD, flags)
-    return found, corners
+    return left_frame, right_frame, best_lidar_points, True
 
 
 def polar_to_xy(lidar_points):
@@ -227,6 +209,21 @@ def render_lidar_preview(lidar_points, selected_mask=None):
     cv2.putText(view, f"expected length={EXPECTED_SEGMENT_LENGTH_M:.3f}m, range <= {MAX_DISTANCE_M:.1f}m", (16, 58), cv2.FONT_HERSHEY_SIMPLEX, 0.62, (0, 0, 0), 2)
     cv2.putText(view, "s save pair | p fresh-save + select board points | q quit", (16, 86), cv2.FONT_HERSHEY_SIMPLEX, 0.62, (0, 0, 0), 2)
     return view
+
+
+def side_by_side(left, right):
+    if left.shape[0] != right.shape[0]:
+        scale = left.shape[0] / right.shape[0]
+        right = cv2.resize(right, (int(right.shape[1] * scale), left.shape[0]))
+    preview = np.hstack([left, right])
+    if preview.shape[1] > RGB_PREVIEW_MAX_WIDTH:
+        scale = RGB_PREVIEW_MAX_WIDTH / preview.shape[1]
+        preview = cv2.resize(
+            preview,
+            (RGB_PREVIEW_MAX_WIDTH, int(preview.shape[0] * scale)),
+            interpolation=cv2.INTER_AREA,
+        )
+    return preview
 
 
 def select_board_points(pair_index, lidar_points):
@@ -332,11 +329,14 @@ def select_board_points(pair_index, lidar_points):
             return
 
 
-def save_pair(pair_index, frame, lidar_points):
-    image_path = OUT_DIR / f"pair_{pair_index:03d}_image.png"
+def save_pair(pair_index, left_frame, right_frame, lidar_points):
+    left_image_path = OUT_DIR / f"pair_{pair_index:03d}_rgb_L.png"
+    right_image_path = OUT_DIR / f"pair_{pair_index:03d}_rgb_R.png"
     lidar_path = OUT_DIR / f"pair_{pair_index:03d}_lidar.csv"
+    text_path = OUT_DIR / f"pair_{pair_index:03d}.txt"
 
-    cv2.imwrite(str(image_path), frame)
+    cv2.imwrite(str(left_image_path), left_frame)
+    cv2.imwrite(str(right_image_path), right_frame)
     np.savetxt(
         lidar_path,
         lidar_points,
@@ -344,27 +344,36 @@ def save_pair(pair_index, frame, lidar_points):
         header="angle_degrees,distance_meters,quality",
         comments="",
     )
-    print(f"Saved pair {pair_index:03d}: {image_path}, {lidar_path}")
+    text_path.touch()
+    print(f"Saved pair {pair_index:03d}: {left_image_path}, {right_image_path}, {lidar_path}, {text_path}")
 
 
 def main():
     OUT_DIR.mkdir(exist_ok=True)
 
     try:
-        image_size = load_calibrated_image_size()
-        cap = open_camera(image_size)
+        left_image_size = load_calibrated_image_size(LEFT_RGB_CALIBRATION_FILE)
+        right_image_size = load_calibrated_image_size(RIGHT_RGB_CALIBRATION_FILE)
+        left_cap = open_camera("L", LEFT_CAMERA_INDEX, left_image_size)
+        right_cap = open_camera("R", RIGHT_CAMERA_INDEX, right_image_size)
     except Exception as exc:
         print(f"Error: {exc}")
         return
 
-    actual_size = (
-        int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
-        int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+    actual_left_size = (
+        int(left_cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+        int(left_cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
     )
-    print(f"RGB camera resolution: {actual_size[0]}x{actual_size[1]}")
+    actual_right_size = (
+        int(right_cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+        int(right_cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+    )
+    print(f"RGB L camera resolution: {actual_left_size[0]}x{actual_left_size[1]}")
+    print(f"RGB R camera resolution: {actual_right_size[0]}x{actual_right_size[1]}")
     print(f"LiDAR: {LIDAR_PORT} at {BAUDRATE}")
+    print(f"Saving captures to: {OUT_DIR.resolve()}")
     print("Good pair checklist:")
-    print("- RGB preview says checkerboard FOUND and corners are drawn correctly.")
+    print("- Left and right RGB previews show the scene clearly.")
     print(f"- LiDAR preview shows a clean straight segment near {EXPECTED_SEGMENT_LENGTH_M:.3f} m.")
     print(f"- Board is within {MAX_DISTANCE_M:.1f} m so farther background points are filtered out.")
     print("- Board is at varied distance/angle from previous captures.")
@@ -383,32 +392,50 @@ def main():
                 scan_iterator = lidar.iter_scans(max_buf_meas=5000)
                 for scan in scan_iterator:
                     last_lidar_points = scan_to_array(scan)
-                    ret, frame = cap.read()
-                    if not ret:
-                        print("Warning: failed to read RGB frame.")
+                    left_ok, left_frame = left_cap.read()
+                    right_ok, right_frame = right_cap.read()
+                    if not left_ok or not right_ok:
+                        print("Warning: failed to read one or both RGB frames.")
                         continue
 
-                    checkerboard_found, corners = detect_checkerboard(frame)
-                    preview = frame.copy()
-                    if checkerboard_found:
-                        cv2.drawChessboardCorners(preview, CHECKERBOARD, corners, checkerboard_found)
-
-                    status = "FOUND" if checkerboard_found else "not found"
-                    status_color = (0, 255, 0) if checkerboard_found else (0, 0, 255)
+                    left_preview = left_frame.copy()
+                    right_preview = right_frame.copy()
                     cv2.putText(
-                        preview,
-                        f"checkerboard: {status} | next pair_{pair_index:03d} | lidar points: {len(last_lidar_points)}",
+                        left_preview,
+                        "RGB L",
                         (20, 35),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         0.75,
-                        status_color,
+                        (255, 255, 255),
+                        2,
+                        cv2.LINE_AA,
+                    )
+                    cv2.putText(
+                        right_preview,
+                        "RGB R",
+                        (20, 35),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.75,
+                        (255, 255, 255),
+                        2,
+                        cv2.LINE_AA,
+                    )
+                    preview = side_by_side(left_preview, right_preview)
+
+                    cv2.putText(
+                        preview,
+                        f"next pair_{pair_index:03d} | lidar points: {len(last_lidar_points)}",
+                        (20, preview.shape[0] - 60),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.75,
+                        (0, 255, 0),
                         2,
                         cv2.LINE_AA,
                     )
                     cv2.putText(
                         preview,
                         "s save | p fresh-save + select LiDAR board points | q quit",
-                        (20, 68),
+                        (20, preview.shape[0] - 28),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         0.75,
                         (255, 255, 255),
@@ -423,16 +450,17 @@ def main():
                         if last_lidar_points is None or len(last_lidar_points) < MIN_SAVE_POINTS:
                             print("Not saved: LiDAR scan has too few points.")
                             continue
-                        if not checkerboard_found:
-                            print("Not saved: checkerboard was not detected in RGB image.")
-                            continue
-                        save_pair(pair_index, frame, last_lidar_points)
+                        save_pair(pair_index, left_frame, right_frame, last_lidar_points)
                         pair_index += 1
                     elif key == ord("p"):
-                        capture_frame, capture_lidar_points, ok = capture_fresh_pair(cap, scan_iterator)
+                        capture_left_frame, capture_right_frame, capture_lidar_points, ok = capture_fresh_pair(
+                            left_cap,
+                            right_cap,
+                            scan_iterator,
+                        )
                         if not ok:
                             continue
-                        save_pair(pair_index, capture_frame, capture_lidar_points)
+                        save_pair(pair_index, capture_left_frame, capture_right_frame, capture_lidar_points)
                         select_board_points(pair_index, capture_lidar_points)
                         pair_index += 1
                     elif key == ord("q"):
@@ -444,7 +472,8 @@ def main():
                 clean_lidar_startup(lidar)
 
     finally:
-        cap.release()
+        left_cap.release()
+        right_cap.release()
         cv2.destroyAllWindows()
         try:
             lidar.stop()

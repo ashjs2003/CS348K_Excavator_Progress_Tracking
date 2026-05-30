@@ -47,7 +47,7 @@ Only use `0.025 m` if the LiDAR segment is intentionally one square long, not th
 python 01_capture_rgb_lidar_pairs.py
 ```
 
-Press `s` to save pairs into `pairs/`.
+Press `s` to save left RGB, right RGB, and LiDAR captures into `data/`.
 
 Press `p` to save the pair and immediately select the LiDAR board segment. The selection helper prints:
 

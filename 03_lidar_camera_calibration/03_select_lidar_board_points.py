@@ -22,7 +22,7 @@ from calibration_settings import (
     GOOD_LINE_RMS_M,
 )
 
-PAIR_DIR = Path("pairs")
+PAIR_DIR = Path("data")
 OUT_DIR = Path("selected_lidar_points")
 OUT_FILE = OUT_DIR / "selected_lidar_board_points.npz"
 VIEW_SIZE = 850

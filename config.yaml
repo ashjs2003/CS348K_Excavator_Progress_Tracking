@@ -17,7 +17,7 @@ workflow_config_dirs:
   lidar_camera_calibration: 03_lidar_camera_calibration/config
 
 hardware:
-  left_camera_index: 2
+  left_camera_index: 1
   right_camera_index: 0
   frame_width: 1280
   frame_height: 720
