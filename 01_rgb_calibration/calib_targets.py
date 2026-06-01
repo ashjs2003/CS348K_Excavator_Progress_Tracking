@@ -19,7 +19,7 @@ TARGETS = {
     "l": {
         "label": "L",
         "camera_index": camera_index("L"),
-        "image_dir": _REPO_ROOT / "01_rgb_calibration" / "calibration_images_L",
+        "image_dir": _REPO_ROOT / "00_data_capture" / "int_ext_calib_rgb" / "L",
         "normal_npz": CONFIG_DIR / "camera_calibration_L_normal.npz",
         "outlier_npz": CONFIG_DIR / "camera_calibration_L_normal_no_outliers.npz",
         "fisheye_npz": CONFIG_DIR / "camera_calibration_L_fisheye.npz",
@@ -28,7 +28,7 @@ TARGETS = {
     "r": {
         "label": "R",
         "camera_index": camera_index("R"),
-        "image_dir": _REPO_ROOT / "01_rgb_calibration" / "calibration_images_R",
+        "image_dir": _REPO_ROOT / "00_data_capture" / "int_ext_calib_rgb" / "R",
         "normal_npz": CONFIG_DIR / "camera_calibration_R_normal.npz",
         "outlier_npz": CONFIG_DIR / "camera_calibration_R_normal_no_outliers.npz",
         "fisheye_npz": CONFIG_DIR / "camera_calibration_R_fisheye.npz",

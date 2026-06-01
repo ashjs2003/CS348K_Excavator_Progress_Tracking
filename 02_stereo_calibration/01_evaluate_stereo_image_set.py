@@ -4,7 +4,9 @@ Step 0: evaluate stereo checkerboard image-pair quality before stereo calibratio
 Run from this folder:
     python 00_evaluate_stereo_image_set.py
 
-This is a pre-flight check for stereo_pairs/rgb1_*.png and rgb2_*.png. It
+This is a pre-flight check for paired L/R checkerboard captures. By default it
+reads ../00_data_capture/int_ext_calib_rgb/L and R, and it also supports the
+older flat stereo_pairs/rgb1_*.png and rgb2_*.png layout. It
 measures checkerboard detection success, coverage, sharpness, size/pose
 diversity, per-camera solvePnP reprojection errors, and fixed-intrinsics stereo
 calibration RMS when configured intrinsics are available.
@@ -29,6 +31,8 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 from utils.project_config import calibration_file
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+
 CHECKERBOARD = (9, 6)
 SQUARE_SIZE = 0.025  # meters
 GRID_SIZE = 5
@@ -45,8 +49,8 @@ HIGH_STEREO_RMS_PX = 1.5
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Evaluate stereo checkerboard image-pair quality.")
-    parser.add_argument("--pair-dir", type=Path, default=Path("stereo_pairs"))
-    parser.add_argument("--output-dir", type=Path, default=Path("outputs"))
+    parser.add_argument("--pair-dir", type=Path, default=_REPO_ROOT / "00_data_capture" / "int_ext_calib_rgb")
+    parser.add_argument("--output-dir", type=Path, default=SCRIPT_DIR / "outputs")
     parser.add_argument("--rgb1-calibration", type=Path, default=calibration_file("left_intrinsics"))
     parser.add_argument("--rgb2-calibration", type=Path, default=calibration_file("right_intrinsics"))
     return parser.parse_args()
@@ -60,6 +64,28 @@ def make_object_points():
 
 
 def stereo_pair_paths(pair_dir):
+    left_dir = pair_dir / "L"
+    right_dir = pair_dir / "R"
+    if left_dir.exists() and right_dir.exists():
+        left_images = {}
+        right_images = {}
+        for prefix in ("calib", "rgb1"):
+            for path in sorted(left_dir.glob(f"{prefix}_*.png")):
+                left_images[path.stem.split("_", 1)[1]] = path
+        for prefix in ("calib", "rgb2"):
+            for path in sorted(right_dir.glob(f"{prefix}_*.png")):
+                right_images[path.stem.split("_", 1)[1]] = path
+
+        pair_ids = sorted(set(left_images).union(right_images))
+        return [
+            (
+                pair_id,
+                left_images.get(pair_id),
+                right_images.get(pair_id),
+            )
+            for pair_id in pair_ids
+        ]
+
     pairs = []
     for rgb1_path in sorted(pair_dir.glob("rgb1_*.png")):
         pair_id = rgb1_path.stem.split("_")[1]
@@ -109,8 +135,9 @@ def load_calibration(path):
     return {
         "path": str(path),
         "camera_matrix": data["camera_matrix"].astype(np.float64),
-        "dist_coeffs": data["dist_coeffs"].astype(np.float64),
+        "dist_coeffs": data["dist_coeffs"].reshape(-1, 1).astype(np.float64),
         "image_size": tuple(data["image_size"].astype(int)),
+        "model": "fisheye" if "fisheye" in path.name.lower() else "pinhole",
     }
 
 
@@ -167,6 +194,18 @@ def reprojection_rmse(objp, corners, rvec, tvec, camera_matrix, dist_coeffs):
     return float(np.sqrt(np.mean(errors * errors)))
 
 
+def fisheye_reprojection_rmse(objp, corners, rvec, tvec, camera_matrix, dist_coeffs):
+    projected, _ = cv2.fisheye.projectPoints(
+        objp.reshape(1, -1, 3).astype(np.float64),
+        rvec,
+        tvec,
+        camera_matrix,
+        dist_coeffs.reshape(-1, 1),
+    )
+    errors = np.linalg.norm(corners.reshape(-1, 2) - projected.reshape(-1, 2), axis=1)
+    return float(np.sqrt(np.mean(errors * errors)))
+
+
 def safe_summary(values):
     if not values:
         return {"min": None, "max": None, "mean": None, "std": None, "median": None, "rmse": None, "p90": None}
@@ -193,33 +232,60 @@ def run_stereo_calibration(valid_items, rgb1_calib, rgb2_calib, objp):
         return None
 
     image_size = rgb1_calib["image_size"]
-    objpoints = [objp.copy() for _ in valid_items]
-    imgpoints1 = [np.ascontiguousarray(item["rgb1_corners"].reshape(-1, 1, 2).astype(np.float32)) for item in valid_items]
-    imgpoints2 = [np.ascontiguousarray(item["rgb2_corners"].reshape(-1, 1, 2).astype(np.float32)) for item in valid_items]
+    model = "fisheye" if rgb1_calib.get("model") == "fisheye" or rgb2_calib.get("model") == "fisheye" else "pinhole"
     K1 = rgb1_calib["camera_matrix"].copy()
     d1 = rgb1_calib["dist_coeffs"].copy()
     K2 = rgb2_calib["camera_matrix"].copy()
     d2 = rgb2_calib["dist_coeffs"].copy()
 
-    rms, _, _, _, _, R, t, E, F = cv2.stereoCalibrate(
-        objpoints,
-        imgpoints1,
-        imgpoints2,
-        K1,
-        d1,
-        K2,
-        d2,
-        image_size,
-        flags=cv2.CALIB_FIX_INTRINSIC,
-        criteria=(cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 1e-6),
-    )
+    if model == "fisheye":
+        objpoints = [objp.reshape(1, -1, 3).astype(np.float64).copy() for _ in valid_items]
+        imgpoints1 = [np.ascontiguousarray(item["rgb1_corners"].reshape(1, -1, 2).astype(np.float64)) for item in valid_items]
+        imgpoints2 = [np.ascontiguousarray(item["rgb2_corners"].reshape(1, -1, 2).astype(np.float64)) for item in valid_items]
+        R = np.eye(3, dtype=np.float64)
+        t = np.zeros((3, 1), dtype=np.float64)
+        flags = cv2.fisheye.CALIB_FIX_INTRINSIC + cv2.fisheye.CALIB_RECOMPUTE_EXTRINSIC + cv2.fisheye.CALIB_CHECK_COND
+        rms, _, _, _, _, R, t = cv2.fisheye.stereoCalibrate(
+            objpoints,
+            imgpoints1,
+            imgpoints2,
+            K1,
+            d1,
+            K2,
+            d2,
+            image_size,
+            R,
+            t,
+            flags,
+            criteria=(cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 200, 1e-7),
+        )
+        E = None
+        F = None
+    else:
+        objpoints = [objp.copy() for _ in valid_items]
+        imgpoints1 = [np.ascontiguousarray(item["rgb1_corners"].reshape(-1, 1, 2).astype(np.float32)) for item in valid_items]
+        imgpoints2 = [np.ascontiguousarray(item["rgb2_corners"].reshape(-1, 1, 2).astype(np.float32)) for item in valid_items]
+        rms, _, _, _, _, R, t, E, F = cv2.stereoCalibrate(
+            objpoints,
+            imgpoints1,
+            imgpoints2,
+            K1,
+            d1,
+            K2,
+            d2,
+            image_size,
+            flags=cv2.CALIB_FIX_INTRINSIC,
+            criteria=(cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 1e-6),
+        )
+
     return {
+        "model": model,
         "stereo_rms_error_px": float(rms),
         "baseline_m": float(np.linalg.norm(t)),
         "R_rgb1_to_rgb2": R.tolist(),
         "t_rgb1_to_rgb2": t.reshape(3).tolist(),
-        "essential_matrix": E.tolist(),
-        "fundamental_matrix": F.tolist(),
+        "essential_matrix": None if E is None else E.tolist(),
+        "fundamental_matrix": None if F is None else F.tolist(),
     }
 
 
@@ -353,14 +419,28 @@ def camera_metrics(prefix, image, corners, gray, objp, calib):
         metrics[f"{prefix}_{key}"] = value
 
     if calib is not None:
-        ok, rvec, tvec = cv2.solvePnP(objp, corners, calib["camera_matrix"], calib["dist_coeffs"])
+        if calib.get("model") == "fisheye":
+            pose_corners = cv2.fisheye.undistortPoints(
+                corners.reshape(-1, 1, 2).astype(np.float64),
+                calib["camera_matrix"],
+                calib["dist_coeffs"].reshape(-1, 1),
+                P=calib["camera_matrix"],
+            ).astype(np.float32)
+            ok, rvec, tvec = cv2.solvePnP(objp, pose_corners, calib["camera_matrix"], None)
+        else:
+            ok, rvec, tvec = cv2.solvePnP(objp, corners, calib["camera_matrix"], calib["dist_coeffs"])
         if ok:
             metrics[f"{prefix}_board_distance_m"] = float(np.linalg.norm(tvec))
             for key, value in rotation_vector_to_euler_degrees(rvec).items():
                 metrics[f"{prefix}_{key}"] = value
-            metrics[f"{prefix}_reprojection_error_px"] = reprojection_rmse(
-                objp, corners, rvec, tvec, calib["camera_matrix"], calib["dist_coeffs"]
-            )
+            if calib.get("model") == "fisheye":
+                metrics[f"{prefix}_reprojection_error_px"] = fisheye_reprojection_rmse(
+                    objp, corners, rvec, tvec, calib["camera_matrix"], calib["dist_coeffs"]
+                )
+            else:
+                metrics[f"{prefix}_reprojection_error_px"] = reprojection_rmse(
+                    objp, corners, rvec, tvec, calib["camera_matrix"], calib["dist_coeffs"]
+                )
     return metrics
 
 
@@ -370,7 +450,7 @@ def main():
 
     pairs = stereo_pair_paths(args.pair_dir)
     if not pairs:
-        print(f"Error: no rgb1_*.png stereo pairs found in {args.pair_dir.resolve()}")
+        print(f"Error: no stereo image pairs found in {args.pair_dir.resolve()}")
         return
 
     rgb1_calib = load_calibration(args.rgb1_calibration)
@@ -385,10 +465,14 @@ def main():
     for pair_id, rgb1_path, rgb2_path in pairs:
         row = {
             "pair_id": pair_id,
-            "rgb1_image": rgb1_path.name,
+            "rgb1_image": "" if rgb1_path is None else rgb1_path.name,
             "rgb2_image": "" if rgb2_path is None else rgb2_path.name,
             "valid_pair": False,
         }
+        if rgb1_path is None:
+            invalid_pairs.append({"pair_id": pair_id, "reason": "missing rgb1 image"})
+            csv_rows.append(row)
+            continue
         if rgb2_path is None:
             invalid_pairs.append({"pair_id": pair_id, "reason": "missing rgb2 image"})
             csv_rows.append(row)

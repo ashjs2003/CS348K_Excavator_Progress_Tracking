@@ -1,0 +1,7 @@
+{
+  "disparity_method": "carpet",
+  "disparity_coverage_pct": 46.23914930555556,
+  "stereo_point_count": 424693,
+  "stereo_point_count_downsampled": 3117,
+  "run_dir": "C:\\Ashmitha\\Stanford\\Quarter 3\\CS 348K\\CS348K_Excavator_Progress_Tracking\\outputs\\runs\\data_capture_pair_000"
+}

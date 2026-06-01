@@ -1,0 +1,215 @@
+{
+  "summary_m": {
+    "mean": 0.00906685822721848,
+    "median": 0.00814646452780271,
+    "p90": 0.02067015917417368,
+    "max": 0.03481592340614603
+  },
+  "per_distance_m": [
+    {
+      "distance_m": 0.1,
+      "mean": null,
+      "median": null,
+      "p90": null,
+      "max": null,
+      "count": 0
+    },
+    {
+      "distance_m": 0.2,
+      "mean": null,
+      "median": null,
+      "p90": null,
+      "max": null,
+      "count": 0
+    },
+    {
+      "distance_m": 0.3,
+      "mean": null,
+      "median": null,
+      "p90": null,
+      "max": null,
+      "count": 0
+    },
+    {
+      "distance_m": 0.4,
+      "mean": null,
+      "median": null,
+      "p90": null,
+      "max": null,
+      "count": 0
+    },
+    {
+      "distance_m": 0.5,
+      "mean": 0.007222865933478809,
+      "median": 0.003485127444499081,
+      "p90": 0.02225639244152389,
+      "max": 0.029961448847970695,
+      "count": 58
+    },
+    {
+      "distance_m": 0.6,
+      "mean": null,
+      "median": null,
+      "p90": null,
+      "max": null,
+      "count": 0
+    },
+    {
+      "distance_m": 0.7,
+      "mean": null,
+      "median": null,
+      "p90": null,
+      "max": null,
+      "count": 0
+    },
+    {
+      "distance_m": 0.8,
+      "mean": null,
+      "median": null,
+      "p90": null,
+      "max": null,
+      "count": 0
+    },
+    {
+      "distance_m": 0.9,
+      "mean": null,
+      "median": null,
+      "p90": null,
+      "max": null,
+      "count": 0
+    },
+    {
+      "distance_m": 1.0,
+      "mean": 0.010454520567539692,
+      "median": 0.007011745720861939,
+      "p90": 0.02697967864388906,
+      "max": 0.03481592340614603,
+      "count": 26
+    }
+  ],
+  "observation_count": 6,
+  "point_count": 120,
+  "skipped_observations": [
+    {
+      "folder": "checkerboard_data",
+      "pair_id": "000",
+      "reason": "non-numeric distance metadata"
+    },
+    {
+      "folder": "checkerboard_data",
+      "pair_id": "001",
+      "reason": "checkerboard pose failed; no manual annotation"
+    },
+    {
+      "folder": "checkerboard_data",
+      "pair_id": "002",
+      "reason": "checkerboard pose failed; no manual annotation"
+    },
+    {
+      "folder": "checkerboard_data",
+      "pair_id": "003",
+      "reason": "checkerboard pose failed; no manual annotation"
+    },
+    {
+      "folder": "checkerboard_data",
+      "pair_id": "004",
+      "reason": "checkerboard pose failed; no manual annotation"
+    },
+    {
+      "folder": "checkerboard_data",
+      "pair_id": "007",
+      "reason": "non-numeric distance metadata"
+    },
+    {
+      "folder": "checkerboard_data_30",
+      "pair_id": "000",
+      "reason": "checkerboard pose failed; no manual annotation"
+    },
+    {
+      "folder": "checkerboard_data_30",
+      "pair_id": "001",
+      "reason": "checkerboard pose failed; no manual annotation"
+    },
+    {
+      "folder": "checkerboard_data_30",
+      "pair_id": "002",
+      "reason": "checkerboard pose failed; no manual annotation"
+    },
+    {
+      "folder": "checkerboard_data_30",
+      "pair_id": "003",
+      "reason": "checkerboard pose failed; no manual annotation"
+    },
+    {
+      "folder": "checkerboard_data_60",
+      "pair_id": "000",
+      "reason": "checkerboard pose failed; no manual annotation"
+    },
+    {
+      "folder": "checkerboard_data_60",
+      "pair_id": "001",
+      "reason": "checkerboard pose failed; no manual annotation"
+    },
+    {
+      "folder": "checkerboard_data_60",
+      "pair_id": "002",
+      "reason": "checkerboard pose failed; no manual annotation"
+    }
+  ],
+  "R_lidar_to_rgb1": [
+    [
+      0.22901792758431572,
+      0.9728356167794252,
+      -0.03378833482698779
+    ],
+    [
+      -0.08150722050306336,
+      0.05375369979896377,
+      0.9952221424203683
+    ],
+    [
+      0.9700037947610567,
+      -0.22516971928596086,
+      0.09160368805802244
+    ]
+  ],
+  "t_lidar_to_rgb1": [
+    -0.05934330984561566,
+    -0.08938428156777517,
+    0.04081869566193517
+  ],
+  "T_rgb1_lidar": [
+    [
+      0.22901792758431572,
+      0.9728356167794252,
+      -0.03378833482698779,
+      -0.05934330984561566
+    ],
+    [
+      -0.08150722050306336,
+      0.05375369979896377,
+      0.9952221424203683,
+      -0.08938428156777517
+    ],
+    [
+      0.9700037947610567,
+      -0.22516971928596086,
+      0.09160368805802244,
+      0.04081869566193517
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "board_strip_positions_m": {
+    "checkerboard_data_005": 0.102035378585846,
+    "checkerboard_data_006": 0.10300462927513153,
+    "checkerboard_data_008": 0.10626395511238744,
+    "checkerboard_data_30_004": 0.10110925403853795,
+    "checkerboard_data_30_005": 0.09884822187192593,
+    "checkerboard_data_30_006": 0.09679772155481292
+  }
+}

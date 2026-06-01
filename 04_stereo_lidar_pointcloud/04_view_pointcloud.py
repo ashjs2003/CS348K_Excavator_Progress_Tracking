@@ -25,7 +25,7 @@ from output_runs import add_run_cli_arguments, handle_list_runs, resolve_run_pat
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["stereo", "lidar", "both"], default="both")
+    parser.add_argument("--mode", choices=["stereo", "lidar", "both"], default="stereo")
     parser.add_argument(
         "--stereo-backend",
         choices=["opencv", "foundation", "dav2", "compare", "compare-all"],
@@ -139,19 +139,22 @@ def main():
 
         if args.mode in ("lidar", "both") and len(axes) == 1:
             if not lidar_cloud.is_file():
-                raise FileNotFoundError(
-                    f"{lidar_cloud} missing. Run: python 03_validate_with_lidar.py --run {args.run}"
+                if args.mode == "lidar":
+                    raise FileNotFoundError(
+                        f"{lidar_cloud} missing. Run: python 03_validate_with_lidar.py --run {args.run}"
+                    )
+                print(f"Skipping LiDAR overlay because {lidar_cloud} is missing.")
+            else:
+                lidar_points, _ = read_ply(lidar_cloud)
+                ax.scatter(
+                    lidar_points[:, 0],
+                    lidar_points[:, 1],
+                    lidar_points[:, 2],
+                    c="red",
+                    s=12,
+                    label="lidar",
                 )
-            lidar_points, _ = read_ply(lidar_cloud)
-            ax.scatter(
-                lidar_points[:, 0],
-                lidar_points[:, 1],
-                lidar_points[:, 2],
-                c="red",
-                s=12,
-                label="lidar",
-            )
-            panel_points.append(lidar_points)
+                panel_points.append(lidar_points)
 
         add_axes_gizmo(ax)
         if panel_points:

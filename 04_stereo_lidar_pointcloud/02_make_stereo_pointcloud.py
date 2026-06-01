@@ -39,6 +39,7 @@ MEDIAN_FILTER_K = 5
 LR_MAX_DIFF_PX = 2.5
 # Rectified flow still has vertical component when RGB2 intrinsics are approximate.
 FLOW_EPIPOLAR_MAX_PX = 8.0
+FISHEYE_RECTIFY_BALANCE = 1.0
 
 
 def draw_rectification_check(rect1, rect2, line_step=40):
@@ -47,6 +48,54 @@ def draw_rectification_check(rect1, rect2, line_step=40):
     for y in range(0, combined.shape[0], line_step):
         cv2.line(combined, (0, y), (combined.shape[1] - 1, y), (0, 255, 255), 1)
     return combined
+
+
+def is_fisheye_calibration(calib):
+    return np.asarray(calib["dist"]).size == 4
+
+
+def stereo_rectify_maps(rgb1_calib, rgb2_calib, image_size, R, t):
+    if is_fisheye_calibration(rgb1_calib) or is_fisheye_calibration(rgb2_calib):
+        print(f"Using fisheye stereo rectification (balance={FISHEYE_RECTIFY_BALANCE:.2f})")
+        R1, R2, P1, P2, Q = cv2.fisheye.stereoRectify(
+            rgb1_calib["K"],
+            rgb1_calib["dist"].reshape(-1, 1),
+            rgb2_calib["K"],
+            rgb2_calib["dist"].reshape(-1, 1),
+            image_size,
+            R,
+            t.reshape(3, 1),
+            flags=cv2.fisheye.CALIB_ZERO_DISPARITY,
+            newImageSize=image_size,
+            balance=FISHEYE_RECTIFY_BALANCE,
+            fov_scale=1.0,
+        )
+        map1x, map1y = cv2.fisheye.initUndistortRectifyMap(
+            rgb1_calib["K"], rgb1_calib["dist"].reshape(-1, 1), R1, P1, image_size, cv2.CV_32FC1
+        )
+        map2x, map2y = cv2.fisheye.initUndistortRectifyMap(
+            rgb2_calib["K"], rgb2_calib["dist"].reshape(-1, 1), R2, P2, image_size, cv2.CV_32FC1
+        )
+        return R1, R2, P1, P2, Q, map1x, map1y, map2x, map2y
+
+    R1, R2, P1, P2, Q, _, _ = cv2.stereoRectify(
+        rgb1_calib["K"],
+        rgb1_calib["dist"],
+        rgb2_calib["K"],
+        rgb2_calib["dist"],
+        image_size,
+        R,
+        t,
+        flags=cv2.CALIB_ZERO_DISPARITY,
+        alpha=0,
+    )
+    map1x, map1y = cv2.initUndistortRectifyMap(
+        rgb1_calib["K"], rgb1_calib["dist"], R1, P1, image_size, cv2.CV_32FC1
+    )
+    map2x, map2y = cv2.initUndistortRectifyMap(
+        rgb2_calib["K"], rgb2_calib["dist"], R2, P2, image_size, cv2.CV_32FC1
+    )
+    return R1, R2, P1, P2, Q, map1x, map1y, map2x, map2y
 
 
 def make_sgbm(num_disparities):
@@ -390,23 +439,8 @@ def main():
 
     # Rectify both cameras into a common stereo geometry. Q converts disparity
     # back into 3D points in the rectified RGB1 camera frame.
-    R1, R2, P1, P2, Q, _, _ = cv2.stereoRectify(
-        rgb1_calib["K"],
-        rgb1_calib["dist"],
-        rgb2_calib["K"],
-        rgb2_calib["dist"],
-        image_size,
-        R,
-        t,
-        flags=cv2.CALIB_ZERO_DISPARITY,
-        alpha=0,
-    )
-
-    map1x, map1y = cv2.initUndistortRectifyMap(
-        rgb1_calib["K"], rgb1_calib["dist"], R1, P1, image_size, cv2.CV_32FC1
-    )
-    map2x, map2y = cv2.initUndistortRectifyMap(
-        rgb2_calib["K"], rgb2_calib["dist"], R2, P2, image_size, cv2.CV_32FC1
+    R1, R2, P1, P2, Q, map1x, map1y, map2x, map2y = stereo_rectify_maps(
+        rgb1_calib, rgb2_calib, image_size, R, t
     )
     rect1 = cv2.remap(image1, map1x, map1y, cv2.INTER_LINEAR)
     rect2 = cv2.remap(image2, map2x, map2y, cv2.INTER_LINEAR)

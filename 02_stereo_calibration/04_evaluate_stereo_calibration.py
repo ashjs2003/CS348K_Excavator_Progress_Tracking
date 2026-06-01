@@ -44,11 +44,12 @@ CHECKERBOARD = (9, 6)
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Evaluate stereo calibration geometry.")
-    parser.add_argument("--pair-dir", type=Path, default=SCRIPT_DIR / "stereo_pairs")
-    parser.add_argument("--output-dir", type=Path, default=SCRIPT_DIR / "outputs")
+    parser.add_argument("--pair-dir", type=Path, default=REPO_ROOT / "00_data_capture" / "int_ext_calib_rgb")
+    parser.add_argument("--output-dir", type=Path, default=SCRIPT_DIR / "outputs" / "fisheye_no_outliers")
     parser.add_argument("--rgb1-calibration", type=Path, default=calibration_file("left_intrinsics"))
     parser.add_argument("--rgb2-calibration", type=Path, default=calibration_file("right_intrinsics"))
     parser.add_argument("--stereo-calibration", type=Path, default=calibration_file("stereo_rgb1_rgb2_extrinsics"))
+    parser.add_argument("--model", choices=["auto", "pinhole", "fisheye"], default="auto")
     parser.add_argument("--readme", type=Path, default=SCRIPT_DIR / "README.md")
     return parser.parse_args()
 
@@ -71,19 +72,36 @@ def load_stereo(path):
         "stereo_rms_error_px": float(np.asarray(data["stereo_rms_error"]).reshape(())),
         "baseline_m": float(np.asarray(data["baseline_meters"]).reshape(())),
         "used_pair_ids": [str(x) for x in data["used_pair_ids"]] if "used_pair_ids" in data.files else None,
+        "model": str(np.asarray(data["model"]).reshape(())) if "model" in data.files else "pinhole",
     }
 
 
 def stereo_pair_paths(pair_dir, allowed_ids=None):
     allowed = None if allowed_ids is None else set(allowed_ids)
     pairs = []
+
+    left_dir = pair_dir / "L"
+    right_dir = pair_dir / "R"
+    if left_dir.exists() and right_dir.exists():
+        left_map = {}
+        right_map = {}
+        for prefix in ("calib", "rgb1"):
+            for path in sorted(left_dir.glob(f"{prefix}_*.png")):
+                left_map[path.stem.split("_", 1)[1]] = path
+        for prefix in ("calib", "rgb2"):
+            for path in sorted(right_dir.glob(f"{prefix}_*.png")):
+                right_map[path.stem.split("_", 1)[1]] = path
+        for pair_id in sorted(set(left_map).intersection(right_map)):
+            if allowed is None or pair_id in allowed:
+                pairs.append((pair_id, left_map[pair_id], right_map[pair_id]))
+        return pairs
+
     for rgb1_path in sorted(pair_dir.glob("rgb1_*.png")):
         pair_id = rgb1_path.stem.split("_")[1]
-        if allowed is not None and pair_id not in allowed:
-            continue
-        rgb2_path = pair_dir / f"rgb2_{pair_id}.png"
-        if rgb2_path.exists():
-            pairs.append((pair_id, rgb1_path, rgb2_path))
+        if allowed is None or pair_id in allowed:
+            rgb2_path = pair_dir / f"rgb2_{pair_id}.png"
+            if rgb2_path.exists():
+                pairs.append((pair_id, rgb1_path, rgb2_path))
     return pairs
 
 
@@ -120,9 +138,23 @@ def point_line_distances(points, lines):
     return numerator / denominator
 
 
-def epipolar_errors_before_rectification(corners1, corners2, fundamental_matrix):
-    pts1 = corners1.reshape(-1, 2)
-    pts2 = corners2.reshape(-1, 2)
+def epipolar_errors_before_rectification(corners1, corners2, fundamental_matrix, calib1, calib2, model):
+    if model == "fisheye":
+        pts1 = cv2.fisheye.undistortPoints(
+            corners1.reshape(-1, 1, 2).astype(np.float64),
+            calib1["camera_matrix"],
+            calib1["dist_coeffs"].reshape(-1, 1),
+            P=calib1["camera_matrix"],
+        ).reshape(-1, 2)
+        pts2 = cv2.fisheye.undistortPoints(
+            corners2.reshape(-1, 1, 2).astype(np.float64),
+            calib2["camera_matrix"],
+            calib2["dist_coeffs"].reshape(-1, 1),
+            P=calib2["camera_matrix"],
+        ).reshape(-1, 2)
+    else:
+        pts1 = corners1.reshape(-1, 2)
+        pts2 = corners2.reshape(-1, 2)
     lines2 = cv2.computeCorrespondEpilines(pts1.reshape(-1, 1, 2), 1, fundamental_matrix).reshape(-1, 3)
     lines1 = cv2.computeCorrespondEpilines(pts2.reshape(-1, 1, 2), 2, fundamental_matrix).reshape(-1, 3)
     d2 = point_line_distances(pts2, lines2)
@@ -130,10 +162,26 @@ def epipolar_errors_before_rectification(corners1, corners2, fundamental_matrix)
     return 0.5 * (d1 + d2)
 
 
-def rectified_vertical_errors(corners1, corners2, rectification, calib1, calib2):
+def rectified_vertical_errors(corners1, corners2, rectification, calib1, calib2, model):
     r1, r2, p1, p2 = rectification
-    rect1 = cv2.undistortPoints(corners1, calib1["camera_matrix"], calib1["dist_coeffs"], R=r1, P=p1)
-    rect2 = cv2.undistortPoints(corners2, calib2["camera_matrix"], calib2["dist_coeffs"], R=r2, P=p2)
+    if model == "fisheye":
+        rect1 = cv2.fisheye.undistortPoints(
+            corners1.reshape(-1, 1, 2).astype(np.float64),
+            calib1["camera_matrix"],
+            calib1["dist_coeffs"].reshape(-1, 1),
+            R=r1,
+            P=p1,
+        )
+        rect2 = cv2.fisheye.undistortPoints(
+            corners2.reshape(-1, 1, 2).astype(np.float64),
+            calib2["camera_matrix"],
+            calib2["dist_coeffs"].reshape(-1, 1),
+            R=r2,
+            P=p2,
+        )
+    else:
+        rect1 = cv2.undistortPoints(corners1, calib1["camera_matrix"], calib1["dist_coeffs"], R=r1, P=p1)
+        rect2 = cv2.undistortPoints(corners2, calib2["camera_matrix"], calib2["dist_coeffs"], R=r2, P=p2)
     y1 = rect1.reshape(-1, 2)[:, 1]
     y2 = rect2.reshape(-1, 2)[:, 1]
     return np.abs(y1 - y2)
@@ -226,26 +274,50 @@ def draw_rectified_corners(image, corners, x_offset=0, color=(0, 255, 255)):
         cv2.circle(image, (int(round(x + x_offset)), int(round(y))), 4, color, -1, cv2.LINE_AA)
 
 
-def save_rectified_alignment_example(path, example, rectification, calib1, calib2, image_size):
+def save_rectified_alignment_example(path, example, rectification, calib1, calib2, image_size, model):
     if example is None:
         return False
 
     r1, r2, p1, p2 = rectification
-    map1x, map1y = cv2.initUndistortRectifyMap(
-        calib1["camera_matrix"], calib1["dist_coeffs"], r1, p1, image_size, cv2.CV_16SC2
-    )
-    map2x, map2y = cv2.initUndistortRectifyMap(
-        calib2["camera_matrix"], calib2["dist_coeffs"], r2, p2, image_size, cv2.CV_16SC2
-    )
+    if model == "fisheye":
+        map1x, map1y = cv2.fisheye.initUndistortRectifyMap(
+            calib1["camera_matrix"], calib1["dist_coeffs"].reshape(-1, 1), r1, p1, image_size, cv2.CV_16SC2
+        )
+        map2x, map2y = cv2.fisheye.initUndistortRectifyMap(
+            calib2["camera_matrix"], calib2["dist_coeffs"].reshape(-1, 1), r2, p2, image_size, cv2.CV_16SC2
+        )
+    else:
+        map1x, map1y = cv2.initUndistortRectifyMap(
+            calib1["camera_matrix"], calib1["dist_coeffs"], r1, p1, image_size, cv2.CV_16SC2
+        )
+        map2x, map2y = cv2.initUndistortRectifyMap(
+            calib2["camera_matrix"], calib2["dist_coeffs"], r2, p2, image_size, cv2.CV_16SC2
+        )
     rect1 = cv2.remap(example["image1"], map1x, map1y, cv2.INTER_LINEAR)
     rect2 = cv2.remap(example["image2"], map2x, map2y, cv2.INTER_LINEAR)
 
-    rect_corners1 = cv2.undistortPoints(
-        example["corners1"], calib1["camera_matrix"], calib1["dist_coeffs"], R=r1, P=p1
-    )
-    rect_corners2 = cv2.undistortPoints(
-        example["corners2"], calib2["camera_matrix"], calib2["dist_coeffs"], R=r2, P=p2
-    )
+    if model == "fisheye":
+        rect_corners1 = cv2.fisheye.undistortPoints(
+            example["corners1"].reshape(-1, 1, 2).astype(np.float64),
+            calib1["camera_matrix"],
+            calib1["dist_coeffs"].reshape(-1, 1),
+            R=r1,
+            P=p1,
+        )
+        rect_corners2 = cv2.fisheye.undistortPoints(
+            example["corners2"].reshape(-1, 1, 2).astype(np.float64),
+            calib2["camera_matrix"],
+            calib2["dist_coeffs"].reshape(-1, 1),
+            R=r2,
+            P=p2,
+        )
+    else:
+        rect_corners1 = cv2.undistortPoints(
+            example["corners1"], calib1["camera_matrix"], calib1["dist_coeffs"], R=r1, P=p1
+        )
+        rect_corners2 = cv2.undistortPoints(
+            example["corners2"], calib2["camera_matrix"], calib2["dist_coeffs"], R=r2, P=p2
+        )
 
     combined = np.hstack([rect1, rect2])
     height, width = combined.shape[:2]
@@ -273,6 +345,7 @@ def fmt_px(value):
 
 
 def write_readme(path, summary, settings):
+    rectify_name = "cv2.fisheye.stereoRectify" if settings["model"] == "fisheye" else "cv2.stereoRectify"
     text = f"""# Stereo Calibration
 
 ## Summary
@@ -287,7 +360,7 @@ def write_readme(path, summary, settings):
 
 Lower is better for all pixel-error metrics. The rectification vertical error is
 the remaining y-mismatch between corresponding checkerboard corners after
-`cv2.stereoRectify`; good rectification should make this close to zero.
+`{rectify_name}`; good rectification should make this close to zero.
 
 ## Commands
 
@@ -295,21 +368,26 @@ Run from this folder:
 
 ```powershell
 python 01_evaluate_stereo_image_set.py
-python 02_stereo_calibrate_rgb1_rgb2_fixed_intrinsics.py
-python 03_save_stereo_calibration_pair_image.py
+python 02b_stereo_calibrate_fisheye_fixed_intrinsics.py
 python 04_evaluate_stereo_calibration.py
+```
+
+Optional visual check:
+
+```powershell
+python 03b_save_numbered_stereo_corners.py
 ```
 
 ## Outputs
 
-- `outputs/stereo_calibration_pair_example.png`
-- `outputs/stereo_calibration_eval.json`
-- `outputs/stereo_calibration_eval_per_pair.csv`
-- `outputs/stereo_calibration_epipolar_error_plot.png`
-- `outputs/stereo_calibration_rectification_vertical_error_plot.png`
-- `outputs/stereo_calibration_error_histograms.png`
-- `outputs/stereo_rectified_alignment_example.png`
-- `config/stereo_rgb1_rgb2_extrinsics.npz`
+- `outputs/fisheye_no_outliers/stereo_calibration_eval.json`
+- `outputs/fisheye_no_outliers/stereo_calibration_eval_per_pair.csv`
+- `outputs/fisheye_no_outliers/stereo_calibration_epipolar_error_plot.png`
+- `outputs/fisheye_no_outliers/stereo_calibration_rectification_vertical_error_plot.png`
+- `outputs/fisheye_no_outliers/stereo_calibration_error_histograms.png`
+- `outputs/fisheye_no_outliers/stereo_rectified_alignment_example.png`
+- `config/stereo_rgb1_rgb2_fisheye_extrinsics.npz`
+- `stereo_pairs/numbered_stereo_corners_###.png`
 
 ## Inputs
 
@@ -317,6 +395,7 @@ python 04_evaluate_stereo_calibration.py
 - RGB1 intrinsics: `{settings["rgb1_calibration"]}`
 - RGB2 intrinsics: `{settings["rgb2_calibration"]}`
 - Stereo extrinsics: `{settings["stereo_calibration"]}`
+- Model: `{settings["model"]}`
 """
     path.write_text(text, encoding="utf-8")
 
@@ -328,21 +407,36 @@ def main():
     calib1 = load_intrinsics(args.rgb1_calibration)
     calib2 = load_intrinsics(args.rgb2_calibration)
     stereo = load_stereo(args.stereo_calibration)
+    model = stereo["model"] if args.model == "auto" else args.model
     if calib1["image_size"] != calib2["image_size"]:
         raise ValueError("RGB1 and RGB2 calibration image sizes do not match.")
 
     image_size = tuple(int(v) for v in calib1["image_size"])
-    r1, r2, p1, p2, _, _, _ = cv2.stereoRectify(
-        calib1["camera_matrix"],
-        calib1["dist_coeffs"],
-        calib2["camera_matrix"],
-        calib2["dist_coeffs"],
-        image_size,
-        stereo["R"],
-        stereo["t"],
-        flags=cv2.CALIB_ZERO_DISPARITY,
-        alpha=0,
-    )
+    if model == "fisheye":
+        r1, r2, p1, p2, _, = cv2.fisheye.stereoRectify(
+            calib1["camera_matrix"],
+            calib1["dist_coeffs"].reshape(-1, 1),
+            calib2["camera_matrix"],
+            calib2["dist_coeffs"].reshape(-1, 1),
+            image_size,
+            stereo["R"],
+            stereo["t"],
+            flags=cv2.CALIB_ZERO_DISPARITY,
+            balance=0.0,
+            fov_scale=1.0,
+        )
+    else:
+        r1, r2, p1, p2, _, _, _ = cv2.stereoRectify(
+            calib1["camera_matrix"],
+            calib1["dist_coeffs"],
+            calib2["camera_matrix"],
+            calib2["dist_coeffs"],
+            image_size,
+            stereo["R"],
+            stereo["t"],
+            flags=cv2.CALIB_ZERO_DISPARITY,
+            alpha=0,
+        )
     rectification = (r1, r2, p1, p2)
 
     rows = []
@@ -364,8 +458,8 @@ def main():
             skipped.append({"pair_id": pair_id, "reason": f"checkerboard missing: rgb1={found1}, rgb2={found2}"})
             continue
 
-        epipolar = epipolar_errors_before_rectification(corners1, corners2, stereo["F"])
-        vertical = rectified_vertical_errors(corners1, corners2, rectification, calib1, calib2)
+        epipolar = epipolar_errors_before_rectification(corners1, corners2, stereo["F"], calib1, calib2, model)
+        vertical = rectified_vertical_errors(corners1, corners2, rectification, calib1, calib2, model)
         all_epipolar.extend(epipolar.tolist())
         all_vertical.extend(vertical.tolist())
         epi_stats = summarize(epipolar)
@@ -393,6 +487,7 @@ def main():
         )
 
     summary = {
+        "model": model,
         "stereo_rms_error_px": stereo["stereo_rms_error_px"],
         "baseline_m": stereo["baseline_m"],
         "evaluated_pairs": len(rows),
@@ -405,6 +500,7 @@ def main():
         "rgb1_calibration": str(args.rgb1_calibration),
         "rgb2_calibration": str(args.rgb2_calibration),
         "stereo_calibration": str(args.stereo_calibration),
+        "model": model,
     }
     result = {"settings": settings, "summary": summary, "skipped_pairs": skipped}
 
@@ -434,11 +530,13 @@ def main():
         calib1,
         calib2,
         image_size,
+        model,
     )
     write_readme(args.readme, summary, settings)
 
     print("\nStereo calibration evaluation")
     print("-----------------------------")
+    print(f"Model: {model}")
     print(f"Stereo RMS calibration error: {summary['stereo_rms_error_px']:.3f} px")
     print(
         "Rectification vertical error mean/p90/max: "

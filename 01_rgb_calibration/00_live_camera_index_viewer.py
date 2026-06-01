@@ -90,6 +90,7 @@ def main():
     args = parse_args()
     captures = []
 
+    print("Left and Right should be taken when camera faces away from you.")
     print(f"Configured L camera index: {LEFT_CAMERA_INDEX}")
     print(f"Configured R camera index: {RIGHT_CAMERA_INDEX}")
     print(f"Requested frame size: {FRAME_SIZE[0]}x{FRAME_SIZE[1]}")

@@ -1,15 +1,15 @@
 calibration_files:
-  left_intrinsics: 01_rgb_calibration/config/camera_calibration_L_normal_no_outliers.npz
+  left_intrinsics: 01_rgb_calibration/config/camera_calibration_L_fisheye_no_outliers.npz
   left_intrinsics_baseline: 01_rgb_calibration/config/camera_calibration_L_normal.npz
   left_fisheye_intrinsics: 01_rgb_calibration/config/camera_calibration_L_fisheye.npz
   left_fisheye_intrinsics_no_outliers: 01_rgb_calibration/config/camera_calibration_L_fisheye_no_outliers.npz
-  right_intrinsics: 01_rgb_calibration/config/camera_calibration_R_normal_no_outliers.npz
+  right_intrinsics: 01_rgb_calibration/config/camera_calibration_R_fisheye_no_outliers.npz
   right_intrinsics_baseline: 01_rgb_calibration/config/camera_calibration_R_normal.npz
   right_fisheye_intrinsics: 01_rgb_calibration/config/camera_calibration_R_fisheye.npz
   right_fisheye_intrinsics_no_outliers: 01_rgb_calibration/config/camera_calibration_R_fisheye_no_outliers.npz
-  lidar_to_rgb1_extrinsics: 03_lidar_camera_calibration/config/lidar_to_camera_extrinsics_optimized.npz
+  lidar_to_rgb1_extrinsics: 03_lidar_camera_calibration/config/lidar_rgb1_extrinsics.npz
   lidar_to_rgb1_manual_extrinsics: 03_lidar_camera_calibration/config/lidar_to_camera_extrinsics_manual.npz
-  stereo_rgb1_rgb2_extrinsics: 02_stereo_calibration/config/stereo_rgb1_rgb2_extrinsics.npz
+  stereo_rgb1_rgb2_extrinsics: 02_stereo_calibration/config/stereo_rgb1_rgb2_fisheye_extrinsics.npz
 
 workflow_config_dirs:
   rgb_calibration: 01_rgb_calibration/config
@@ -17,7 +17,7 @@ workflow_config_dirs:
   lidar_camera_calibration: 03_lidar_camera_calibration/config
 
 hardware:
-  left_camera_index: 1
+  left_camera_index: 2
   right_camera_index: 0
   frame_width: 1280
   frame_height: 720

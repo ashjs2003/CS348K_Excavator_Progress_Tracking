@@ -1,0 +1,79 @@
+{
+  "settings": {
+    "left_dir": "C:\\Ashmitha\\Stanford\\Quarter 3\\CS 348K\\CS348K_Excavator_Progress_Tracking\\00_data_capture\\int_ext_calib_rgb\\L",
+    "right_dir": "C:\\Ashmitha\\Stanford\\Quarter 3\\CS 348K\\CS348K_Excavator_Progress_Tracking\\00_data_capture\\int_ext_calib_rgb\\R",
+    "left_calibration": "C:\\Ashmitha\\Stanford\\Quarter 3\\CS 348K\\CS348K_Excavator_Progress_Tracking\\01_rgb_calibration\\config\\camera_calibration_L_fisheye_no_outliers.npz",
+    "right_calibration": "C:\\Ashmitha\\Stanford\\Quarter 3\\CS 348K\\CS348K_Excavator_Progress_Tracking\\01_rgb_calibration\\config\\camera_calibration_R_fisheye_no_outliers.npz",
+    "output_file": "C:\\Ashmitha\\Stanford\\Quarter 3\\CS 348K\\CS348K_Excavator_Progress_Tracking\\02_stereo_calibration\\config\\stereo_rgb1_rgb2_fisheye_extrinsics.npz",
+    "checkerboard_inner_corners": [
+      9,
+      6
+    ],
+    "image_size": [
+      1280,
+      720
+    ]
+  },
+  "summary": {
+    "model": "fisheye",
+    "intrinsics": "L_fisheye_no_outliers + R_fisheye_no_outliers",
+    "stereo_rms_error_px": 0.7124232134065518,
+    "baseline_m": 0.07323007123245322,
+    "total_candidate_pairs": 37,
+    "clean_full_corner_pairs": 37,
+    "used_pair_ids": [
+      "000",
+      "001",
+      "002",
+      "003",
+      "004",
+      "005",
+      "006",
+      "007",
+      "008",
+      "009",
+      "010",
+      "011",
+      "012",
+      "013",
+      "014",
+      "015",
+      "016",
+      "017",
+      "018",
+      "019",
+      "020",
+      "021",
+      "022",
+      "023",
+      "024",
+      "025",
+      "026",
+      "027",
+      "028",
+      "029",
+      "030",
+      "031",
+      "032",
+      "033",
+      "034",
+      "035",
+      "036"
+    ],
+    "skipped_pairs": [],
+    "epipolar_error_px": {
+      "mean": 0.6004517553346977,
+      "median": 0.42606786101352867,
+      "rmse": 0.8955722918247088,
+      "p90": 1.2365076794420562,
+      "max": 5.6008306768319365
+    },
+    "rectification_vertical_error_px": {
+      "mean": 0.543092236123284,
+      "median": 0.38273195689507133,
+      "rmse": 0.8112744199378485,
+      "p90": 1.1239268060365473,
+      "max": 5.095185589488665
+    }
+  }
+}

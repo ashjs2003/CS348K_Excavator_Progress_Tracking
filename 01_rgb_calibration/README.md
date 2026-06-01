@@ -55,11 +55,8 @@ Run these from this folder:
 
 ```powershell
 python 01_capture_checkerboard_images.py
-python 02_calibrate_camera_normal.py
-python 02c_calibrate_camera_normal_without_outliers.py
-python 02d_calibrate_camera_fisheye_without_outliers.py
+python 02_calibrate_cameras.py
 python 03_undistort_live_normal.py
-python 02b_calibrate_camera_fisheye.py
 python 03b_undistort_live_fisheye.py
 ```
 
@@ -77,8 +74,7 @@ is for `L` or `R`. You can also pass it explicitly:
 
 ```powershell
 python 01_capture_checkerboard_images.py --camera R
-python 02_calibrate_camera_normal.py --camera R
-python 02c_calibrate_camera_normal_without_outliers.py --camera R
+python 02_calibrate_cameras.py --camera R
 ```
 
 ## Step 1: Capture Images
@@ -91,14 +87,23 @@ python 01_capture_checkerboard_images.py
 - Press `q` to quit.
 - Images are saved in `calibration_images/` as `calib_000.png`, `calib_001.png`, etc.
 
-## Step 2: Normal Calibration
+## Step 2: Run All Calibration Variants
 
 ```powershell
-python 02_calibrate_camera_normal.py
+python 02_calibrate_cameras.py
 ```
 
-This creates `config/camera_calibration_L_normal.npz` or
-`config/camera_calibration_R_normal.npz` containing:
+By default this runs both `calibration_images_L/` and `calibration_images_R/`.
+Pass `--camera L` or `--camera R` to run just one dataset.
+
+It creates four calibration files per camera:
+
+- `config/camera_calibration_L_normal.npz` or `config/camera_calibration_R_normal.npz`
+- `config/camera_calibration_L_fisheye.npz` or `config/camera_calibration_R_fisheye.npz`
+- `config/camera_calibration_L_normal_no_outliers.npz` or `config/camera_calibration_R_normal_no_outliers.npz`
+- `config/camera_calibration_L_fisheye_no_outliers.npz` or `config/camera_calibration_R_fisheye_no_outliers.npz`
+
+Calibration files contain:
 
 - `camera_matrix`
 - `dist_coeffs`
@@ -108,34 +113,17 @@ This creates `config/camera_calibration_L_normal.npz` or
 - `rms_error`
 - `mean_reprojection_error`
 
-This is the baseline calibration. Downstream workflows use the final L/R path
-named in `../config.yaml`.
-
-## Step 2c: Normal Calibration Without Outliers
-
-```powershell
-python 02c_calibrate_camera_normal_without_outliers.py
-```
-
-This first calibrates with all detected checkerboards, removes images whose
+The outlier variants first calibrate with all detected checkerboards, remove images whose
 per-image reprojection error is above `1.5 px`, then recalibrates with the kept
 images. Use `--max-error` to change the cutoff.
 
-It saves:
+The script also saves:
 
-- `config/camera_calibration_L_normal_no_outliers.npz` or `config/camera_calibration_R_normal_no_outliers.npz`
-- `outputs/calibration_L_outlier_filter_report.csv` or `outputs/calibration_R_outlier_filter_report.csv`
+- `outputs/calibration_results.csv`
+- `outputs/L/outlier_filter_report.csv`
+- `outputs/R/outlier_filter_report.csv`
 
-## Step 2d: Fisheye Calibration Without Outliers
-
-```powershell
-python 02d_calibrate_camera_fisheye_without_outliers.py
-```
-
-This reuses the L/R outlier report from Step 2c, keeps the non-outlier images,
-and saves:
-
-- `config/camera_calibration_L_fisheye_no_outliers.npz` or `config/camera_calibration_R_fisheye_no_outliers.npz`
+Downstream workflows use the final L/R path named in `../config.yaml`.
 
 ## Step 3: Normal Live Undistortion
 
@@ -147,17 +135,7 @@ python 03_undistort_live_normal.py
 - Press `1` for `alpha=1`, which keeps more field of view.
 - Press `q` to quit.
 
-## Step 4: Fisheye Calibration
-
-```powershell
-python 02b_calibrate_camera_fisheye.py
-```
-
-This creates `config/camera_calibration_L_fisheye.npz` or
-`config/camera_calibration_R_fisheye.npz`. Use this if the normal model does not
-look good for the wide-angle lens.
-
-## Step 5: Fisheye Live Undistortion
+## Step 4: Fisheye Live Undistortion
 
 ```powershell
 python 03b_undistort_live_fisheye.py

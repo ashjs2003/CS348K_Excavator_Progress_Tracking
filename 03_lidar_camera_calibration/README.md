@@ -1,112 +1,100 @@
-# LiDAR-Camera Calibration Workflow
+# LiDAR-Camera Calibration
 
-This is a prototype workflow for calibrating a 2D LiDAR to the already calibrated RGB camera.
+This folder calibrates the 2D LiDAR into the RGB1 reference frame using the
+fisheye RGB calibration and fixed fisheye stereo calibration.
 
-Run all commands from this `02_lidar_camera_calibration` folder.
+## Current Inputs
 
-## Assumptions
+- RGB1 intrinsics: `01_rgb_calibration/config/camera_calibration_L_fisheye_no_outliers.npz`
+- RGB2 intrinsics: `01_rgb_calibration/config/camera_calibration_R_fisheye_no_outliers.npz`
+- Stereo extrinsics: `02_stereo_calibration/config/stereo_rgb1_rgb2_fisheye_extrinsics.npz`
+- Checkerboard/LiDAR captures: `data/checkerboard_data*`
 
-- RGB calibration is selected by the repo-level `../config.yaml`.
-- LiDAR-camera extrinsics are saved in `02_lidar_camera_calibration/config/`.
-- LiDAR is an RPLidar-compatible device on `COM5` at baudrate `460800`.
-- Checkerboard is mounted flat on a rigid board.
-- The 2D LiDAR scan plane intersects the checkerboard board edge-to-edge.
-- The board is kept within `1.0 m` during capture.
-- Units are meters in saved calibration files.
+The script also searches `00_data_capture/checkerboard_*` first, so newer
+captures can be placed there without changing code.
 
-## Fixed-Length Segment Setup
-
-The shared settings live in `calibration_settings.py`.
-
-For a 10 x 7 square checkerboard with 25 mm squares:
-
-- Full board width: `10 * 0.025 = 0.250 m`
-- Full board height: `7 * 0.025 = 0.175 m`
-- One square only: `0.025 m`
-
-The workflow currently assumes the LiDAR segment crosses the full board width:
-
-```python
-EXPECTED_SEGMENT_AXIS = "width"
-EXPECTED_SEGMENT_LENGTH_M = 0.250
-```
-
-If your LiDAR scan crosses the full board height instead, change this in `calibration_settings.py`:
-
-```python
-EXPECTED_SEGMENT_AXIS = "height"
-```
-
-Only use `0.025 m` if the LiDAR segment is intentionally one square long, not the full board.
-
-## Steps
-
-1. Capture RGB + LiDAR pairs:
+## Run
 
 ```powershell
-python 01_capture_rgb_lidar_pairs.py
+python 01_calibrate_lidar_to_rgb1_fisheye.py
 ```
 
-Press `s` to save left RGB, right RGB, and LiDAR captures into `data/`.
-
-Press `p` to save the pair and immediately select the LiDAR board segment. The selection helper prints:
-
-- selected point count
-- fitted LiDAR segment length
-- length error compared to the expected board length
-- RMS line residual
-
-A good capture has checkerboard corners detected in RGB and a clean, straight LiDAR segment with length near the configured expected length.
-
-2. Detect checkerboard pose in each RGB image:
+To use captures where the full internal checkerboard is not detected:
 
 ```powershell
-python 02_detect_checkerboard_pose.py
+python 01_calibrate_lidar_to_rgb1_fisheye.py --annotate-missing
 ```
 
-This saves checkerboard plane estimates into `checkerboard_poses/`.
+The default fallback is the simple line mode. For each skipped RGB1 frame, click
+the two endpoints of the visible LiDAR-hit line on the checkerboard. This works
+for this dataset because only distance changes and the LiDAR scan line is
+parallel to the board direction.
 
-3. Select the LiDAR points that hit the board:
+For a stronger partial checkerboard pose when multiple internal corners are
+visible, run:
 
 ```powershell
-python 03_select_lidar_board_points.py
+python 01_calibrate_lidar_to_rgb1_fisheye.py --annotate-missing --annotation-mode partial-grid
 ```
 
-For each pair, drag a box around the LiDAR returns from the board and press Enter.
+Then click visible **internal checkerboard intersections** and enter each
+point's inner-corner `col,row` index. Valid columns are `0-8`; valid rows are
+`0-5`.
 
-This also saves fitted LiDAR segment endpoints in `selected_lidar_points/`. The optimizer uses these endpoints as the known edge-to-edge board constraint.
+The points must not all lie on one line. A single visible row or column gives a
+direction, but not a full board plane. Use points from at least two rows or two
+columns.
 
-4. Tune a manual overlay first:
+The annotations are saved in `outputs/manual_board_corners.json`, so future runs
+reuse them automatically.
+
+If the whole outer board rectangle is visible and you prefer clicking its four
+outer corners instead, run:
 
 ```powershell
-python 04_manual_lidar_camera_overlay.py
+python 01_calibrate_lidar_to_rgb1_fisheye.py --annotate-missing --annotation-mode outer
 ```
 
-Use the trackbars to adjust `tx`, `ty`, `tz`, `roll`, `pitch`, and `yaw`. Press `s` to save `config/lidar_to_camera_extrinsics_manual.npz`.
+## Method
 
-5. Optimize extrinsics using the selected LiDAR board points:
+1. Detect checkerboard corners in RGB1.
+2. Undistort RGB1 fisheye points.
+3. Run `solvePnP` to estimate each checkerboard pose in RGB1.
+4. Convert each checkerboard pose to an RGB1 plane `n^T X + d = 0`.
+5. If the full internal checkerboard is not detected, optionally use manually
+   clicked outer board corners and the known `0.250 m x 0.175 m` board size.
+6. Load LiDAR scans and select returns near the expected distance from each
+   `pair_###.txt` file. The selected LiDAR segment is also biased toward the
+   known board dimension crossed by the LiDAR scan. For this vertical-board
+   dataset the default is the shorter side:
+   `7 * 0.025 = 0.175 m`. Use `--segment-axis width` if the scan crosses the
+   full `0.250 m` board width instead.
+7. Optimize `R_lidar_to_rgb1` and `t_lidar_to_rgb1` by minimizing LiDAR
+   point-to-plane error.
+8. Project selected LiDAR board points into RGB1 and RGB2 using fisheye
+   projection and the fixed stereo transform.
 
-```powershell
-python 05_optimize_lidar_to_camera_extrinsics.py
-```
+## Outputs
 
-The objective is point-to-plane distance: transformed LiDAR board points should lie on the checkerboard plane estimated from the RGB image.
+- `config/lidar_rgb1_extrinsics.npz`
+- `outputs/lidar_rgb1_calibration_eval.json`
+- `outputs/lidar_rgb1_calibration_eval_per_capture.csv`
+- `outputs/lidar_rgb1_leave_one_distance_out.csv`
+- `outputs/rgb1_overlays/*.png`
+- `outputs/rgb2_overlays/*.png`
 
-With the fixed-length edge-to-edge setup, the optimizer also constrains the transformed LiDAR segment endpoints to the known opposite board edges.
+## Latest Result
 
-6. Validate projection:
+Usable observations: 6
 
-```powershell
-python 06_validate_lidar_projection.py
-```
+Skipped observations: 13
 
-Press `u` to toggle raw vs undistorted image, `s` to save the overlay, and `q` to quit.
+Point-to-plane error:
 
-## Capture Tips
+- Mean: `0.0229 m`
+- Median: `0.0172 m`
+- P90: `0.0529 m`
+- Max: `0.0622 m`
 
-- Keep the camera and LiDAR rigidly fixed together.
-- Move the checkerboard board to several locations and angles.
-- Make sure the LiDAR scan plane crosses the whole intended board dimension edge-to-edge.
-- Keep the board within 1 m so the capture preview filters away most background points.
-- Capture poses at different distances and horizontal positions.
-- Start with manual overlay. The automatic optimization has limited constraints because a single 2D LiDAR scan gives points on a line, not a full 3D surface.
+Most skipped captures failed RGB1 checkerboard pose detection, and two had
+non-numeric distance metadata.

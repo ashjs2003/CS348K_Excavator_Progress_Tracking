@@ -2,14 +2,14 @@
 Step 0: evaluate checkerboard calibration image quality before calibration.
 
 Run from this folder:
-    python 00_evaluate_calibration_image_set.py
-    python 00_evaluate_calibration_image_set.py --camera L
-    python 00_evaluate_calibration_image_set.py --camera R
+    python 01_evaluate_calibration_image_set.py
+    python 01_evaluate_calibration_image_set.py --camera L
+    python 01_evaluate_calibration_image_set.py --camera R
 
 This script checks whether the L/R calibration images are numerous,
 sharp, well distributed across the frame, and diverse in size/pose.
-If the configured L/R calibration exists, it also reports solvePnP pose and
-per-image reprojection errors using the saved camera intrinsics.
+It evaluates the four saved calibration variants for each camera and writes
+outputs under outputs/L/<variant>/ and outputs/R/<variant>/.
 """
 
 import argparse
@@ -31,7 +31,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from calib_targets import prompt_camera, resolve_camera
+from calib_targets import resolve_camera
 
 CHECKERBOARD = (9, 6)  # OpenCV inner corners: columns, rows.
 SQUARE_SIZE = 0.025  # meters.
@@ -53,8 +53,9 @@ def parse_args():
     parser.add_argument(
         "--camera",
         choices=["L", "R", "l", "r", "left", "right", "rgb1", "rgb2"],
+        action="append",
         default=None,
-        help="Which camera image set to evaluate: L or R. If omitted, you will be prompted.",
+        help="Which camera image set to evaluate. Omit to run both L and R. May be passed more than once.",
     )
     parser.add_argument(
         "--image-dir",
@@ -66,20 +67,24 @@ def parse_args():
         "--calibration-file",
         type=Path,
         default=None,
-        help="Override the optional .npz with camera_matrix and dist_coeffs.",
+        help="Evaluate only this .npz with camera_matrix and dist_coeffs.",
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
         default=Path(_REPO_ROOT / "01_rgb_calibration"/ "outputs"),
-        help="Folder where reports and plots are written.",
+        help="Root folder where reports and plots are written.",
     )
     return parser.parse_args()
 
 
-def default_calibration_file(target):
-    """Prefer the cleaned calibration if it exists, otherwise use the baseline normal calibration."""
-    return target["outlier_npz"] if target["outlier_npz"].exists() else target["normal_npz"]
+def calibration_variants(target):
+    return [
+        ("normal", "pinhole", target["normal_npz"]),
+        ("fisheye", "fisheye", target["fisheye_npz"]),
+        ("normal_no_outliers", "pinhole", target["outlier_npz"]),
+        ("fisheye_no_outliers", "fisheye", target["fisheye_outlier_npz"]),
+    ]
 
 
 def make_object_points():
@@ -343,16 +348,48 @@ def save_contact_sheet(path, valid_items):
 
 
 def load_calibration(calibration_file):
-    """Load intrinsics if the optional normal calibration file exists."""
+    """Load intrinsics if the optional calibration file exists."""
     if not calibration_file.exists():
-        return None, None
+        return None
 
     data = np.load(calibration_file)
     if "camera_matrix" not in data or "dist_coeffs" not in data:
         print(f"Warning: {calibration_file} is missing camera_matrix or dist_coeffs.")
-        return None, None
+        return None
 
-    return data["camera_matrix"], data["dist_coeffs"]
+    return {
+        "camera_matrix": data["camera_matrix"].astype(np.float64),
+        "dist_coeffs": data["dist_coeffs"].astype(np.float64),
+        "used_image_names": set(str(name) for name in data["used_image_names"]) if "used_image_names" in data else None,
+    }
+
+
+def estimate_pose_and_error(model, objp, corners, camera_matrix, dist_coeffs):
+    """Estimate board pose and reprojection error for either pinhole or fisheye intrinsics."""
+    if model == "fisheye":
+        undistorted = cv2.fisheye.undistortPoints(
+            corners.reshape(-1, 1, 2).astype(np.float64),
+            camera_matrix,
+            dist_coeffs.reshape(-1, 1).astype(np.float64),
+            P=camera_matrix,
+        ).astype(np.float32)
+        ok, rvec, tvec = cv2.solvePnP(objp, undistorted, camera_matrix, None)
+        if not ok:
+            return None
+        projected, _ = cv2.fisheye.projectPoints(
+            objp.reshape(1, -1, 3).astype(np.float64),
+            rvec,
+            tvec,
+            camera_matrix,
+            dist_coeffs.reshape(-1, 1).astype(np.float64),
+        )
+        errors = np.linalg.norm(corners.reshape(-1, 2) - projected.reshape(-1, 2), axis=1)
+        return rvec, tvec, float(np.sqrt(np.mean(errors * errors)))
+
+    ok, rvec, tvec = cv2.solvePnP(objp, corners, camera_matrix, dist_coeffs)
+    if not ok:
+        return None
+    return rvec, tvec, reprojection_rmse(objp, corners, rvec, tvec, camera_matrix, dist_coeffs)
 
 
 def format_range(stats):
@@ -361,30 +398,27 @@ def format_range(stats):
     return f"{stats['min']:.3f} to {stats['max']:.3f}"
 
 
-def main():
-    args = parse_args()
-    camera_name = args.camera if args.camera is not None else prompt_camera()
-    target = resolve_camera(camera_name)
-    image_dir = args.image_dir if args.image_dir is not None else target["image_dir"]
-    calibration_path = (
-        args.calibration_file if args.calibration_file is not None else default_calibration_file(target)
-    )
-
-    args.output_dir.mkdir(parents=True, exist_ok=True)
-
+def evaluate_dataset(camera_label, image_dir, calibration_path, model, variant_name, output_dir):
+    output_dir.mkdir(parents=True, exist_ok=True)
     image_paths = load_image_paths(image_dir)
     if not image_paths:
         print(f"Error: no images found in {image_dir.resolve()}")
-        print(f"Run: python 01_capture_checkerboard_images.py --camera {target['label']}")
-        return
+        return None
 
-    camera_matrix, dist_coeffs = load_calibration(calibration_path)
-    have_calibration = camera_matrix is not None and dist_coeffs is not None
+    calibration = load_calibration(calibration_path)
+    have_calibration = calibration is not None
+    if calibration is not None and calibration["used_image_names"] is not None:
+        used_names = calibration["used_image_names"]
+        image_paths = [path for path in image_paths if path.name in used_names]
+        missing_names = sorted(used_names - {path.name for path in image_paths})
+    else:
+        missing_names = []
+
     if have_calibration:
         print(f"Loaded optional calibration: {calibration_path.resolve()}")
     else:
-        print(f"No usable configured {target['label']} calibration found; skipping pose/reprojection metrics.")
-    print(f"Evaluating {target['label']} images from: {image_dir.resolve()}")
+        print(f"No usable {camera_label} {variant_name} calibration found; skipping pose/reprojection metrics.")
+    print(f"Evaluating {camera_label} {variant_name} images from: {image_dir.resolve()}")
 
     objp = make_object_points()
     valid_items = []
@@ -452,13 +486,18 @@ def main():
         }
 
         if have_calibration:
-            ok, rvec, tvec = cv2.solvePnP(objp, corners, camera_matrix, dist_coeffs)
-            if ok:
+            pose = estimate_pose_and_error(
+                model,
+                objp,
+                corners,
+                calibration["camera_matrix"],
+                calibration["dist_coeffs"],
+            )
+            if pose is not None:
+                rvec, tvec, reprojection_error = pose
                 item["board_distance_m"] = float(np.linalg.norm(tvec))
                 item.update(rotation_vector_to_euler_degrees(rvec))
-                item["reprojection_error_px"] = reprojection_rmse(
-                    objp, corners, rvec, tvec, camera_matrix, dist_coeffs
-                )
+                item["reprojection_error_px"] = reprojection_error
 
         valid_items.append(item)
         csv_rows.append(
@@ -536,13 +575,17 @@ def main():
 
     metrics = {
         "settings": {
-            "camera": target["label"],
+            "camera": camera_label,
+            "variant": variant_name,
+            "model": model,
             "image_dir": str(image_dir),
             "checkerboard_inner_corners": CHECKERBOARD,
             "square_size_m": SQUARE_SIZE,
             "grid_size": [GRID_SIZE, GRID_SIZE],
             "calibration_file": str(calibration_path),
             "used_calibration_file": have_calibration,
+            "used_calibration_image_subset": calibration is not None and calibration["used_image_names"] is not None,
+            "missing_subset_image_names": missing_names,
             "image_size": image_size,
         },
         "summary": {
@@ -563,26 +606,27 @@ def main():
         "invalid_image_names": invalid_images,
     }
 
-    save_json(args.output_dir / "calibration_dataset_metrics.json", metrics)
-    save_csv(args.output_dir / "calibration_per_image_metrics.csv", csv_rows)
-    save_heatmap(args.output_dir / "calibration_coverage_heatmap.png", heatmap_counts)
+    save_json(output_dir / "calibration_dataset_metrics.json", metrics)
+    save_csv(output_dir / "calibration_per_image_metrics.csv", csv_rows)
+    save_heatmap(output_dir / "calibration_coverage_heatmap.png", heatmap_counts)
     save_line_plot(
-        args.output_dir / "reprojection_error_plot.png",
+        output_dir / "reprojection_error_plot.png",
         reprojection_errors,
         "Per-image reprojection error",
         "pixels",
     )
     save_histogram(
-        args.output_dir / "board_area_distribution.png",
+        output_dir / "board_area_distribution.png",
         area_ratios,
         "Checkerboard area ratio distribution",
         "area ratio",
     )
-    save_contact_sheet(args.output_dir / "calibration_contact_sheet.png", valid_items)
+    save_contact_sheet(output_dir / "calibration_contact_sheet.png", valid_items)
 
     print("\nCalibration dataset quality summary")
     print("-----------------------------------")
-    print(f"Camera: {target['label']}")
+    print(f"Camera: {camera_label}")
+    print(f"Variant: {variant_name} ({model})")
     print(f"Images: {total_images}")
     print(f"Valid detections: {valid_count}")
     print(f"Invalid detections: {invalid_count}")
@@ -623,12 +667,67 @@ def main():
 
     print("\nSaved outputs")
     print("-------------")
-    print(args.output_dir / "calibration_dataset_metrics.json")
-    print(args.output_dir / "calibration_per_image_metrics.csv")
-    print(args.output_dir / "calibration_coverage_heatmap.png")
-    print(args.output_dir / "reprojection_error_plot.png")
-    print(args.output_dir / "board_area_distribution.png")
-    print(args.output_dir / "calibration_contact_sheet.png")
+    print(output_dir / "calibration_dataset_metrics.json")
+    print(output_dir / "calibration_per_image_metrics.csv")
+    print(output_dir / "calibration_coverage_heatmap.png")
+    print(output_dir / "reprojection_error_plot.png")
+    print(output_dir / "board_area_distribution.png")
+    print(output_dir / "calibration_contact_sheet.png")
+
+    return {
+        "camera": camera_label,
+        "variant": variant_name,
+        "model": model,
+        "output_dir": str(output_dir),
+        "calibration_file": str(calibration_path),
+        "total_images": total_images,
+        "valid_detections": valid_count,
+        "grid_coverage_percent": grid_coverage_percent,
+        "reprojection_mean_px": reprojection_stats["mean"],
+        "reprojection_p90_px": reprojection_stats["p90"],
+        "reprojection_max_px": reprojection_stats["max"],
+    }
+
+
+def save_summary_csv(path, rows):
+    rows = [row for row in rows if row is not None]
+    if not rows:
+        return
+    with path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def main():
+    args = parse_args()
+    cameras = args.camera if args.camera is not None else ["L", "R"]
+    summary_rows = []
+
+    for camera_name in cameras:
+        target = resolve_camera(camera_name)
+        image_dir = args.image_dir if args.image_dir is not None else target["image_dir"]
+
+        if args.calibration_file is not None:
+            variants = [("custom", "pinhole", args.calibration_file)]
+        else:
+            variants = calibration_variants(target)
+
+        for variant_name, model, calibration_path in variants:
+            variant_output_dir = args.output_dir / target["label"] / variant_name
+            summary_rows.append(
+                evaluate_dataset(
+                    target["label"],
+                    image_dir,
+                    calibration_path,
+                    model,
+                    variant_name,
+                    variant_output_dir,
+                )
+            )
+
+    save_summary_csv(args.output_dir / "calibration_evaluation_summary.csv", summary_rows)
+    print(f"\nSaved summary: {args.output_dir / 'calibration_evaluation_summary.csv'}")
 
 
 if __name__ == "__main__":

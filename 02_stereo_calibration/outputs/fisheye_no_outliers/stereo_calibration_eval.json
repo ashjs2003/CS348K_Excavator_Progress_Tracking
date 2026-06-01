@@ -1,0 +1,31 @@
+{
+  "settings": {
+    "pair_dir": "C:\\Ashmitha\\Stanford\\Quarter 3\\CS 348K\\CS348K_Excavator_Progress_Tracking\\00_data_capture\\int_ext_calib_rgb",
+    "rgb1_calibration": "C:\\Ashmitha\\Stanford\\Quarter 3\\CS 348K\\CS348K_Excavator_Progress_Tracking\\01_rgb_calibration\\config\\camera_calibration_L_fisheye_no_outliers.npz",
+    "rgb2_calibration": "C:\\Ashmitha\\Stanford\\Quarter 3\\CS 348K\\CS348K_Excavator_Progress_Tracking\\01_rgb_calibration\\config\\camera_calibration_R_fisheye_no_outliers.npz",
+    "stereo_calibration": "C:\\Ashmitha\\Stanford\\Quarter 3\\CS 348K\\CS348K_Excavator_Progress_Tracking\\02_stereo_calibration\\config\\stereo_rgb1_rgb2_fisheye_extrinsics.npz",
+    "model": "fisheye"
+  },
+  "summary": {
+    "model": "fisheye",
+    "stereo_rms_error_px": 0.7124232134065518,
+    "baseline_m": 0.07323007123245322,
+    "evaluated_pairs": 37,
+    "skipped_pairs": 0,
+    "epipolar_error_before_rectification_px": {
+      "mean": 0.6004553974855639,
+      "median": 0.42591118129008265,
+      "rmse": 0.89557430951069,
+      "p90": 1.2364952270132294,
+      "max": 5.6008306768319365
+    },
+    "rectification_vertical_error_px": {
+      "mean": 0.5430955061741188,
+      "median": 0.3827325798436334,
+      "rmse": 0.8112762151013434,
+      "p90": 1.1239800660730535,
+      "max": 5.095185589488665
+    }
+  },
+  "skipped_pairs": []
+}
