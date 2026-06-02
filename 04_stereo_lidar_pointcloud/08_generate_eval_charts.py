@@ -26,6 +26,12 @@ if str(_SCRIPT_DIR) not in sys.path:
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+from evaluation.error_vs_range import (
+    binned_error_vs_range,
+    load_ray_pairs_csv,
+    method_ray_csv_suffix,
+    shared_bin_edges,
+)
 from output_runs import add_run_cli_arguments, handle_list_runs, resolve_run_paths
 
 METHOD_ORDER = ("opencv", "dav2", "foundation")
@@ -124,6 +130,118 @@ def chart_coverage_and_accuracy(summary: dict, out_path: Path, scene_label: str)
     fig.tight_layout()
     fig.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
+
+
+def chart_error_vs_range(
+    validation_dir: Path,
+    summary: dict,
+    out_path: Path,
+    scene_label: str,
+    n_bins: int = 8,
+):
+    """Median |Z_est - Z_lidar| vs Z_lidar range; one line per method (shared bin edges)."""
+    methods = methods_in_summary(summary)
+    if not methods:
+        return False
+
+    series = []
+    all_ranges = []
+    for m in methods:
+        csv_path = validation_dir / f"lidar_ray_per_point{method_ray_csv_suffix(m)}.csv"
+        r_m, e_m = load_ray_pairs_csv(csv_path)
+        if len(r_m):
+            all_ranges.append(r_m)
+            series.append((m, r_m, e_m))
+
+    if not series:
+        return False
+
+    edges = summary.get("error_vs_range_bin_edges_m")
+    if edges:
+        bin_edges = np.asarray(edges, dtype=float)
+    else:
+        bin_edges = shared_bin_edges(all_ranges, n_bins=n_bins)
+        if bin_edges is None:
+            return False
+
+    fig, ax = plt.subplots(figsize=(9, 5))
+    fig.suptitle(
+        f"Depth error vs LiDAR range — {scene_label}",
+        fontsize=13,
+        fontweight="bold",
+    )
+
+    for m, r_m, e_m in series:
+        evr = binned_error_vs_range(r_m, e_m, bin_edges)
+        centers, med_cm, p90_cm, counts = [], [], [], []
+        for b in evr["bins"]:
+            if b["count"] == 0 or b["median_error_m"] is None:
+                continue
+            centers.append(b["range_center_m"])
+            med_cm.append(100.0 * b["median_error_m"])
+            p90_cm.append(100.0 * b["p90_error_m"])
+            counts.append(b["count"])
+        if not centers:
+            continue
+        centers = np.asarray(centers)
+        med_cm = np.asarray(med_cm)
+        p90_cm = np.asarray(p90_cm)
+        counts = np.asarray(counts)
+        color = METHOD_COLORS[m]
+        label = METHOD_LABELS[m].replace("\n", " ")
+        ax.plot(centers, med_cm, "o-", color=color, linewidth=2, markersize=7, label=f"{label} · median")
+        ax.plot(
+            centers,
+            p90_cm,
+            "--",
+            color=color,
+            linewidth=1.2,
+            alpha=0.75,
+            label=f"{label} · p90",
+        )
+        for x, y, n in zip(centers, med_cm, counts):
+            ax.annotate(
+                str(n),
+                (x, y),
+                textcoords="offset points",
+                xytext=(0, 6),
+                ha="center",
+                fontsize=7,
+                color=color,
+            )
+
+    ax.set_xlabel("LiDAR depth Z in rectified RGB1 frame (m)")
+    ax.set_ylabel("|Z_est − Z_lidar| (cm)")
+    ax.set_title("n above each point = laser checks in that distance band")
+
+    from matplotlib.lines import Line2D
+
+    style_handles = [
+        Line2D([0], [0], color="#555", linestyle="-", marker="o", markersize=6, label="Solid = median"),
+        Line2D(
+            [0],
+            [0],
+            color="#555",
+            linestyle="--",
+            linewidth=1.5,
+            label="Dashed = p90 (90% of errors below)",
+        ),
+    ]
+    method_handles, method_labels = ax.get_legend_handles_labels()
+    ax.axhline(5, color="#888", linestyle=":", linewidth=0.9, alpha=0.7)
+    ax.axhline(15, color="#888", linestyle="--", linewidth=0.9, alpha=0.7)
+    ax.grid(True, alpha=0.3)
+    ax.legend(
+        style_handles + method_handles,
+        [h.get_label() for h in style_handles] + list(method_labels),
+        loc="best",
+        fontsize=8,
+        ncol=1,
+    )
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    return True
 
 
 def chart_ray_histograms(validation_dir: Path, summary: dict, out_path: Path, scene_label: str):
@@ -280,6 +398,10 @@ def main():
     chart_ray_histograms(out_dir, summary, p2, label)
     if p2.exists():
         charts.append(p2)
+
+    p_range = out_dir / "chart_error_vs_range.png"
+    if chart_error_vs_range(out_dir, summary, p_range, label):
+        charts.append(p_range)
 
     p3 = out_dir / "chart_scorecard.png"
     chart_scorecard(summary, p3, label)

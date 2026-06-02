@@ -133,7 +133,7 @@ def main():
     for ax, (suffix, name) in zip(axes, backends):
         panel_points = []
         if args.mode in ("stereo", "both"):
-            stereo_cloud = paths.stereo / f"stereo_pointcloud_downsampled{suffix}.ply"
+            stereo_cloud = paths.depth / f"stereo_pointcloud_downsampled{suffix}.ply"
             pts = plot_stereo_on_ax(ax, stereo_cloud, args, label=f"stereo ({name})")
             panel_points.append(pts)
 

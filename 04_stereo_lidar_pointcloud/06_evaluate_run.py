@@ -26,6 +26,11 @@ from output_runs import add_run_cli_arguments, handle_list_runs, resolve_run_pat
 from evaluation.consensus_map import save_consensus_depth_std_png
 from evaluation.cross_method import compute_cross_method_metrics
 from evaluation.depth_maps import METHODS, discover_methods, load_metric_depth, load_or_compute_stereo_geometry
+from evaluation.error_vs_range import (
+    binned_error_vs_range,
+    ray_pairs_from_arrays,
+    shared_bin_edges,
+)
 from evaluation.lidar_ray_metrics import (
     compute_lidar_ray_metrics,
     compute_nn_cloud_metrics,
@@ -46,6 +51,12 @@ def parse_args():
     parser.add_argument("--skip-photometric", action="store_true")
     parser.add_argument("--skip-consensus", action="store_true")
     parser.add_argument("--skip-nn", action="store_true", help="Skip legacy nearest-neighbor cloud metrics")
+    parser.add_argument(
+        "--range-bins",
+        type=int,
+        default=8,
+        help="Bins for error-vs-range curves (shared edges across methods)",
+    )
     return parser.parse_args()
 
 
@@ -91,8 +102,12 @@ def evaluate_method(
     ray_path = paths.validation / f"lidar_ray_depth_metrics{suffix}.json"
     ray_path.write_text(json.dumps(ray, indent=2) + "\n")
 
+    compare = proj_valid & sampled_valid
+    range_m, error_m = ray_pairs_from_arrays(z_lidar, z_est, compare)
+    ray["_ray_pairs"] = {"range_m": range_m, "error_m": error_m}
+
     if not args.skip_nn:
-        cloud_path = paths.stereo / f"stereo_pointcloud_downsampled{suffix}.ply"
+        cloud_path = paths.depth / f"stereo_pointcloud_downsampled{suffix}.ply"
         nn = compute_nn_cloud_metrics(points_rect, cloud_path)
         if nn is not None:
             nn["valid_lidar_points"] = int(len(points_rect))
@@ -113,7 +128,7 @@ def main():
         print(f"Run: {paths.run_dir.name}")
     paths.validation.mkdir(parents=True, exist_ok=True)
 
-    geometry = load_or_compute_stereo_geometry(paths.stereo, paths.rgb1_image, paths.rgb2_image)
+    geometry = load_or_compute_stereo_geometry(paths.depth, paths.rgb1_image, paths.rgb2_image)
     image_size = geometry["image_size"]
     points_rect, lidar_path = lidar_points_in_rectified_frame(paths.lidar_csv, image_size, geometry)
     print(f"LiDAR extrinsics: {lidar_path}")
@@ -122,16 +137,16 @@ def main():
     colors = np.tile(np.array([[1.0, 0.05, 0.05]]), (len(points_rect), 1))
     write_ply(paths.validation / "lidar_points_in_rgb1_frame.ply", points_rect, colors)
 
-    methods = discover_methods(paths.stereo)
+    methods = discover_methods(paths.depth)
     if not methods:
         raise RuntimeError(
-            f"No depth products in {paths.stereo}. Run 02_make_stereo_pointcloud.py (and optional DA-V2 / Foundation) first."
+            f"No depth products in {paths.depth}. Run 02_make_stereo_pointcloud.py (and optional DA-V2 / Foundation) first."
         )
     print(f"Methods found: {', '.join(methods)}")
 
     summary = {"run": paths.run_dir.name if paths.run_dir else "legacy", "methods": {}, "photometric": {}}
     for method in methods:
-        depth_m = load_metric_depth(paths.stereo, method, geometry)
+        depth_m = load_metric_depth(paths.depth, method, geometry)
         if depth_m is None:
             continue
         print(f"\n=== {method} ===")
@@ -143,10 +158,39 @@ def main():
         if med is not None:
             print(f"  ray median: {med:.4f} m  inlier: {row['inlier_ratio']:.2%}  free-space viol: {fs:.1f}%")
 
+    pairs_by_method = {}
+    range_arrays = []
+    for method in summary["methods"]:
+        pairs = summary["methods"][method].pop(
+            "_ray_pairs", {"range_m": np.array([]), "error_m": np.array([])}
+        )
+        pairs_by_method[method] = pairs
+        range_arrays.append(pairs["range_m"])
+
+    shared_edges = shared_bin_edges(range_arrays, n_bins=args.range_bins)
+    if shared_edges is not None:
+        summary["error_vs_range_bin_edges_m"] = [float(x) for x in shared_edges]
+        for method in summary["methods"]:
+            r_m = pairs_by_method[method]["range_m"]
+            e_m = pairs_by_method[method]["error_m"]
+            if len(r_m):
+                evr = binned_error_vs_range(r_m, e_m, shared_edges)
+            else:
+                evr = {"bin_edges_m": summary["error_vs_range_bin_edges_m"], "bins": [], "n_points": 0}
+            summary["methods"][method]["error_vs_range"] = evr
+            suffix = METHODS[method]["suffix"]
+            ray_json = paths.validation / f"lidar_ray_depth_metrics{suffix}.json"
+            if ray_json.is_file():
+                payload = json.loads(ray_json.read_text())
+                payload["error_vs_range"] = evr
+                ray_json.write_text(json.dumps(payload, indent=2) + "\n")
+        print(f"\nError vs range: shared {len(shared_edges) - 1} bins "
+              f"({summary['error_vs_range_bin_edges_m'][0]:.2f}–"
+              f"{summary['error_vs_range_bin_edges_m'][-1]:.2f} m)")
     if not args.skip_photometric:
         photometric = {}
         for key in ("opencv", "foundation"):
-            result = run_photometric_for_method(paths.stereo, key)
+            result = run_photometric_for_method(paths.depth, key)
             if result is not None:
                 photometric[key] = result
                 print(f"\nPhotometric {key}: mean error = {result.get('mean_photometric_error')}")
@@ -156,7 +200,7 @@ def main():
             summary["photometric"] = photometric
 
     if len(methods) >= 2:
-        cross = compute_cross_method_metrics(paths.stereo, geometry, eps=args.cross_eps)
+        cross = compute_cross_method_metrics(paths.depth, geometry, eps=args.cross_eps)
         cross_path = paths.validation / "cross_method_metrics.json"
         cross_path.write_text(json.dumps(cross, indent=2) + "\n")
         summary["cross_method"] = cross
@@ -164,7 +208,7 @@ def main():
 
     if not args.skip_consensus and len(methods) >= 2:
         consensus_info = save_consensus_depth_std_png(
-            paths.stereo,
+            paths.depth,
             geometry,
             paths.validation / "consensus_depth_std.png",
             scene_label=paths.run_dir.name if paths.run_dir else None,

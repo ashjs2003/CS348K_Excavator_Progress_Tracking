@@ -286,7 +286,7 @@ def save_consensus_depth_std_png(
         _render_on_rgb(data, rgb, caption, overlay_path)
         overlay_saved = True
     else:
-        overlay_reason = "rgb1_rectified.png not found in stereo/ (run 02_make_stereo_pointcloud.py first)"
+        overlay_reason = "rgb1_rectified.png not found in depth/ (run 02_make_stereo_pointcloud.py first)"
 
     return {
         "saved": True,

@@ -248,11 +248,12 @@ def build_report(summary: dict, run_label: str, validation_dir: Path) -> str:
         f"- `{validation_dir / 'chart_scorecard.png'}` — green/yellow/red at-a-glance table",
         f"- `{validation_dir / 'chart_coverage_and_accuracy.png'}` — side-by-side bar charts",
         f"- `{validation_dir / 'chart_ray_error_histogram.png'}` — laser error distribution",
+        f"- `{validation_dir / 'chart_error_vs_range.png'}` — |ΔZ| vs LiDAR range (median/p90 per bin)",
         f"- `{validation_dir / 'chart_photometric.png'}` — stereo consistency (if Foundation/OpenCV run)",
         "",
         "**From evaluation (`06`):**",
         f"- `{validation_dir / 'consensus_depth_std.png'}` — σ(Z) heatmap; caption in `evaluation_summary.json` → `consensus_map.caption`",
-        f"- `{validation_dir / 'consensus_depth_std_on_rgb.png'}` — same on `stereo/rgb1_rectified.png`",
+        f"- `{validation_dir / 'consensus_depth_std_on_rgb.png'}` — same on `depth/rgb1_rectified.png`",
     ])
     if consensus.get("summary"):
         lines.extend([
@@ -262,7 +263,7 @@ def build_report(summary: dict, run_label: str, validation_dir: Path) -> str:
     lines.extend([
         "",
         "**Scene previews:**",
-        f"- `../stereo/disparity_preview.png`, `depth_preview_dav2.png`",
+        f"- `../depth/disparity_preview.png`, `depth_preview_dav2.png`",
         f"- `../overlays/lidar_overlay_rgb1.png`",
         "",
         "---",

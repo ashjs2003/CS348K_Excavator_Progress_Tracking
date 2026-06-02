@@ -86,12 +86,17 @@ def compute_lidar_ray_metrics(
             "free_space_violation_pct": 0.0,
             "median_free_space_violation_m": None,
             "free_space_tau_m": float(free_space_tau),
+            "error_vs_range": {"bin_edges_m": [], "bins": [], "n_points": 0},
         }
 
     errors = np.abs(z_est[compare] - z_lidar[compare])
     inliers = errors < ray_inlier_tau
     violations = (z_est[compare] < z_lidar[compare] - free_space_tau)
     viol_vals = z_lidar[compare][violations] - z_est[compare][violations]
+
+    from evaluation.error_vs_range import compute_error_vs_range
+
+    error_vs_range = compute_error_vs_range(z_lidar, z_est, compare)
 
     return {
         "valid_lidar_points": int(len(points_rect)),
@@ -108,6 +113,7 @@ def compute_lidar_ray_metrics(
         "free_space_violation_pct": float(100.0 * np.count_nonzero(violations) / n_compare),
         "median_free_space_violation_m": float(np.median(viol_vals)) if len(viol_vals) else None,
         "free_space_tau_m": float(free_space_tau),
+        "error_vs_range": error_vs_range,
     }
 
 

@@ -164,7 +164,7 @@ def main():
     # Clone + weights check (Windows/Linux); skipped on macOS via require_* above.
     ensure_setup(args.fs_root, args.ckpt, args.conda_env)
     paths = resolve_run_paths(args.run)
-    out_dir = paths.stereo
+    out_dir = paths.depth
     out_dir.mkdir(parents=True, exist_ok=True)
 
     if paths.run_dir:

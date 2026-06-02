@@ -29,7 +29,8 @@ from dav2_scale import (
     save_depth_preview,
     write_scale_info,
 )
-from ml_inference_platform import dav2_setup_command, require_dav2_or_exit
+from evaluation.depth_maps import load_or_compute_stereo_geometry
+from ml_inference_platform import dav2_python_command, dav2_setup_command, require_dav2_or_exit
 from pointcloud_utils import voxel_downsample, write_ply
 from stereo_shared import draw_rectification_check, rectify_stereo_pair
 
@@ -82,12 +83,7 @@ def run_dav2_inference(image_path, out_relative, da_root, ckpt, conda_env, encod
     env = os.environ.copy()
     env["DEPTH_ANYTHING_V2_ROOT"] = str(da_root.resolve())
     cmd = [
-        "conda",
-        "run",
-        "-n",
-        conda_env,
-        "--no-capture-output",
-        "python",
+        *dav2_python_command(conda_env),
         str(INFER_SCRIPT),
         "--image",
         str(image_path),
@@ -149,7 +145,7 @@ def main():
     ensure_files(args.da_root, args.ckpt)
 
     paths = resolve_run_paths(args.run)
-    out_dir = paths.stereo
+    out_dir = paths.depth
     out_dir.mkdir(parents=True, exist_ok=True)
     if paths.run_dir:
         print(f"Run: {paths.run_dir.name}")
@@ -163,9 +159,9 @@ def main():
     if image1 is None or image2 is None:
         raise RuntimeError("Could not load capture images.")
 
-    stereo = rectify_stereo_pair(image1, image2, rgb1_calib, rgb2_calib, R, t)
-    Q, P1, rect1 = stereo["Q"], stereo["P1"], stereo["rect1"]
-    K = P1[:3, :3]
+    geometry = load_or_compute_stereo_geometry(out_dir, paths.rgb1_image, paths.rgb2_image)
+    Q = geometry["Q"]
+    K = geometry["P1"][:3, :3]
 
     rect1_path = out_dir / "rgb1_rectified.png"
     if args.reuse_rectified and rect1_path.is_file():
@@ -173,6 +169,8 @@ def main():
         if rect1 is None:
             raise RuntimeError(f"Could not read {rect1_path}")
     else:
+        stereo = rectify_stereo_pair(image1, image2, rgb1_calib, rgb2_calib, R, t)
+        rect1 = stereo["rect1"]
         cv2.imwrite(str(rect1_path), rect1)
         cv2.imwrite(str(out_dir / "rgb2_rectified.png"), stereo["rect2"])
         cv2.imwrite(str(out_dir / "rectification_check.png"), draw_rectification_check(rect1, stereo["rect2"]))

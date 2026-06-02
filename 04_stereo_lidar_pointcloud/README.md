@@ -116,15 +116,20 @@ python 01_capture_one_set.py --label carpet
 **OpenCV (required baseline):**
 
 ```bash
-python 02_make_stereo_pointcloud.py --run latest --method carpet
+python 02_make_stereo_pointcloud.py --run latest --method stereobm
 ```
 
-`--method` choices: `carpet` (default), `sgbm`, `bm`, `flow`, `blend`.
+`--method` choices: `stereobm` (default, OpenCV StereoBM), `sgbm`, `flow`, `blend` (aliases: `carpet`, `bm`).
 
 **Depth Anything V2** (after OpenCV):
 
 ```bash
 python 02_make_depth_anything_pointcloud.py --run latest --reuse-rectified
+
+# Batch all scene folders under ../data/ → outputs/runs/<scene>/pair_<id>/
+python batch_dav2_data_folders.py
+python batch_dav2_data_folders.py --folders checkerboard_data excavator_S --skip-existing
+python 06_evaluate_run.py --run checkerboard_data/pair_000
 ```
 
 **FoundationStereo** (Windows + CUDA, after OpenCV):
@@ -135,7 +140,7 @@ python 02_make_stereo_pointcloud_foundation.py --run latest --reuse-rectified
 
 ### 3. Structured evaluation (recommended)
 
-Ray depth, free-space violations, photometric (M1/M3), cross-method, consensus PNG:
+Ray depth, free-space violations, error-vs-range bins, photometric (M1/M3), cross-method, consensus PNG:
 
 ```bash
 python 06_evaluate_run.py --run latest
@@ -189,7 +194,7 @@ python compare_stereo_methods.py --run latest
 
 Prints coverage, **ray median**, **free-space violation %**, photometric error, and cross-method stats from `evaluation_summary.json`.
 
-### Output files (same run, `stereo/` folder)
+### Output files (same run, `depth/` folder)
 
 | OpenCV | Depth Anything V2 | FoundationStereo |
 |--------|-------------------|------------------|
@@ -219,7 +224,7 @@ Lower **median_error** (meters) = better agreement with the 2D LiDAR scan in the
 
 1. Capture and OpenCV on either machine → `outputs/runs/<run_id>/`.
 2. Copy that folder to Windows for FoundationStereo if needed.
-3. Copy back `stereo/*_foundation*` or run DA-V2 on either platform.
+3. Copy back `depth/*_foundation*` or run DA-V2 on either platform.
 4. Compare on either machine with `compare_stereo_methods.py` and `04_view_pointcloud.py`.
 
 ---
@@ -228,7 +233,7 @@ Lower **median_error** (meters) = better agreement with the 2D LiDAR scan in the
 
 ### 1. OpenCV (`02_make_stereo_pointcloud.py`)
 
-- Classical stereo: **StereoBM** (`--method carpet`) or SGBM / optical flow.
+- Classical stereo: **StereoBM** (`--method stereobm`) or SGBM / optical flow.
 - Metric depth from `cv2.reprojectImageTo3D(disparity, Q)`.
 - Works on **Python 3.12+** in your normal env (no conda GPU stack).
 

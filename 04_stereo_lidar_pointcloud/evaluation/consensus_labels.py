@@ -11,21 +11,21 @@ from dataclasses import dataclass, field
 
 from evaluation.depth_maps import METHODS
 
-# Per-method display + depth product path (under run stereo/)
+# Per-method display + depth product path (under run depth/)
 METHOD_META: dict[str, dict[str, str]] = {
     "opencv": {
         "label": "OpenCV stereo",
-        "depth_product": "stereo/depth_metric_opencv.npy",
+        "depth_product": "depth/depth_metric_opencv.npy",
         "description": "rectified pair → disparity.npy → metric Z (Q, P1)",
     },
     "dav2": {
         "label": "Depth Anything V2",
-        "depth_product": "stereo/depth_metric_dav2.npy",
+        "depth_product": "depth/depth_metric_dav2.npy",
         "description": "rgb1_rectified → relative depth → scale fit vs stereo",
     },
     "foundation": {
         "label": "FoundationStereo",
-        "depth_product": "stereo/disparity_foundation.npy → metric Z",
+        "depth_product": "depth/disparity_foundation.npy → metric Z",
         "description": "rectified pair → learned disparity → metric Z (Q, P1)",
     },
 }
@@ -48,10 +48,10 @@ def method_depth_product(method_id: str) -> str:
         return meta["depth_product"]
     cfg = METHODS.get(method_id, {})
     if cfg.get("depth_name"):
-        return f"stereo/{cfg['depth_name']}"
+        return f"depth/{cfg['depth_name']}"
     if cfg.get("disparity_name"):
-        return f"stereo/{cfg['disparity_name']}"
-    return f"stereo/<{method_id}>"
+        return f"depth/{cfg['disparity_name']}"
+    return f"depth/<{method_id}>"
 
 
 def compared_methods_line(method_ids: list[str]) -> str:

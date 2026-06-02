@@ -71,13 +71,13 @@ def main():
         print(f"Run: {paths.run_dir.name}  method: {method}")
     print(f"Writing validation outputs to {validation_dir}")
 
-    geometry = load_or_compute_stereo_geometry(paths.stereo, paths.rgb1_image, paths.rgb2_image)
+    geometry = load_or_compute_stereo_geometry(paths.depth, paths.rgb1_image, paths.rgb2_image)
     points_rect, lidar_path = lidar_points_in_rectified_frame(
         paths.lidar_csv, geometry["image_size"], geometry
     )
     print(f"Loaded LiDAR-to-RGB1 extrinsics: {lidar_path}")
 
-    depth_m = load_metric_depth(paths.stereo, method, geometry)
+    depth_m = load_metric_depth(paths.depth, method, geometry)
     if depth_m is None:
         raise RuntimeError(
             f"No depth map for method {method!r}. Run the matching 02_make_* script first."
@@ -111,7 +111,7 @@ def main():
     ray_path = validation_dir / f"lidar_ray_depth_metrics{suffix}.json"
     ray_path.write_text(json.dumps(ray, indent=2) + "\n")
 
-    stereo_cloud = paths.stereo / f"stereo_pointcloud_downsampled{args.stereo_suffix}.ply"
+    stereo_cloud = paths.depth / f"stereo_pointcloud_downsampled{args.stereo_suffix}.ply"
     nn = compute_nn_cloud_metrics(points_rect, stereo_cloud)
     if nn is not None:
         nn["valid_lidar_points"] = int(len(points_rect))

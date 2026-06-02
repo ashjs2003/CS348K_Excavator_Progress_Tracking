@@ -3,7 +3,7 @@ Build a colored stereo point cloud from the latest capture run.
 
 Run:
     python 02_make_stereo_pointcloud.py
-    python 02_make_stereo_pointcloud.py --method carpet
+    python 02_make_stereo_pointcloud.py --method stereobm
     python 02_make_stereo_pointcloud.py --run 20260521_143022_carpet --list-runs
 """
 
@@ -18,6 +18,8 @@ from calib_utils import load_camera_calibration, load_stereo_rgb1_to_rgb2
 from dav2_scale import depth_map_from_disparity
 from evaluation.depth_maps import save_stereo_geometry
 from pointcloud_utils import voxel_downsample, write_ply
+from stereo_methods import DEFAULT_STEREO_METHOD, normalize_stereo_method
+from stereo_shared import stereo_rectify_maps
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(_REPO_ROOT) not in sys.path:
@@ -39,63 +41,12 @@ MEDIAN_FILTER_K = 5
 LR_MAX_DIFF_PX = 2.5
 # Rectified flow still has vertical component when RGB2 intrinsics are approximate.
 FLOW_EPIPOLAR_MAX_PX = 8.0
-FISHEYE_RECTIFY_BALANCE = 1.0
-
-
 def draw_rectification_check(rect1, rect2, line_step=40):
     """Stack rectified images side-by-side and draw horizontal guide lines."""
     combined = np.hstack([rect1, rect2])
     for y in range(0, combined.shape[0], line_step):
         cv2.line(combined, (0, y), (combined.shape[1] - 1, y), (0, 255, 255), 1)
     return combined
-
-
-def is_fisheye_calibration(calib):
-    return np.asarray(calib["dist"]).size == 4
-
-
-def stereo_rectify_maps(rgb1_calib, rgb2_calib, image_size, R, t):
-    if is_fisheye_calibration(rgb1_calib) or is_fisheye_calibration(rgb2_calib):
-        print(f"Using fisheye stereo rectification (balance={FISHEYE_RECTIFY_BALANCE:.2f})")
-        R1, R2, P1, P2, Q = cv2.fisheye.stereoRectify(
-            rgb1_calib["K"],
-            rgb1_calib["dist"].reshape(-1, 1),
-            rgb2_calib["K"],
-            rgb2_calib["dist"].reshape(-1, 1),
-            image_size,
-            R,
-            t.reshape(3, 1),
-            flags=cv2.fisheye.CALIB_ZERO_DISPARITY,
-            newImageSize=image_size,
-            balance=FISHEYE_RECTIFY_BALANCE,
-            fov_scale=1.0,
-        )
-        map1x, map1y = cv2.fisheye.initUndistortRectifyMap(
-            rgb1_calib["K"], rgb1_calib["dist"].reshape(-1, 1), R1, P1, image_size, cv2.CV_32FC1
-        )
-        map2x, map2y = cv2.fisheye.initUndistortRectifyMap(
-            rgb2_calib["K"], rgb2_calib["dist"].reshape(-1, 1), R2, P2, image_size, cv2.CV_32FC1
-        )
-        return R1, R2, P1, P2, Q, map1x, map1y, map2x, map2y
-
-    R1, R2, P1, P2, Q, _, _ = cv2.stereoRectify(
-        rgb1_calib["K"],
-        rgb1_calib["dist"],
-        rgb2_calib["K"],
-        rgb2_calib["dist"],
-        image_size,
-        R,
-        t,
-        flags=cv2.CALIB_ZERO_DISPARITY,
-        alpha=0,
-    )
-    map1x, map1y = cv2.initUndistortRectifyMap(
-        rgb1_calib["K"], rgb1_calib["dist"], R1, P1, image_size, cv2.CV_32FC1
-    )
-    map2x, map2y = cv2.initUndistortRectifyMap(
-        rgb2_calib["K"], rgb2_calib["dist"], R2, P2, image_size, cv2.CV_32FC1
-    )
-    return R1, R2, P1, P2, Q, map1x, map1y, map2x, map2y
 
 
 def make_sgbm(num_disparities):
@@ -262,7 +213,7 @@ def compute_disparity_sgbm(gray1, gray2, min_disparity, num_disparities):
 
 def compute_disparity_bm(gray1, gray2, min_disparity, num_disparities, Q=None, depth_min_m=SCENE_DEPTH_MIN_M, depth_max_m=SCENE_DEPTH_MAX_M):
     """
-    StereoBM tuned for carpet: narrow search band, stricter uniqueness, LR check.
+    OpenCV StereoBM (stereobm): narrow search band, stricter uniqueness, LR check.
     """
     block_size = 21
     forward = run_stereo_bm(gray1, gray2, min_disparity, num_disparities, block_size=block_size, uniqueness=5)
@@ -293,7 +244,7 @@ def compute_disparity_bm(gray1, gray2, min_disparity, num_disparities, Q=None, d
 
 
 def compute_disparity_flow(gray1, gray2, min_disparity, num_disparities):
-    """Dense optical flow on rectified views (use --method carpet if this is sparse)."""
+    """Dense optical flow on rectified views (use --method stereobm if this is sparse)."""
     max_disp = float(num_disparities)
     flow = cv2.calcOpticalFlowFarneback(
         gray1,
@@ -330,9 +281,9 @@ def compute_disparity_flow(gray1, gray2, min_disparity, num_disparities):
 
 def compute_disparity_blend(gray1, gray2, min_disparity, num_disparities, Q=None):
     sgbm = compute_disparity_sgbm(gray1, gray2, min_disparity, num_disparities)
-    carpet = compute_disparity_bm(gray1, gray2, min_disparity, num_disparities, Q=Q)
+    stereobm_disp = compute_disparity_bm(gray1, gray2, min_disparity, num_disparities, Q=Q)
     valid_sgbm = sgbm > 0
-    out = carpet.copy()
+    out = stereobm_disp.copy()
     out[valid_sgbm] = sgbm[valid_sgbm]
     print(
         f"Blend: kept SGBM on {100.0 * np.count_nonzero(valid_sgbm) / sgbm.size:.1f}% pixels, "
@@ -344,7 +295,7 @@ def compute_disparity_blend(gray1, gray2, min_disparity, num_disparities, Q=None
 def compute_disparity(gray1, gray2, min_disparity, num_disparities, method, Q=None, depth_min_m=SCENE_DEPTH_MIN_M, depth_max_m=SCENE_DEPTH_MAX_M):
     if method == "sgbm":
         disp = compute_disparity_sgbm(gray1, gray2, min_disparity, num_disparities)
-    elif method in ("carpet", "bm"):
+    elif method == "stereobm":
         disp = compute_disparity_bm(gray1, gray2, min_disparity, num_disparities, Q=Q, depth_min_m=depth_min_m, depth_max_m=depth_max_m)
     elif method == "flow":
         disp = compute_disparity_flow(gray1, gray2, min_disparity, num_disparities)
@@ -389,9 +340,9 @@ def parse_args():
     )
     parser.add_argument(
         "--method",
-        choices=["sgbm", "carpet", "bm", "flow", "blend"],
-        default="carpet",
-        help="carpet/bm = StereoBM for weave; flow = optical flow; blend = SGBM over BM",
+        type=normalize_stereo_method,
+        default=DEFAULT_STEREO_METHOD,
+        help="stereobm (OpenCV StereoBM, default), sgbm, flow, blend; aliases: carpet, bm",
     )
     parser.add_argument("--depth-min", type=float, default=SCENE_DEPTH_MIN_M, help="Min plausible depth (m) for disparity filter")
     parser.add_argument("--depth-max", type=float, default=SCENE_DEPTH_MAX_M, help="Max plausible depth (m) for disparity filter")
@@ -404,7 +355,7 @@ def main():
     if handle_list_runs(args):
         return
     paths = resolve_run_paths(args.run)
-    out_dir = paths.stereo
+    out_dir = paths.depth
     rgb1_image = paths.rgb1_image
     rgb2_image = paths.rgb2_image
     if paths.run_dir:
@@ -472,7 +423,7 @@ def main():
 
     if coverage < 5.0:
         print(
-            "Warning: very low disparity coverage on carpet. "
+            "Warning: very low disparity coverage (StereoBM). "
             "Calibrate RGB2 (--camera rgb2), add light/texture, or use LiDAR for the floor plane."
         )
 

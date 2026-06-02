@@ -10,6 +10,56 @@ from pointcloud_utils import voxel_downsample, write_ply
 
 MIN_DEPTH_M = 0.1
 MAX_DEPTH_M = 5.0
+FISHEYE_RECTIFY_BALANCE = 1.0
+
+
+def is_fisheye_calibration(calib) -> bool:
+    return np.asarray(calib["dist"]).size == 4
+
+
+def stereo_rectify_maps(rgb1_calib, rgb2_calib, image_size, R, t):
+    """Rectification maps and Q/P1 — matches 02_make_stereo_pointcloud (fisheye when needed)."""
+    if is_fisheye_calibration(rgb1_calib) or is_fisheye_calibration(rgb2_calib):
+        print(f"Using fisheye stereo rectification (balance={FISHEYE_RECTIFY_BALANCE:.2f})")
+        R1, R2, P1, P2, Q = cv2.fisheye.stereoRectify(
+            rgb1_calib["K"],
+            rgb1_calib["dist"].reshape(-1, 1),
+            rgb2_calib["K"],
+            rgb2_calib["dist"].reshape(-1, 1),
+            image_size,
+            R,
+            t.reshape(3, 1),
+            flags=cv2.fisheye.CALIB_ZERO_DISPARITY,
+            newImageSize=image_size,
+            balance=FISHEYE_RECTIFY_BALANCE,
+            fov_scale=1.0,
+        )
+        map1x, map1y = cv2.fisheye.initUndistortRectifyMap(
+            rgb1_calib["K"], rgb1_calib["dist"].reshape(-1, 1), R1, P1, image_size, cv2.CV_32FC1
+        )
+        map2x, map2y = cv2.fisheye.initUndistortRectifyMap(
+            rgb2_calib["K"], rgb2_calib["dist"].reshape(-1, 1), R2, P2, image_size, cv2.CV_32FC1
+        )
+        return R1, R2, P1, P2, Q, map1x, map1y, map2x, map2y
+
+    R1, R2, P1, P2, Q, _, _ = cv2.stereoRectify(
+        rgb1_calib["K"],
+        rgb1_calib["dist"],
+        rgb2_calib["K"],
+        rgb2_calib["dist"],
+        image_size,
+        R,
+        t,
+        flags=cv2.CALIB_ZERO_DISPARITY,
+        alpha=0,
+    )
+    map1x, map1y = cv2.initUndistortRectifyMap(
+        rgb1_calib["K"], rgb1_calib["dist"], R1, P1, image_size, cv2.CV_32FC1
+    )
+    map2x, map2y = cv2.initUndistortRectifyMap(
+        rgb2_calib["K"], rgb2_calib["dist"], R2, P2, image_size, cv2.CV_32FC1
+    )
+    return R1, R2, P1, P2, Q, map1x, map1y, map2x, map2y
 
 
 def draw_rectification_check(rect1, rect2, line_step=40):
@@ -49,22 +99,8 @@ def disparity_coverage(disparity):
 def rectify_stereo_pair(image1, image2, rgb1_calib, rgb2_calib, R, t):
     """Rectify a capture pair; returns rectified images and stereo geometry."""
     image_size = (image1.shape[1], image1.shape[0])
-    R1, R2, P1, P2, Q, _, _ = cv2.stereoRectify(
-        rgb1_calib["K"],
-        rgb1_calib["dist"],
-        rgb2_calib["K"],
-        rgb2_calib["dist"],
-        image_size,
-        R,
-        t,
-        flags=cv2.CALIB_ZERO_DISPARITY,
-        alpha=0,
-    )
-    map1x, map1y = cv2.initUndistortRectifyMap(
-        rgb1_calib["K"], rgb1_calib["dist"], R1, P1, image_size, cv2.CV_32FC1
-    )
-    map2x, map2y = cv2.initUndistortRectifyMap(
-        rgb2_calib["K"], rgb2_calib["dist"], R2, P2, image_size, cv2.CV_32FC1
+    R1, R2, P1, P2, Q, map1x, map1y, map2x, map2y = stereo_rectify_maps(
+        rgb1_calib, rgb2_calib, image_size, R, t
     )
     rect1 = cv2.remap(image1, map1x, map1y, cv2.INTER_LINEAR)
     rect2 = cv2.remap(image2, map2x, map2y, cv2.INTER_LINEAR)

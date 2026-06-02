@@ -42,7 +42,7 @@ def main():
         return
 
     paths = resolve_run_paths(args.run)
-    stereo_dir = paths.stereo
+    stereo_dir = paths.depth
     val = paths.validation
     print(f"Run: {paths.run_dir.name if paths.run_dir else 'legacy'}\n")
 
