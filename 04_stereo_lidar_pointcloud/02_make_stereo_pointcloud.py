@@ -16,6 +16,7 @@ import numpy as np
 
 from calib_utils import load_camera_calibration, load_stereo_rgb1_to_rgb2
 from dav2_scale import depth_map_from_disparity
+from depth_layout import ensure_method_tree, method_dir, shared_dir
 from evaluation.depth_maps import save_stereo_geometry
 from pointcloud_utils import voxel_downsample, write_ply
 from stereo_methods import DEFAULT_STEREO_METHOD, normalize_stereo_method
@@ -396,9 +397,12 @@ def main():
     rect1 = cv2.remap(image1, map1x, map1y, cv2.INTER_LINEAR)
     rect2 = cv2.remap(image2, map2x, map2y, cv2.INTER_LINEAR)
 
-    cv2.imwrite(str(out_dir / "rgb1_rectified.png"), rect1)
-    cv2.imwrite(str(out_dir / "rgb2_rectified.png"), rect2)
-    cv2.imwrite(str(out_dir / "rectification_check.png"), draw_rectification_check(rect1, rect2))
+    ensure_method_tree(out_dir)
+    sdir = shared_dir(out_dir)
+    odir = method_dir(out_dir, "opencv")
+    cv2.imwrite(str(sdir / "rgb1_rectified.png"), rect1)
+    cv2.imwrite(str(sdir / "rgb2_rectified.png"), rect2)
+    cv2.imwrite(str(sdir / "rectification_check.png"), draw_rectification_check(rect1, rect2))
     save_stereo_geometry(out_dir, R1, P1, Q, baseline_m, image_size)
 
     gray1 = prepare_gray_for_matching(cv2.cvtColor(rect1, cv2.COLOR_BGR2GRAY))
@@ -416,10 +420,10 @@ def main():
     coverage, disp_min, disp_max = disparity_coverage(disparity)
     print(f"Disparity coverage: {coverage:.1f}% (range {disp_min:.1f}..{disp_max:.1f} px)")
 
-    np.save(out_dir / "disparity.npy", disparity)
-    save_disparity_preview(out_dir / "disparity_preview.png", disparity)
+    np.save(odir / "disparity.npy", disparity)
+    save_disparity_preview(odir / "disparity_preview.png", disparity)
     depth_metric = depth_map_from_disparity(disparity, Q)
-    np.save(out_dir / "depth_metric_opencv.npy", depth_metric.astype(np.float32))
+    np.save(odir / "depth_metric.npy", depth_metric.astype(np.float32))
 
     if coverage < 5.0:
         print(
@@ -462,9 +466,9 @@ def main():
             )
         raise RuntimeError("Stereo point cloud is empty; check disparity_preview.png and rectification_check.png.")
 
-    save_point_cloud(out_dir / "stereo_pointcloud.ply", points, colors)
+    save_point_cloud(odir / "pointcloud.ply", points, colors)
     down_points, down_colors = voxel_downsample(points, colors, voxel_size=0.02)
-    save_point_cloud(out_dir / "stereo_pointcloud_downsampled.ply", down_points, down_colors)
+    save_point_cloud(odir / "pointcloud_downsampled.ply", down_points, down_colors)
 
     if paths.run_dir:
         write_run_info(
@@ -475,15 +479,15 @@ def main():
             stereo_point_count_downsampled=int(len(down_points)),
         )
 
-    print(f"Saved {out_dir / 'rgb1_rectified.png'}")
-    print(f"Saved {out_dir / 'rgb2_rectified.png'}")
-    print(f"Saved {out_dir / 'rectification_check.png'}")
-    print(f"Saved {out_dir / 'stereo_geometry.npz'}")
-    print(f"Saved {out_dir / 'disparity.npy'}")
-    print(f"Saved {out_dir / 'depth_metric_opencv.npy'}")
-    print(f"Saved {out_dir / 'disparity_preview.png'}")
-    print(f"Saved {out_dir / 'stereo_pointcloud.ply'}")
-    print(f"Saved {out_dir / 'stereo_pointcloud_downsampled.ply'}")
+    print(f"Saved {sdir / 'rgb1_rectified.png'}")
+    print(f"Saved {sdir / 'rgb2_rectified.png'}")
+    print(f"Saved {sdir / 'rectification_check.png'}")
+    print(f"Saved {shared_dir(out_dir) / 'stereo_geometry.npz'}")
+    print(f"Saved {odir / 'disparity.npy'}")
+    print(f"Saved {odir / 'depth_metric.npy'}")
+    print(f"Saved {odir / 'disparity_preview.png'}")
+    print(f"Saved {odir / 'pointcloud.ply'}")
+    print(f"Saved {odir / 'pointcloud_downsampled.ply'}")
 
 
 if __name__ == "__main__":

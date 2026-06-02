@@ -24,8 +24,10 @@ if str(_REPO_ROOT) not in sys.path:
 
 from output_runs import add_run_cli_arguments, handle_list_runs, resolve_run_paths, write_run_info
 from evaluation.consensus_map import save_consensus_depth_std_png
+from evaluation.gt_depth_overlay import save_gt_depth_reference_overlays
 from evaluation.cross_method import compute_cross_method_metrics
 from evaluation.depth_maps import METHODS, discover_methods, load_metric_depth, load_or_compute_stereo_geometry
+from evaluation.foundation_vis_disparity import foundation_metric_depth_from_vis
 from evaluation.error_vs_range import (
     binned_error_vs_range,
     ray_pairs_from_arrays,
@@ -50,6 +52,11 @@ def parse_args():
     parser.add_argument("--cross-eps", type=float, default=0.02, help="Depth agreement epsilon for cross-method stats")
     parser.add_argument("--skip-photometric", action="store_true")
     parser.add_argument("--skip-consensus", action="store_true")
+    parser.add_argument(
+        "--skip-gt-overlay",
+        action="store_true",
+        help="Skip manual GT overlays (target from data/pair_*.txt, wall 100 cm, ±5 cm)",
+    )
     parser.add_argument("--skip-nn", action="store_true", help="Skip legacy nearest-neighbor cloud metrics")
     parser.add_argument(
         "--range-bins",
@@ -144,13 +151,35 @@ def main():
         )
     print(f"Methods found: {', '.join(methods)}")
 
-    summary = {"run": paths.run_dir.name if paths.run_dir else "legacy", "methods": {}, "photometric": {}}
+    summary = {
+        "run": paths.run_dir.name if paths.run_dir else "legacy",
+        "methods": {},
+        "photometric": {},
+    }
     for method in methods:
-        depth_m = load_metric_depth(paths.depth, method, geometry)
+        fs_meta = None
+        if method == "foundation":
+            depth_m, fs_meta = foundation_metric_depth_from_vis(paths.depth, geometry)
+        else:
+            depth_m = load_metric_depth(paths.depth, method, geometry)
         if depth_m is None:
             continue
         print(f"\n=== {method} ===")
+        if fs_meta and (
+            fs_meta.get("from_vis")
+            or "vis.png" in str(fs_meta.get("disparity_source", ""))
+            or fs_meta.get("disparity_source", "").endswith("disparity_from_vis.npy")
+        ):
+            src = fs_meta.get("disparity_source", "vis.png")
+            scale = fs_meta.get("scale")
+            variant = fs_meta.get("index_variant", "")
+            print(
+                f"  disparity from vis.png (right panel, {variant})"
+                + (f", depth scale={scale:.4f}" if scale is not None else "")
+            )
         row = evaluate_method(method, depth_m, geometry, points_rect, paths, args)
+        if fs_meta:
+            row["foundation_disparity"] = fs_meta
         summary["methods"][method] = row
         med = row.get("ray_median_error_m")
         fs = row.get("free_space_violation_pct")
@@ -161,9 +190,8 @@ def main():
     pairs_by_method = {}
     range_arrays = []
     for method in summary["methods"]:
-        pairs = summary["methods"][method].pop(
-            "_ray_pairs", {"range_m": np.array([]), "error_m": np.array([])}
-        )
+        row = summary["methods"][method]
+        pairs = row.pop("_ray_pairs", {"range_m": np.array([]), "error_m": np.array([])})
         pairs_by_method[method] = pairs
         range_arrays.append(pairs["range_m"])
 
@@ -171,6 +199,8 @@ def main():
     if shared_edges is not None:
         summary["error_vs_range_bin_edges_m"] = [float(x) for x in shared_edges]
         for method in summary["methods"]:
+            if method not in pairs_by_method:
+                continue
             r_m = pairs_by_method[method]["range_m"]
             e_m = pairs_by_method[method]["error_m"]
             if len(r_m):
@@ -190,7 +220,7 @@ def main():
     if not args.skip_photometric:
         photometric = {}
         for key in ("opencv", "foundation"):
-            result = run_photometric_for_method(paths.depth, key)
+            result = run_photometric_for_method(paths.depth, key, geometry=geometry)
             if result is not None:
                 photometric[key] = result
                 print(f"\nPhotometric {key}: mean error = {result.get('mean_photometric_error')}")
@@ -199,14 +229,15 @@ def main():
             phot_path.write_text(json.dumps(photometric, indent=2) + "\n")
             summary["photometric"] = photometric
 
-    if len(methods) >= 2:
+    depth_methods = list(summary["methods"].keys())
+    if len(depth_methods) >= 2:
         cross = compute_cross_method_metrics(paths.depth, geometry, eps=args.cross_eps)
         cross_path = paths.validation / "cross_method_metrics.json"
         cross_path.write_text(json.dumps(cross, indent=2) + "\n")
         summary["cross_method"] = cross
         print(f"\nCross-method consensus median std: {cross.get('consensus', {}).get('median_std_m')}")
 
-    if not args.skip_consensus and len(methods) >= 2:
+    if not args.skip_consensus and len(depth_methods) >= 2:
         consensus_info = save_consensus_depth_std_png(
             paths.depth,
             geometry,
@@ -220,6 +251,34 @@ def main():
                 print(f"Saved {consensus_info['overlay_path']}")
             elif consensus_info.get("overlay_reason"):
                 print(f"  (no RGB overlay: {consensus_info['overlay_reason']})")
+
+    if not args.skip_gt_overlay:
+        gt_info = save_gt_depth_reference_overlays(
+            paths.depth,
+            geometry,
+            paths.validation,
+            run_dir=paths.run_dir,
+            repo_root=_REPO_ROOT,
+            scene_label=paths.run_dir.name if paths.run_dir else None,
+        )
+        summary["gt_depth_reference"] = gt_info
+        if gt_info.get("saved"):
+            tol_cm = gt_info.get("tolerance_cm", 5.0)
+            print(f"\nGT depth overlays (±{tol_cm:.0f} cm, from project defaults):")
+            print(f"  target = {gt_info['target_gt_cm']:.1f} cm (pair_*.txt)  wall = {gt_info['wall_gt_cm']:.0f} cm (fixed)")
+            if gt_info.get("txt_path"):
+                print(f"  txt: {gt_info['txt_path']}")
+            print(f"  Saved {gt_info['combined_on_rgb']}")
+            print(f"  Saved {gt_info['all_methods_on_rgb']}")
+            print(f"  Saved {gt_info['labeled_figure']}")
+            for name, p in gt_info.get("per_method_on_rgb", {}).items():
+                row = gt_info["per_method"].get(name, {})
+                print(
+                    f"  {name}: target {row.get('frac_target_pct', 0):.2f}%  "
+                    f"wall {row.get('frac_wall_pct', 0):.2f}%  -> {p}"
+                )
+        else:
+            print(f"\nGT depth overlays skipped: {gt_info.get('reason')}")
 
     summary_path = paths.validation / "evaluation_summary.json"
     summary_path.write_text(json.dumps(summary, indent=2) + "\n")

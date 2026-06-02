@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 
+from depth_layout import resolve_path
 from evaluation.depth_maps import METHODS, load_metric_depth
 
 
@@ -65,10 +68,8 @@ def compute_cross_method_metrics(stereo_dir, geometry: dict, eps: float = 0.02) 
                 }
 
     disp_pairs = {}
-    from pathlib import Path
-
     sd = Path(stereo_dir)
-    if (sd / "disparity.npy").is_file() and (sd / "disparity_foundation.npy").is_file():
+    if resolve_path(sd, "opencv", "disparity.npy") and resolve_path(sd, "foundation", "disparity.npy"):
         d1 = load_metric_depth(stereo_dir, "opencv", geometry)
         d3 = load_metric_depth(stereo_dir, "foundation", geometry)
         if d1 is not None and d3 is not None:

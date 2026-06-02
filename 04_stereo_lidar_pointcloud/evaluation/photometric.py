@@ -66,24 +66,33 @@ def photometric_reprojection_score(
     }
 
 
-def run_photometric_for_method(stereo_dir: Path, method_key: str) -> dict | None:
+def run_photometric_for_method(stereo_dir: Path, method_key: str, *, geometry: dict | None = None) -> dict | None:
     """method_key: 'opencv' or 'foundation'."""
-    stereo_dir = Path(stereo_dir)
-    rect1_path = stereo_dir / "rgb1_rectified.png"
-    rect2_path = stereo_dir / "rgb2_rectified.png"
-    if method_key == "opencv":
-        disp_path = stereo_dir / "disparity.npy"
-    elif method_key == "foundation":
-        disp_path = stereo_dir / "disparity_foundation.npy"
-    else:
-        return None
+    from depth_layout import resolve_path
 
-    if not rect1_path.is_file() or not rect2_path.is_file() or not disp_path.is_file():
+    stereo_dir = Path(stereo_dir)
+    rect1_path = resolve_path(stereo_dir, None, "rgb1_rectified.png")
+    rect2_path = resolve_path(stereo_dir, None, "rgb2_rectified.png")
+    if method_key not in ("opencv", "foundation"):
+        return None
+    if rect1_path is None or rect2_path is None:
         return None
 
     rect1 = cv2.imread(str(rect1_path))
     rect2 = cv2.imread(str(rect2_path))
     if rect1 is None or rect2 is None:
         return None
-    disparity = np.load(disp_path).astype(np.float32)
+
+    disp_path = resolve_path(stereo_dir, method_key, "disparity.npy")
+    if disp_path is not None:
+        disparity = np.load(disp_path).astype(np.float32)
+    elif method_key == "foundation" and geometry is not None:
+        from evaluation.foundation_vis_disparity import load_foundation_disparity
+
+        disparity, _meta = load_foundation_disparity(stereo_dir, geometry)
+        if disparity is None:
+            return None
+    else:
+        return None
+
     return photometric_reprojection_score(rect1, rect2, disparity)

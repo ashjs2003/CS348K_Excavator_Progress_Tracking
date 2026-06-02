@@ -20,6 +20,28 @@ def depth_map_from_disparity(disparity: np.ndarray, Q: np.ndarray) -> np.ndarray
     return depth
 
 
+def depth_matches_reference(
+    depth_m: np.ndarray,
+    reference_m: float,
+    tolerance_m: float,
+) -> np.ndarray:
+    """Pixels with finite positive depth within tolerance of a reference distance (m)."""
+    valid = np.isfinite(depth_m) & (depth_m > 0)
+    return valid & (np.abs(depth_m - reference_m) <= tolerance_m)
+
+
+def opencv_gt_anchor_mask(
+    opencv_depth_m: np.ndarray,
+    target_gt_m: float,
+    wall_gt_m: float,
+    tolerance_m: float,
+) -> np.ndarray:
+    """Union of OpenCV pixels matching ruler target (pair txt) or back-wall GT."""
+    return depth_matches_reference(opencv_depth_m, target_gt_m, tolerance_m) | depth_matches_reference(
+        opencv_depth_m, wall_gt_m, tolerance_m
+    )
+
+
 def _linear_fit(reference_m: np.ndarray, relative: np.ndarray):
     rel = relative.astype(np.float64)
     ref = reference_m.astype(np.float64)
@@ -58,13 +80,31 @@ def metric_depth_from_relative(
     da_relative: np.ndarray,
     reference_depth_m: np.ndarray,
     max_samples: int = 200_000,
+    *,
+    fit_mask: np.ndarray | None = None,
+    min_fit_pixels: int = 50,
 ) -> tuple[np.ndarray, dict]:
     """
     Fit metric depth = scale * relative + shift using pixels where reference depth is valid.
+
+    If fit_mask is set, only those pixels are used for the linear fit (e.g. OpenCV pixels
+    that match ruler target / wall GT). The full image is still scaled with the fitted
+    scale and shift.
     """
     valid = np.isfinite(reference_depth_m) & (reference_depth_m > 0.05)
+    if fit_mask is not None:
+        if fit_mask.shape != reference_depth_m.shape:
+            raise ValueError("fit_mask shape must match reference_depth_m")
+        valid = valid & fit_mask
     if not np.any(valid):
         raise RuntimeError("Reference depth map has no valid pixels for scaling.")
+
+    n_valid = int(np.count_nonzero(valid))
+    if n_valid < min_fit_pixels:
+        raise RuntimeError(
+            f"Too few pixels for DA-V2 scaling ({n_valid} < {min_fit_pixels}). "
+            "Try --scale-modes opencv or check stereo / pair_*.txt GT for opencv-gt."
+        )
 
     indices = np.flatnonzero(valid)
     if len(indices) > max_samples:
@@ -80,9 +120,12 @@ def metric_depth_from_relative(
         "variant": variant,
         "scale": scale,
         "shift_m": shift,
-        "reference_valid_pixels": int(np.count_nonzero(valid)),
+        "reference_valid_pixels": int(np.count_nonzero(np.isfinite(reference_depth_m) & (reference_depth_m > 0.05))),
+        "fit_pixels": int(np.count_nonzero(mask)),
         "fit_correlation": float(np.corrcoef(rel_used[mask], reference_depth_m[mask])[0, 1]),
     }
+    if fit_mask is not None:
+        info["fit_mask_pixels"] = n_valid
     return metric, info
 
 

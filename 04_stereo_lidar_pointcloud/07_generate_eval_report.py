@@ -23,7 +23,8 @@ from output_runs import add_run_cli_arguments, handle_list_runs, resolve_run_pat
 
 METHOD_LABELS = {
     "opencv": "Classic stereo (OpenCV)",
-    "dav2": "AI single-camera depth (Depth Anything V2)",
+    "dav2": "DA-V2 scaled to all valid OpenCV depth",
+    "dav2_gt": "DA-V2 scaled using OpenCV pixels at manual GT distances",
     "foundation": "AI stereo (FoundationStereo)",
 }
 
@@ -164,7 +165,7 @@ def build_report(summary: dict, run_label: str, validation_dir: Path) -> str:
         "|--------|------------------|-------------------------------|-------------------------|---------------------|-------------------|",
     ])
 
-    for key in ("opencv", "dav2", "foundation"):
+    for key in ("opencv", "dav2", "dav2_gt", "foundation"):
         if key not in methods:
             continue
         row = methods[key]
@@ -199,11 +200,12 @@ def build_report(summary: dict, run_label: str, validation_dir: Path) -> str:
         "",
     ])
 
-    for key in ("opencv", "dav2", "foundation"):
+    for key in ("opencv", "dav2", "dav2_gt", "foundation"):
         if key not in methods:
             lines.append(f"### {METHOD_LABELS[key]}\n\n*Not run for this capture.*\n")
             continue
         row = methods[key]
+        fs = row.get("foundation_disparity") if key == "foundation" else None
         g, why = grade_ray(
             row.get("ray_median_error_m"),
             row.get("association_rate") or 0,
@@ -221,6 +223,17 @@ def build_report(summary: dict, run_label: str, validation_dir: Path) -> str:
             f"- **Within 5 cm of laser:** {fmt_pct(100 * (row.get('inlier_ratio') or 0))} of compared points.",
             "",
         ])
+        if fs and fs.get("disparity_source"):
+            lines.append(
+                f"- **Disparity source:** `{fs['disparity_source']}` — turbo colormap from the "
+                f"right half of `vis.png` (variant: {fs.get('index_variant', 'n/a')})."
+            )
+            if fs.get("scale") is not None:
+                lines.append(
+                    f"- **Metric scale:** linear fit to OpenCV depth (scale={fs['scale']:.4f}, "
+                    f"shift={fs.get('shift', 0):.4f} m). Colormap decoding is approximate."
+                )
+            lines.append("")
 
     if cross.get("pairwise_depth"):
         lines.extend(["---", "", "## Do the methods agree with each other?", ""])

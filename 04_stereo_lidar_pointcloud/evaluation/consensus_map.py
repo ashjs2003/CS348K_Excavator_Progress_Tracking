@@ -87,7 +87,10 @@ def _compute_consensus(stereo_dir: Path, geometry: dict) -> dict | None:
 
 
 def _load_rectified_rgb(stereo_dir: Path, target_shape: tuple[int, int]) -> np.ndarray | None:
-    path = Path(stereo_dir) / "rgb1_rectified.png"
+    from depth_layout import resolve_path
+
+    found = resolve_path(Path(stereo_dir), None, "rgb1_rectified.png")
+    path = found if found is not None else Path(stereo_dir) / "rgb1_rectified.png"
     if not path.is_file():
         return None
     bgr = cv2.imread(str(path))

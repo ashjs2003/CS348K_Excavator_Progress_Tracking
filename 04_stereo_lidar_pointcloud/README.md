@@ -149,7 +149,52 @@ python 08_generate_eval_charts.py --run latest
 python compare_stereo_methods.py --run latest
 ```
 
-Writes `evaluation_summary.json`, `EVAL_REPORT.md`, charts (`chart_*.png`), `consensus_depth_std.png`, etc.
+Writes `evaluation_summary.json`, `EVAL_REPORT.md`, charts (`chart_*.png`), `consensus_depth_std.png`, and **manual GT overlays** (`gt_depth_reference_on_rgb.png`, etc.).
+
+**ROI polygon + per-pixel GT check** (ruler from `pair_*.txt`, wall = 100 cm):
+
+```bash
+# Draw ROI on rectified image (needs display); saves data/<scene>/pair_XXX_roi.json
+python 10_annotate_roi_polygon.py --scene checkerboard_data --pair 001
+python 10_annotate_roi_polygon.py --scene checkerboard_data --all
+
+# Compare each depth method at ROI pixels (wall = farthest depth band inside ROI)
+python 10_evaluate_roi_gt_depth.py --run checkerboard_data/pair_001
+python 10_evaluate_roi_gt_depth.py --scene checkerboard_data --all
+```
+
+Outputs per capture (`validation/`):
+
+- `roi_gt_eval_grid.png` numeric table (median error cm per method)
+- `roi_gt_eval_heatmap.png` combined error map on RGB
+- `roi_gt_eval_heatmap_roles.png` ruler row + wall row (wall omitted on excavator)
+- `roi_gt_depth_compare.json`, `roi_gt_overlay.png`, `roi_gt_per_point_<method>.csv`
+
+Batch all annotated pairs (no 100 cm wall on `excavator_M` / `excavator_S`):
+
+```bash
+python 10_batch_roi_gt_eval_grid.py
+```
+
+Per-scene ROI error vs ground-truth distance (pooled annotated captures):
+
+```bash
+python 11_roi_scene_error_vs_distance.py
+```
+
+Writes `outputs/runs/<scene>/roi_error_vs_gt_distance.png` and `.json`.
+
+**Manual GT overlays** (automatic with every `06_evaluate_run.py`):
+
+- **Target distance:** `data/<scene>/pair_<id>.txt` (value in **cm** when &gt; 2, e.g. `25` → 25 cm).
+- **Back wall:** fixed **100 cm** for all data.
+- **Match band:** fixed **±5 cm**.
+
+```bash
+python 06_evaluate_run.py --run checkerboard_data/pair_001
+```
+
+Outputs: `validation/gt_depth_reference_on_rgb.png` (union overlay + on-image key), `gt_depth_reference_labeled.png` (2×2 grid: all methods + per depth source), `gt_depth_all_methods_on_rgb.png`, and per-method `gt_depth_match_<method>_on_rgb.png`. Teal ≈ ruler distance (`pair_*.txt`); blue ≈ back wall (100 cm); overlap uses a teal/blue blend (no yellow).
 
 Single method only (subset of 06):
 
@@ -202,9 +247,9 @@ Prints coverage, **ray median**, **free-space violation %**, photometric error, 
 | `disparity_preview.png` | — | — |
 | `stereo_pointcloud.ply` | `stereo_pointcloud_dav2.ply` | `stereo_pointcloud_foundation.ply` |
 | `stereo_pointcloud_downsampled.ply` | `stereo_pointcloud_downsampled_dav2.ply` | `stereo_pointcloud_downsampled_foundation.ply` |
-| — | `depth_metric_dav2.npy` | `disparity_foundation.npy` |
-| — | `depth_preview_dav2.png` | `disparity_preview_foundation.png` |
-| — | `depth_scaling_dav2.json` | — |
+| — | `depth_metric_dav2.npy`, `depth_metric_dav2_gt.npy` | `disparity_foundation.npy` |
+| — | `depth_preview_dav2.png`, `depth_preview_dav2_gt.png` | `disparity_preview_foundation.png` |
+| — | `depth_scaling_dav2.json`, `depth_scaling_dav2_gt.json` | — |
 
 Shared for all methods:
 
@@ -215,7 +260,8 @@ Shared for all methods:
 | Method | Metrics file |
 |--------|----------------|
 | OpenCV | `lidar_stereo_error_metrics.json` |
-| Depth Anything V2 | `lidar_stereo_error_metrics_dav2.json` |
+| DA-V2 (OpenCV scale) | `lidar_ray_depth_metrics_dav2.json` |
+| DA-V2 (GT anchors) | `lidar_ray_depth_metrics_dav2_gt.json` |
 | FoundationStereo | `lidar_stereo_error_metrics_foundation.json` |
 
 Lower **median_error** (meters) = better agreement with the 2D LiDAR scan in the rectified RGB1 frame.
@@ -240,7 +286,10 @@ Lower **median_error** (meters) = better agreement with the 2D LiDAR scan in the
 ### 2. Depth Anything V2 (`02_make_depth_anything_pointcloud.py`)
 
 - Monocular depth on **rectified RGB1**; conda env **`depth_anything_v2`**.
-- Relative depth → **metric meters** by fitting to OpenCV depth (`disparity.npy`) on the same frame.
+- Relative depth → **metric meters** by linear fit to OpenCV metric depth (`disparity.npy` + `Q`). Default **`--scale-modes both`** writes two evaluation methods from one inference:
+  - **`dav2`** — `depth_metric_dav2.npy` — fit on all valid OpenCV Z.
+  - **`dav2_gt`** — `depth_metric_dav2_gt.npy` — fit only where OpenCV Z is within ±5 cm of **pair_*.txt** target or **100 cm** wall (GT overlay anchors). Skipped if `pair_*.txt` is missing when using `both`.
+- Use `--scale-modes opencv` or `opencv-gt` to save only one variant.
 - Options: `--encoder vits` (default, fast), `vitb`, `vitl`; `--input-size 518` (try larger for detail).
 - `xFormers not available` on Mac is normal and not fatal.
 
@@ -259,6 +308,7 @@ Lower **median_error** (meters) = better agreement with the 2D LiDAR scan in the
 | `--run latest` | All steps (or specific run folder name) |
 | `--list-runs` | Any script with run CLI |
 | `--reuse-rectified` | DA-V2, FoundationStereo (skip re-rectify if `rgb1_rectified.png` exists) |
+| `--scale-modes both` / `opencv` / `opencv-gt` | DA-V2 metric scaling variants (see step 2 above) |
 | `--depth-min` / `--depth-max` | OpenCV, DA-V2 (scene depth band, default 0.45–2.0 m) |
 
 ---

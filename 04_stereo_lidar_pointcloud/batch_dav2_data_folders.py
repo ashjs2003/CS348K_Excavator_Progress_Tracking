@@ -44,6 +44,7 @@ from output_runs import (
     run_dir_from_id,
     write_run_info,
 )
+from depth_layout import method_dir
 from ml_inference_platform import require_dav2_or_exit
 from stereo_methods import DEFAULT_STEREO_METHOD, normalize_stereo_method
 
@@ -70,9 +71,20 @@ def parse_args():
     parser.add_argument("--depth-max", type=float, default=2.0)
     parser.add_argument("--conda-env", default="depth_anything_v2")
     parser.add_argument(
+        "--scale-modes",
+        choices=["both", "opencv", "opencv-gt"],
+        default="both",
+        help="Passed to 02_make_depth_anything_pointcloud.py (default: both dav2 + dav2_gt)",
+    )
+    parser.add_argument(
         "--skip-existing",
         action="store_true",
-        help="Skip if outputs/runs/<scene>/pair_<id>/depth/depth_metric_dav2.npy exists",
+        help="Skip pair when requested scale output(s) already exist",
+    )
+    parser.add_argument(
+        "--keep-existing-run",
+        action="store_true",
+        help="Do not delete outputs/runs/<scene>/pair_<id>/; only add or refresh depth products",
     )
     parser.add_argument(
         "--mirror-to-data",
@@ -139,6 +151,21 @@ def mirror_depth_products(src_depth: Path, dest: Path) -> None:
             shutil.copy2(item, target)
 
 
+def scale_outputs_complete(run_dir: Path, scale_modes: str) -> bool:
+    depth = run_dir / "depth"
+    dav2 = method_dir(depth, "dav2") / "depth_metric.npy"
+    dav2_gt = method_dir(depth, "dav2_gt") / "depth_metric.npy"
+    if not dav2.is_file():
+        dav2 = depth / "depth_metric_dav2.npy"
+    if not dav2_gt.is_file():
+        dav2_gt = depth / "depth_metric_dav2_gt.npy"
+    if scale_modes == "opencv-gt":
+        return dav2_gt.is_file()
+    if scale_modes == "opencv":
+        return dav2.is_file()
+    return dav2.is_file() and dav2_gt.is_file()
+
+
 def run_subprocess(script: Path, run_id: str, extra: list[str], dry_run: bool) -> None:
     cmd = [sys.executable, str(script), "--run", run_id, *extra]
     print("  $", " ".join(cmd))
@@ -152,10 +179,8 @@ def process_pair(folder: Path, pair_id: str, args, summary_rows: list[dict]) -> 
     lidar_path = folder / f"pair_{pair_id}_lidar.csv"
     run_id = data_pair_run_id(folder.name, pair_id)
     run_dir = pair_run_dir(folder.name, pair_id)
-    marker = run_dir / "depth" / "depth_metric_dav2.npy"
-
-    if args.skip_existing and marker.is_file():
-        print(f"  skip (exists): {marker}")
+    if args.skip_existing and scale_outputs_complete(run_dir, args.scale_modes):
+        print(f"  skip (exists): {run_dir / 'depth'}")
         summary_rows.append(
             {
                 "folder": folder.name,
@@ -176,9 +201,18 @@ def process_pair(folder: Path, pair_id: str, args, summary_rows: list[dict]) -> 
         )
         return
 
-    if run_dir.exists():
-        shutil.rmtree(run_dir)
-    stage_capture_run(run_dir, left_path, right_path, lidar_path if lidar_path.is_file() else None)
+    if args.keep_existing_run and run_dir.exists():
+        (run_dir / "depth").mkdir(parents=True, exist_ok=True)
+        (run_dir / "validation").mkdir(parents=True, exist_ok=True)
+        capture_rgb1 = run_dir / "capture" / "rgb1.png"
+        if not capture_rgb1.is_file():
+            stage_capture_run(
+                run_dir, left_path, right_path, lidar_path if lidar_path.is_file() else None
+            )
+    else:
+        if run_dir.exists():
+            shutil.rmtree(run_dir)
+        stage_capture_run(run_dir, left_path, right_path, lidar_path if lidar_path.is_file() else None)
 
     stereo_args = [
         "--method",
@@ -190,6 +224,8 @@ def process_pair(folder: Path, pair_id: str, args, summary_rows: list[dict]) -> 
     ]
     dav2_args = [
         "--reuse-rectified",
+        "--scale-modes",
+        args.scale_modes,
         "--depth-min",
         str(args.depth_min),
         "--depth-max",
@@ -198,13 +234,29 @@ def process_pair(folder: Path, pair_id: str, args, summary_rows: list[dict]) -> 
         args.conda_env,
     ]
 
-    run_subprocess(STEREO_SCRIPT, run_id, stereo_args, dry_run=False)
+    from depth_layout import resolve_path
+
+    disp_path = resolve_path(run_dir / "depth", "opencv", "disparity.npy")
+    if disp_path is None:
+        disp_path = run_dir / "depth" / "disparity.npy"
+    if not disp_path.is_file():
+        run_subprocess(STEREO_SCRIPT, run_id, stereo_args, dry_run=False)
+    else:
+        print(f"  stereo exists: {disp_path.name}")
     run_subprocess(DAV2_SCRIPT, run_id, dav2_args, dry_run=False)
 
     stats = {}
-    scale_path = run_dir / "depth" / "depth_scaling_dav2.json"
+    scale_path = method_dir(run_dir / "depth", "dav2") / "scaling.json"
+    if not scale_path.is_file():
+        scale_path = run_dir / "depth" / "depth_scaling_dav2.json"
     if scale_path.is_file():
         stats = json.loads(scale_path.read_text())
+    stats_gt = {}
+    scale_gt_path = method_dir(run_dir / "depth", "dav2_gt") / "scaling.json"
+    if not scale_gt_path.is_file():
+        scale_gt_path = run_dir / "depth" / "depth_scaling_dav2_gt.json"
+    if scale_gt_path.is_file():
+        stats_gt = json.loads(scale_gt_path.read_text())
 
     write_run_info(
         run_dir,
@@ -212,6 +264,7 @@ def process_pair(folder: Path, pair_id: str, args, summary_rows: list[dict]) -> 
         data_pair_id=pair_id,
         batch_stereo_method=args.stereo_method,
         dav2_scale_info=stats,
+        dav2_gt_scale_info=stats_gt or None,
     )
 
     if args.mirror_to_data:
@@ -225,7 +278,9 @@ def process_pair(folder: Path, pair_id: str, args, summary_rows: list[dict]) -> 
             "status": "ok",
             "output": path_for_manifest(run_dir),
             "fit_correlation": stats.get("fit_correlation"),
+            "fit_correlation_gt": stats_gt.get("fit_correlation"),
             "scale_reference": stats.get("scale_reference"),
+            "scale_reference_gt": stats_gt.get("scale_reference"),
         }
     )
     print(f"  saved: {path_for_manifest(run_dir)}")
@@ -280,6 +335,8 @@ def main():
         "runs_root": path_for_manifest(RUNS_ROOT),
         "layout": "outputs/runs/<data_folder>/pair_<id>/",
         "stereo_method": args.stereo_method,
+        "scale_modes": args.scale_modes,
+        "keep_existing_run": args.keep_existing_run,
         "depth_band_m": [args.depth_min, args.depth_max],
         "pairs": summary_rows,
         "failures": failures,

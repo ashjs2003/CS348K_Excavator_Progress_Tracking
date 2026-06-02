@@ -34,15 +34,17 @@ from evaluation.error_vs_range import (
 )
 from output_runs import add_run_cli_arguments, handle_list_runs, resolve_run_paths
 
-METHOD_ORDER = ("opencv", "dav2", "foundation")
+METHOD_ORDER = ("opencv", "dav2", "dav2_gt", "foundation")
 METHOD_LABELS = {
     "opencv": "OpenCV\n(classic stereo)",
-    "dav2": "Depth Anything V2\n(AI mono)",
+    "dav2": "DA-V2\n(OpenCV scale)",
+    "dav2_gt": "DA-V2\n(GT anchors)",
     "foundation": "FoundationStereo\n(AI stereo)",
 }
 METHOD_COLORS = {
     "opencv": "#4C78A8",
     "dav2": "#F58518",
+    "dav2_gt": "#E45756",
     "foundation": "#54A24B",
 }
 MIN_ASSOCIATION_RATE = 0.10
@@ -246,7 +248,9 @@ def chart_error_vs_range(
 
 def chart_ray_histograms(validation_dir: Path, summary: dict, out_path: Path, scene_label: str):
     methods = methods_in_summary(summary)
-    suffix_map = {"opencv": "", "dav2": "_dav2", "foundation": "_foundation"}
+    from evaluation.depth_maps import METHODS
+
+    suffix_map = {k: v["suffix"] for k, v in METHODS.items()}
     data = []
     for m in methods:
         csv_path = validation_dir / f"lidar_ray_per_point{suffix_map[m]}.csv"

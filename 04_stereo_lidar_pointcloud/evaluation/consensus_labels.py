@@ -15,17 +15,22 @@ from evaluation.depth_maps import METHODS
 METHOD_META: dict[str, dict[str, str]] = {
     "opencv": {
         "label": "OpenCV stereo",
-        "depth_product": "depth/depth_metric_opencv.npy",
-        "description": "rectified pair → disparity.npy → metric Z (Q, P1)",
+        "depth_product": "depth/opencv/depth_metric.npy",
+        "description": "rectified pair → disparity → metric Z (Q, P1)",
     },
     "dav2": {
-        "label": "Depth Anything V2",
-        "depth_product": "depth/depth_metric_dav2.npy",
-        "description": "rgb1_rectified → relative depth → scale fit vs stereo",
+        "label": "DA-V2 (OpenCV scale)",
+        "depth_product": "depth/dav2/depth_metric.npy",
+        "description": "rgb1_rectified → relative depth → linear fit vs all valid OpenCV Z",
+    },
+    "dav2_gt": {
+        "label": "DA-V2 (GT anchors)",
+        "depth_product": "depth/dav2_gt/depth_metric.npy",
+        "description": "same relative depth → fit only where OpenCV Z matches pair_*.txt target or 100 cm wall",
     },
     "foundation": {
         "label": "FoundationStereo",
-        "depth_product": "depth/disparity_foundation.npy → metric Z",
+        "depth_product": "depth/foundation/disparity.npy → metric Z",
         "description": "rectified pair → learned disparity → metric Z (Q, P1)",
     },
 }
@@ -34,6 +39,7 @@ METHOD_META: dict[str, dict[str, str]] = {
 ONLY_METHOD_RGBA = {
     "opencv": (0.42, 0.42, 0.42, 0.48),
     "dav2": (0.42, 0.42, 0.42, 0.48),
+    "dav2_gt": (0.42, 0.42, 0.42, 0.48),
     "foundation": (0.42, 0.42, 0.42, 0.48),
 }
 

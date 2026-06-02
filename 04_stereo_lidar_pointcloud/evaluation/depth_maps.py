@@ -9,33 +9,30 @@ import numpy as np
 
 from calib_utils import load_camera_calibration, load_stereo_rgb1_to_rgb2
 from dav2_scale import depth_map_from_disparity
+from depth_layout import (
+    METHOD_IDS,
+    method_dir,
+    resolve_path,
+    shared_dir,
+    stereo_geometry_path,
+)
 from stereo_shared import rectify_stereo_pair
 
 STEREO_GEOMETRY_FILE = "stereo_geometry.npz"
 
 METHODS = {
-    "opencv": {
-        "suffix": "",
-        "disparity_name": "disparity.npy",
-        "depth_name": "depth_metric_opencv.npy",
-    },
-    "dav2": {
-        "suffix": "_dav2",
-        "disparity_name": None,
-        "depth_name": "depth_metric_dav2.npy",
-    },
-    "foundation": {
-        "suffix": "_foundation",
-        "disparity_name": "disparity_foundation.npy",
-        "depth_name": None,
-    },
+    "opencv": {"suffix": "", "disparity_name": "disparity.npy", "depth_name": "depth_metric.npy"},
+    "dav2": {"suffix": "_dav2", "disparity_name": None, "depth_name": "depth_metric.npy"},
+    "dav2_gt": {"suffix": "_dav2_gt", "disparity_name": None, "depth_name": "depth_metric.npy"},
+    "foundation": {"suffix": "_foundation", "disparity_name": "disparity.npy", "depth_name": None},
 }
 
 
 def save_stereo_geometry(out_dir: Path, R1, P1, Q, baseline_m: float, image_size) -> Path:
-    """Persist rectification outputs used by evaluation (written by 02_make_stereo_pointcloud)."""
+    """Persist rectification outputs under depth/shared/."""
     out_dir = Path(out_dir)
-    path = out_dir / STEREO_GEOMETRY_FILE
+    shared_dir(out_dir).mkdir(parents=True, exist_ok=True)
+    path = shared_dir(out_dir) / STEREO_GEOMETRY_FILE
     np.savez(
         path,
         R1=R1.astype(np.float64),
@@ -48,7 +45,7 @@ def save_stereo_geometry(out_dir: Path, R1, P1, Q, baseline_m: float, image_size
 
 
 def load_stereo_geometry(stereo_dir: Path) -> dict:
-    path = Path(stereo_dir) / STEREO_GEOMETRY_FILE
+    path = stereo_geometry_path(stereo_dir)
     if not path.is_file():
         raise FileNotFoundError(
             f"Missing {path}. Re-run: python 02_make_stereo_pointcloud.py --run <id>"
@@ -67,7 +64,7 @@ def load_stereo_geometry(stereo_dir: Path) -> dict:
 
 def load_or_compute_stereo_geometry(stereo_dir: Path, rgb1_path: Path, rgb2_path: Path) -> dict:
     """Use saved geometry or recompute from capture (for older runs)."""
-    geo_path = Path(stereo_dir) / STEREO_GEOMETRY_FILE
+    geo_path = stereo_geometry_path(stereo_dir)
     if geo_path.is_file():
         return load_stereo_geometry(stereo_dir)
 
@@ -96,36 +93,48 @@ def depth_from_disparity_file(disparity_path: Path, Q: np.ndarray) -> np.ndarray
 
 
 def load_metric_depth(stereo_dir: Path, method: str, geometry: dict) -> np.ndarray | None:
-    """
-    Return metric Z (m) per pixel in rectified left frame, or None if files missing.
-    """
+    """Return metric Z (m) per pixel in rectified left frame, or None if files missing."""
     if method not in METHODS:
         raise ValueError(f"Unknown method {method!r}; expected one of {list(METHODS)}")
 
     stereo_dir = Path(stereo_dir)
-    meta = METHODS[method]
-    depth_path = stereo_dir / meta["depth_name"] if meta["depth_name"] else None
-    if depth_path is not None and depth_path.is_file():
-        depth = np.load(depth_path).astype(np.float64)
+    depth_path = resolve_path(stereo_dir, method, "depth_metric.npy")
+    if depth_path is not None:
+        return np.load(depth_path).astype(np.float64)
+
+    disp_path = resolve_path(stereo_dir, method, "disparity.npy")
+    if disp_path is not None:
+        return depth_from_disparity_file(disp_path, geometry["Q"])
+
+    if method == "foundation":
+        from evaluation.foundation_vis_disparity import foundation_metric_depth_from_vis
+
+        depth, _meta = foundation_metric_depth_from_vis(stereo_dir, geometry)
         return depth
 
-    disp_name = meta["disparity_name"]
-    if disp_name is None:
-        return None
-    disp_path = stereo_dir / disp_name
-    if not disp_path.is_file():
-        return None
-    return depth_from_disparity_file(disp_path, geometry["Q"])
+    return None
+
+
+def foundation_preview_available(stereo_dir: Path) -> bool:
+    return resolve_path(Path(stereo_dir), "foundation", "vis.png") is not None
+
+
+def method_has_metric_depth(stereo_dir: Path, method: str) -> bool:
+    stereo_dir = Path(stereo_dir)
+    if resolve_path(stereo_dir, method, "depth_metric.npy") is not None:
+        return True
+    if resolve_path(stereo_dir, method, "disparity.npy") is not None:
+        return True
+    if method == "foundation" and foundation_preview_available(stereo_dir):
+        return resolve_path(stereo_dir, "opencv", "disparity.npy") is not None
+    return False
 
 
 def discover_methods(stereo_dir: Path) -> list[str]:
-    """Methods that have enough files to evaluate."""
+    """Methods present for evaluation (metric depth, disparity, or Foundation vis.png)."""
     stereo_dir = Path(stereo_dir)
     available = []
-    for name, meta in METHODS.items():
-        if meta["depth_name"] and (stereo_dir / meta["depth_name"]).is_file():
-            available.append(name)
-            continue
-        if meta["disparity_name"] and (stereo_dir / meta["disparity_name"]).is_file():
+    for name in METHOD_IDS:
+        if method_has_metric_depth(stereo_dir, name):
             available.append(name)
     return available
