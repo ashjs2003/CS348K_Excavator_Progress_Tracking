@@ -1,0 +1,132 @@
+{
+  "run": "pair_000",
+  "scene": "checkerboard_data_30",
+  "pair_id": "000",
+  "roi_path": "/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/data/checkerboard_data_30/pair_000_roi.json",
+  "use_wall_gt": true,
+  "target_gt_cm": 10.0,
+  "wall_gt_cm": 100.0,
+  "tolerance_cm": 5.0,
+  "wall_percentile": 90.0,
+  "roi_pixels": 223302,
+  "wall_pixels": 279,
+  "ruler_pixels": 2508,
+  "methods": {
+    "opencv": {
+      "wall": {
+        "n_pixels": 279,
+        "median_error_cm": 64.13846015930176,
+        "mean_error_cm": 62.057028406409806,
+        "rmse_cm": 62.470034362122476,
+        "frac_within_tolerance_pct": 0.0,
+        "median_depth_cm": 164.13846015930176,
+        "mean_depth_cm": 162.0570284064098
+      },
+      "ruler": {
+        "n_pixels": 2508,
+        "median_error_cm": 70.70141077041626,
+        "mean_error_cm": 69.29956620318468,
+        "rmse_cm": 70.17156475203998,
+        "frac_within_tolerance_pct": 0.0,
+        "median_depth_cm": 80.70141077041626,
+        "mean_depth_cm": 79.29956620318468
+      },
+      "all_roi_compared": {
+        "n_pixels": 2787,
+        "median_error_cm": 69.94007468223572,
+        "mean_error_cm": 68.57453281771637,
+        "rmse_cm": 69.43906830805453,
+        "frac_within_tolerance_pct": 0.0,
+        "median_depth_cm": 81.28199577331543,
+        "mean_depth_cm": 87.58422065409957
+      }
+    },
+    "dav2": {
+      "wall": {
+        "n_pixels": 279,
+        "median_error_cm": 10.089397430419922,
+        "mean_error_cm": 10.089397430419922,
+        "rmse_cm": 10.089397430419922,
+        "frac_within_tolerance_pct": 0.0,
+        "median_depth_cm": 89.91060256958008,
+        "mean_depth_cm": 89.91060256958008
+      },
+      "ruler": {
+        "n_pixels": 2508,
+        "median_error_cm": 79.91060256958008,
+        "mean_error_cm": 79.91060255056746,
+        "rmse_cm": 79.91060255056745,
+        "frac_within_tolerance_pct": 0.0,
+        "median_depth_cm": 89.91060256958008,
+        "mean_depth_cm": 89.91060255056743
+      },
+      "all_roi_compared": {
+        "n_pixels": 2787,
+        "median_error_cm": 79.91060256958008,
+        "mean_error_cm": 72.92096630064955,
+        "rmse_cm": 75.87250580832978,
+        "frac_within_tolerance_pct": 0.0,
+        "median_depth_cm": 89.91060256958008,
+        "mean_depth_cm": 89.91060255247075
+      }
+    },
+    "dav2_gt": {
+      "wall": {
+        "n_pixels": 279,
+        "median_error_cm": 4.219210147857666,
+        "mean_error_cm": 4.291843513434078,
+        "rmse_cm": 4.293933447595332,
+        "frac_within_tolerance_pct": 100.0,
+        "median_depth_cm": 104.21921014785767,
+        "mean_depth_cm": 104.29184351343407
+      },
+      "ruler": {
+        "n_pixels": 2508,
+        "median_error_cm": 93.87858152389526,
+        "mean_error_cm": 93.8727726234774,
+        "rmse_cm": 93.87295507439698,
+        "frac_within_tolerance_pct": 0.0,
+        "median_depth_cm": 103.87858152389526,
+        "mean_depth_cm": 103.87277262347736
+      },
+      "all_roi_compared": {
+        "n_pixels": 2787,
+        "median_error_cm": 93.87276411056519,
+        "mean_error_cm": 84.90503698598113,
+        "rmse_cm": 89.06074182884791,
+        "frac_within_tolerance_pct": 10.010764262648008,
+        "median_depth_cm": 103.88611555099487,
+        "mean_depth_cm": 103.91472482236432
+      }
+    },
+    "foundation": {
+      "wall": {
+        "n_pixels": 279,
+        "median_error_cm": 13.847750425338745,
+        "mean_error_cm": 10.3427901917461,
+        "rmse_cm": 11.390484590650441,
+        "frac_within_tolerance_pct": 31.899641577060933,
+        "median_depth_cm": 86.15224957466125,
+        "mean_depth_cm": 89.6572098082539
+      },
+      "ruler": {
+        "n_pixels": 2508,
+        "median_error_cm": 78.58422040939331,
+        "mean_error_cm": 77.65853979465876,
+        "rmse_cm": 77.70208540606815,
+        "frac_within_tolerance_pct": 0.0,
+        "median_depth_cm": 88.58422040939331,
+        "mean_depth_cm": 87.65853979465874
+      },
+      "all_roi_compared": {
+        "n_pixels": 2787,
+        "median_error_cm": 76.15224957466125,
+        "mean_error_cm": 70.91971879027675,
+        "rmse_cm": 73.79831328684357,
+        "frac_within_tolerance_pct": 3.193397918909221,
+        "median_depth_cm": 88.22001218795776,
+        "mean_depth_cm": 87.85862193810799
+      }
+    }
+  }
+}

@@ -35,5 +35,43 @@
   },
   "data_source": "data/checkerboard_data_30",
   "data_pair_id": "000",
-  "batch_stereo_method": "stereobm"
+  "batch_stereo_method": "stereobm",
+  "dav2_gt_coverage_pct": 100.0,
+  "dav2_gt_point_count": 921600,
+  "dav2_gt_point_count_downsampled": 7943,
+  "dav2_gt_scale_info": {
+    "variant": "direct",
+    "scale": 0.009383816130329781,
+    "shift_m": 1.0076839474258639,
+    "reference_valid_pixels": 10231,
+    "fit_pixels": 328,
+    "fit_correlation": 0.39951751020859105,
+    "fit_mask_pixels": 328,
+    "K": [
+      [
+        578.5633866174695,
+        0.0,
+        570.2612476255729
+      ],
+      [
+        0.0,
+        578.5633866174695,
+        390.3019701809129
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "encoder": "vits",
+    "scale_reference": "opencv-gt",
+    "method_id": "dav2_gt",
+    "gt_txt": "/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/data/checkerboard_data_30/pair_000.txt",
+    "target_gt_cm": 10.0,
+    "wall_gt_cm": 100.0,
+    "tolerance_cm": 5.0,
+    "anchor_pixels": 328,
+    "anchor_pixels_pct": 0.035590277777777776
+  }
 }

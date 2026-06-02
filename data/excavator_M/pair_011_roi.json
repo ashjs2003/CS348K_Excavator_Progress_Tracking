@@ -1,0 +1,41 @@
+{
+  "scene": "excavator_M",
+  "pair_id": "011",
+  "image_path": "/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/excavator_M/pair_011/depth/shared/rgb1_rectified.png",
+  "polygon_xy": [
+    [
+      718,
+      226
+    ],
+    [
+      560,
+      250
+    ],
+    [
+      492,
+      588
+    ],
+    [
+      977,
+      627
+    ],
+    [
+      907,
+      357
+    ],
+    [
+      722,
+      354
+    ],
+    [
+      714,
+      230
+    ],
+    [
+      717,
+      225
+    ]
+  ],
+  "wall_depth_percentile": 90.0,
+  "notes": "Polygon in image pixel coords. Wall = farthest depth band inside ROI (top percentile)."
+}

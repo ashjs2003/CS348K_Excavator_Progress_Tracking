@@ -1,0 +1,33 @@
+{
+  "valid_lidar_points": 258,
+  "projected_in_image": 116,
+  "associated_pixels": 0,
+  "association_rate": 0.0,
+  "ray_median_error_m": null,
+  "ray_mean_error_m": null,
+  "ray_rmse_m": null,
+  "ray_p90_m": null,
+  "ray_max_error_m": null,
+  "inlier_ratio": 0.0,
+  "ray_inlier_tau_m": 0.05,
+  "free_space_violation_pct": 0.0,
+  "median_free_space_violation_m": null,
+  "free_space_tau_m": 0.03,
+  "error_vs_range": {
+    "bin_edges_m": [
+      0.48643173255828837,
+      0.555026624344549,
+      0.6236215161308096,
+      0.6922164079170703,
+      0.760811299703331,
+      0.8294061914895916,
+      0.8980010832758522,
+      0.9665959750621127,
+      1.0351908668483734
+    ],
+    "bins": [],
+    "n_points": 0
+  },
+  "method": "opencv",
+  "depth_coverage_pct": 1.9166666666666667
+}

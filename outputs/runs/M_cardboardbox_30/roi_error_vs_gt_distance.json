@@ -1,0 +1,424 @@
+{
+  "scene": "M_cardboardbox_30",
+  "n_pairs": 5,
+  "pair_ids": [
+    "000",
+    "001",
+    "002",
+    "003",
+    "004"
+  ],
+  "bin_edges_m": [
+    0.2,
+    0.30000000000000004,
+    0.4,
+    0.5,
+    0.6000000000000001,
+    0.7,
+    0.8,
+    0.9000000000000001,
+    1.0
+  ],
+  "methods": {
+    "opencv": {
+      "order": 0,
+      "n_points": 13803,
+      "error_vs_gt": {
+        "bin_edges_m": [
+          0.2,
+          0.30000000000000004,
+          0.4,
+          0.5,
+          0.6000000000000001,
+          0.7,
+          0.8,
+          0.9000000000000001,
+          1.0
+        ],
+        "bins": [
+          {
+            "range_min_m": 0.2,
+            "range_max_m": 0.30000000000000004,
+            "range_center_m": 0.25,
+            "count": 4631,
+            "median_error_m": 0.3186624526977539,
+            "mean_error_m": 0.3660490542772495,
+            "rmse_m": 0.40091080991468275,
+            "p90_error_m": 0.6591784834861756
+          },
+          {
+            "range_min_m": 0.30000000000000004,
+            "range_max_m": 0.4,
+            "range_center_m": 0.35000000000000003,
+            "count": 0,
+            "median_error_m": null,
+            "mean_error_m": null,
+            "rmse_m": null,
+            "p90_error_m": null
+          },
+          {
+            "range_min_m": 0.4,
+            "range_max_m": 0.5,
+            "range_center_m": 0.45,
+            "count": 0,
+            "median_error_m": null,
+            "mean_error_m": null,
+            "rmse_m": null,
+            "p90_error_m": null
+          },
+          {
+            "range_min_m": 0.5,
+            "range_max_m": 0.6000000000000001,
+            "range_center_m": 0.55,
+            "count": 4669,
+            "median_error_m": 0.03790605068206787,
+            "mean_error_m": 0.04127139484353841,
+            "rmse_m": 0.048170942999848,
+            "p90_error_m": 0.07448458671569824
+          },
+          {
+            "range_min_m": 0.6000000000000001,
+            "range_max_m": 0.7,
+            "range_center_m": 0.65,
+            "count": 0,
+            "median_error_m": null,
+            "mean_error_m": null,
+            "rmse_m": null,
+            "p90_error_m": null
+          },
+          {
+            "range_min_m": 0.7,
+            "range_max_m": 0.8,
+            "range_center_m": 0.75,
+            "count": 54,
+            "median_error_m": 0.044714927673339844,
+            "mean_error_m": 0.044960742747342144,
+            "rmse_m": 0.04499778059209665,
+            "p90_error_m": 0.047519803047180176
+          },
+          {
+            "range_min_m": 0.8,
+            "range_max_m": 0.9000000000000001,
+            "range_center_m": 0.8500000000000001,
+            "count": 0,
+            "median_error_m": null,
+            "mean_error_m": null,
+            "rmse_m": null,
+            "p90_error_m": null
+          },
+          {
+            "range_min_m": 0.9000000000000001,
+            "range_max_m": 1.0,
+            "range_center_m": 0.9500000000000001,
+            "count": 4449,
+            "median_error_m": 0.4833519458770752,
+            "mean_error_m": 0.4616919061552945,
+            "rmse_m": 0.4827966898868856,
+            "p90_error_m": 0.5655701160430908
+          }
+        ],
+        "n_points": 13803
+      }
+    },
+    "dav2": {
+      "order": 1,
+      "n_points": 13803,
+      "error_vs_gt": {
+        "bin_edges_m": [
+          0.2,
+          0.30000000000000004,
+          0.4,
+          0.5,
+          0.6000000000000001,
+          0.7,
+          0.8,
+          0.9000000000000001,
+          1.0
+        ],
+        "bins": [
+          {
+            "range_min_m": 0.2,
+            "range_max_m": 0.30000000000000004,
+            "range_center_m": 0.25,
+            "count": 4631,
+            "median_error_m": 0.6046720743179321,
+            "mean_error_m": 0.6390596983036864,
+            "rmse_m": 0.6402394186294186,
+            "p90_error_m": 0.6820798397064209
+          },
+          {
+            "range_min_m": 0.30000000000000004,
+            "range_max_m": 0.4,
+            "range_center_m": 0.35000000000000003,
+            "count": 0,
+            "median_error_m": null,
+            "mean_error_m": null,
+            "rmse_m": null,
+            "p90_error_m": null
+          },
+          {
+            "range_min_m": 0.4,
+            "range_max_m": 0.5,
+            "range_center_m": 0.45,
+            "count": 0,
+            "median_error_m": null,
+            "mean_error_m": null,
+            "rmse_m": null,
+            "p90_error_m": null
+          },
+          {
+            "range_min_m": 0.5,
+            "range_max_m": 0.6000000000000001,
+            "range_center_m": 0.55,
+            "count": 4669,
+            "median_error_m": 0.20325249433517456,
+            "mean_error_m": 0.2037499070320734,
+            "rmse_m": 0.20375247071403144,
+            "p90_error_m": 0.20571250915527345
+          },
+          {
+            "range_min_m": 0.6000000000000001,
+            "range_max_m": 0.7,
+            "range_center_m": 0.65,
+            "count": 0,
+            "median_error_m": null,
+            "mean_error_m": null,
+            "rmse_m": null,
+            "p90_error_m": null
+          },
+          {
+            "range_min_m": 0.7,
+            "range_max_m": 0.8,
+            "range_center_m": 0.75,
+            "count": 54,
+            "median_error_m": 0.14797693490982056,
+            "mean_error_m": 0.14797693490982056,
+            "rmse_m": 0.14797693490982056,
+            "p90_error_m": 0.14797693490982056
+          },
+          {
+            "range_min_m": 0.8,
+            "range_max_m": 0.9000000000000001,
+            "range_center_m": 0.8500000000000001,
+            "count": 0,
+            "median_error_m": null,
+            "mean_error_m": null,
+            "rmse_m": null,
+            "p90_error_m": null
+          },
+          {
+            "range_min_m": 0.9000000000000001,
+            "range_max_m": 1.0,
+            "range_center_m": 0.9500000000000001,
+            "count": 4449,
+            "median_error_m": 0.3697013854980469,
+            "mean_error_m": 0.3334587403805665,
+            "rmse_m": 0.3425313599154399,
+            "p90_error_m": 0.3736267566680908
+          }
+        ],
+        "n_points": 13803
+      }
+    },
+    "dav2_gt": {
+      "order": 2,
+      "n_points": 13803,
+      "error_vs_gt": {
+        "bin_edges_m": [
+          0.2,
+          0.30000000000000004,
+          0.4,
+          0.5,
+          0.6000000000000001,
+          0.7,
+          0.8,
+          0.9000000000000001,
+          1.0
+        ],
+        "bins": [
+          {
+            "range_min_m": 0.2,
+            "range_max_m": 0.30000000000000004,
+            "range_center_m": 0.25,
+            "count": 4631,
+            "median_error_m": 0.7290282845497131,
+            "mean_error_m": 0.7594073854597566,
+            "rmse_m": 0.7601869545381725,
+            "p90_error_m": 0.8003266334533692
+          },
+          {
+            "range_min_m": 0.30000000000000004,
+            "range_max_m": 0.4,
+            "range_center_m": 0.35000000000000003,
+            "count": 0,
+            "median_error_m": null,
+            "mean_error_m": null,
+            "rmse_m": null,
+            "p90_error_m": null
+          },
+          {
+            "range_min_m": 0.4,
+            "range_max_m": 0.5,
+            "range_center_m": 0.45,
+            "count": 0,
+            "median_error_m": null,
+            "mean_error_m": null,
+            "rmse_m": null,
+            "p90_error_m": null
+          },
+          {
+            "range_min_m": 0.5,
+            "range_max_m": 0.6000000000000001,
+            "range_center_m": 0.55,
+            "count": 4669,
+            "median_error_m": 0.03947925567626953,
+            "mean_error_m": 0.03958701694208285,
+            "rmse_m": 0.03958763614523024,
+            "p90_error_m": 0.0400121808052063
+          },
+          {
+            "range_min_m": 0.6000000000000001,
+            "range_max_m": 0.7,
+            "range_center_m": 0.65,
+            "count": 0,
+            "median_error_m": null,
+            "mean_error_m": null,
+            "rmse_m": null,
+            "p90_error_m": null
+          },
+          {
+            "range_min_m": 0.7,
+            "range_max_m": 0.8,
+            "range_center_m": 0.75,
+            "count": 54,
+            "median_error_m": 0.0649467408657074,
+            "mean_error_m": 0.06494679936656246,
+            "rmse_m": 0.06494679972046022,
+            "p90_error_m": 0.06495569348335266
+          },
+          {
+            "range_min_m": 0.8,
+            "range_max_m": 0.9000000000000001,
+            "range_center_m": 0.8500000000000001,
+            "count": 0,
+            "median_error_m": null,
+            "mean_error_m": null,
+            "rmse_m": null,
+            "p90_error_m": null
+          },
+          {
+            "range_min_m": 0.9000000000000001,
+            "range_max_m": 1.0,
+            "range_center_m": 0.9500000000000001,
+            "count": 4449,
+            "median_error_m": 0.024071216583251953,
+            "mean_error_m": 0.07460351888183316,
+            "rmse_m": 0.15964366423688017,
+            "p90_error_m": 0.4602350115776062
+          }
+        ],
+        "n_points": 13803
+      }
+    },
+    "foundation": {
+      "order": 3,
+      "n_points": 13803,
+      "error_vs_gt": {
+        "bin_edges_m": [
+          0.2,
+          0.30000000000000004,
+          0.4,
+          0.5,
+          0.6000000000000001,
+          0.7,
+          0.8,
+          0.9000000000000001,
+          1.0
+        ],
+        "bins": [
+          {
+            "range_min_m": 0.2,
+            "range_max_m": 0.30000000000000004,
+            "range_center_m": 0.25,
+            "count": 4631,
+            "median_error_m": 0.6032397150993347,
+            "mean_error_m": 0.6328788489405781,
+            "rmse_m": 0.6344957390956883,
+            "p90_error_m": 0.6834373950958252
+          },
+          {
+            "range_min_m": 0.30000000000000004,
+            "range_max_m": 0.4,
+            "range_center_m": 0.35000000000000003,
+            "count": 0,
+            "median_error_m": null,
+            "mean_error_m": null,
+            "rmse_m": null,
+            "p90_error_m": null
+          },
+          {
+            "range_min_m": 0.4,
+            "range_max_m": 0.5,
+            "range_center_m": 0.45,
+            "count": 0,
+            "median_error_m": null,
+            "mean_error_m": null,
+            "rmse_m": null,
+            "p90_error_m": null
+          },
+          {
+            "range_min_m": 0.5,
+            "range_max_m": 0.6000000000000001,
+            "range_center_m": 0.55,
+            "count": 4669,
+            "median_error_m": 0.21708983182907104,
+            "mean_error_m": 0.21725901876432427,
+            "rmse_m": 0.2172621361640309,
+            "p90_error_m": 0.21921521425247192
+          },
+          {
+            "range_min_m": 0.6000000000000001,
+            "range_max_m": 0.7,
+            "range_center_m": 0.65,
+            "count": 0,
+            "median_error_m": null,
+            "mean_error_m": null,
+            "rmse_m": null,
+            "p90_error_m": null
+          },
+          {
+            "range_min_m": 0.7,
+            "range_max_m": 0.8,
+            "range_center_m": 0.75,
+            "count": 54,
+            "median_error_m": 0.23881131410598755,
+            "mean_error_m": 0.23881131410598755,
+            "rmse_m": 0.23881131410598755,
+            "p90_error_m": 0.23881131410598755
+          },
+          {
+            "range_min_m": 0.8,
+            "range_max_m": 0.9000000000000001,
+            "range_center_m": 0.8500000000000001,
+            "count": 0,
+            "median_error_m": null,
+            "mean_error_m": null,
+            "rmse_m": null,
+            "p90_error_m": null
+          },
+          {
+            "range_min_m": 0.9000000000000001,
+            "range_max_m": 1.0,
+            "range_center_m": 0.9500000000000001,
+            "count": 4449,
+            "median_error_m": 0.36858296394348145,
+            "mean_error_m": 0.3332594741620651,
+            "rmse_m": 0.34212129860377993,
+            "p90_error_m": 0.37540674209594727
+          }
+        ],
+        "n_points": 13803
+      }
+    }
+  }
+}

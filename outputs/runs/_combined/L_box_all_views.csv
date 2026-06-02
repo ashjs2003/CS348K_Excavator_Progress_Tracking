@@ -1,0 +1,10 @@
+scene,pair_id,ruler_distance_cm,gt_volume_cm3,dav2_gt_volume_cm3,dav2_volume_cm3,foundation_volume_cm3,opencv_volume_cm3
+L_carboard_box,000,25.0,15360.0,15228.2,66994.2,202730.1,89852.6
+L_cardboard_box_30,000,25.0,15360.0,6129.5,7993.2,27895.9,
+L_carboard_box,001,50.0,15360.0,733.2,62820.9,,1094182.5
+L_cardboard_box_30,001,50.0,15360.0,10844.7,36490.0,102250.6,
+L_carboard_box,002,75.0,15360.0,138.4,718.0,96.4,
+L_cardboard_box_30,002,75.0,15360.0,17611.2,2173.9,69796.6,78771.2
+L_carboard_box,004,100.0,15360.0,68.6,2293.4,1887.8,
+L_cardboard_box_30,003,100.0,15360.0,87.8,3771.5,6925.5,584074.9
+L_carboard_box,003,,15360.0,,884.0,4307.7,40970.1

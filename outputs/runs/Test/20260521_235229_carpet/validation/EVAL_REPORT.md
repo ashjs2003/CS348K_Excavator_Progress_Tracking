@@ -8,9 +8,9 @@ This report compares three ways to estimate 3D shape from your cameras. We use y
 
 ## Bottom line (read this first)
 
-Overall pick for this capture: **AI single-camera depth (Depth Anything V2)**.
+Overall pick for this capture: **DA-V2 scaled to all valid OpenCV depth**.
 
-- **Closest to laser:** AI single-camera depth (Depth Anything V2) (typical gap 26.0 cm)
+- **Closest to laser:** DA-V2 scaled to all valid OpenCV depth (typical gap 26.0 cm)
 
 ---
 
@@ -28,8 +28,8 @@ Overall pick for this capture: **AI single-camera depth (Depth Anything V2)**.
 
 | Method | Surface coverage | Match to laser (typical error) | Trust this laser check? | Free-space warnings | Stereo photo match |
 |--------|------------------|-------------------------------|-------------------------|---------------------|-------------------|
-| Classic stereo (OpenCV) | Low (6.0%) | 6.1 cm — **Unreliable for this check** | **No** — too little overlap | 0.0% | 16.6 |
-| AI single-camera depth (Depth Anything V2) | High (100.0%) | 26.0 cm — **Fair** | Yes | 0.0% | n/a (not run) |
+| Classic stereo (OpenCV) | Low (6.0%) | 6.1 cm — **Unreliable for this check** | **No** — too little overlap | 0.0% | n/a (not run) |
+| DA-V2 scaled to all valid OpenCV depth | High (100.0%) | 26.0 cm — **Fair** | Yes | 0.0% | n/a (not run) |
 
 ### How to read the columns
 
@@ -49,12 +49,16 @@ Overall pick for this capture: **AI single-camera depth (Depth Anything V2)**.
 - **LiDAR points compared:** 6 of 224 visible to the camera (2.7% association rate).
 - **Within 5 cm of laser:** 33.3% of compared points.
 
-### AI single-camera depth (Depth Anything V2)
+### DA-V2 scaled to all valid OpenCV depth
 
 - **Coverage:** High — Most of the image has depth.
 - **Laser agreement:** Fair — Usable for rough shape, not for precise volume.
 - **LiDAR points compared:** 62 of 224 visible to the camera (27.7% association rate).
 - **Within 5 cm of laser:** 0.0% of compared points.
+
+### DA-V2 scaled using OpenCV pixels at manual GT distances
+
+*Not run for this capture.*
 
 ### AI stereo (FoundationStereo)
 
@@ -72,16 +76,20 @@ Overall pick for this capture: **AI single-camera depth (Depth Anything V2)**.
 ## Figures for your report
 
 **Charts (run `python 08_generate_eval_charts.py`):**
-- `/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/20260521_235229_carpet/validation/chart_scorecard.png` — green/yellow/red at-a-glance table
-- `/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/20260521_235229_carpet/validation/chart_coverage_and_accuracy.png` — side-by-side bar charts
-- `/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/20260521_235229_carpet/validation/chart_ray_error_histogram.png` — laser error distribution
-- `/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/20260521_235229_carpet/validation/chart_photometric.png` — stereo consistency (if Foundation/OpenCV run)
+- `/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/Test/20260521_235229_carpet/validation/chart_scorecard.png` — green/yellow/red at-a-glance table
+- `/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/Test/20260521_235229_carpet/validation/chart_coverage_and_accuracy.png` — side-by-side bar charts
+- `/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/Test/20260521_235229_carpet/validation/chart_ray_error_histogram.png` — laser error distribution
+- `/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/Test/20260521_235229_carpet/validation/chart_error_vs_range.png` — |ΔZ| vs LiDAR range (median/p90 per bin)
+- `/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/Test/20260521_235229_carpet/validation/chart_photometric.png` — stereo consistency (if Foundation/OpenCV run)
 
 **From evaluation (`06`):**
-- `/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/20260521_235229_carpet/validation/consensus_depth_std.png` — bright = methods disagree
+- `/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/Test/20260521_235229_carpet/validation/consensus_depth_std.png` — σ(Z) heatmap; caption in `evaluation_summary.json` → `consensus_map.caption`
+- `/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/Test/20260521_235229_carpet/validation/consensus_depth_std_on_rgb.png` — same on `depth/rgb1_rectified.png`
+
+**Cross-method consensus:** Overlap 6.0% of frame; Depth Anything V2-only 94.0%; on overlap: median σ(Z)=15.0 cm, 49.8% of px with σ<15 cm.
 
 **Scene previews:**
-- `../stereo/disparity_preview.png`, `depth_preview_dav2.png`
+- `../depth/disparity_preview.png`, `depth_preview_dav2.png`
 - `../overlays/lidar_overlay_rgb1.png`
 
 ---

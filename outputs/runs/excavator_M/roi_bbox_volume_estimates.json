@@ -1,0 +1,422 @@
+{
+  "scene": "excavator_M",
+  "assumptions": {
+    "z_inside": "median depth inside ROI polygon",
+    "z_outside": "median outside-ring depth; prefer values closer than z_inside by margin",
+    "depth_m": "abs(z_outside - z_inside)",
+    "width_height": "ROI bbox pixels projected with fx/fy at z_inside"
+  },
+  "params": {
+    "ring_pad_px": 24,
+    "ring_inner_gap_px": 4,
+    "outside_closer_margin_cm": 0.5
+  },
+  "rows": [
+    {
+      "scene": "excavator_M",
+      "pair_id": "004",
+      "ruler_distance_cm": null,
+      "bbox_w_px": 273,
+      "bbox_h_px": 173,
+      "dav2": {
+        "z_inside_m": 0.8089099824428558,
+        "z_outside_m": 0.7666475176811218,
+        "depth_m": 0.04226246476173401,
+        "width_m": 0.3816909785770942,
+        "height_m": 0.24187743331075934,
+        "volume_m3": 0.0039017736227754144,
+        "volume_cm3": 3901.7736227754144,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 4840,
+        "outside_total_n": 20080
+      },
+      "foundation": {
+        "z_inside_m": 0.7101121544837952,
+        "z_outside_m": 0.6953527927398682,
+        "depth_m": 0.014759361743927002,
+        "width_m": 0.335072392512545,
+        "height_m": 0.21233525239805967,
+        "volume_m3": 0.0010500943616485081,
+        "volume_cm3": 1050.094361648508,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 604,
+        "outside_total_n": 20080
+      }
+    },
+    {
+      "scene": "excavator_M",
+      "pair_id": "005",
+      "ruler_distance_cm": null,
+      "bbox_w_px": 303,
+      "bbox_h_px": 199,
+      "opencv": {
+        "z_inside_m": 0.73404660820961,
+        "z_outside_m": 0.552704393863678,
+        "depth_m": 0.181342214345932,
+        "width_m": 0.3844282708379667,
+        "height_m": 0.2524792933886316,
+        "volume_m3": 0.017601107635932624,
+        "volume_cm3": 17601.107635932625,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 352,
+        "outside_total_n": 434
+      },
+      "dav2": {
+        "z_inside_m": 0.84416863322258,
+        "z_outside_m": 0.8052104115486145,
+        "depth_m": 0.038958221673965454,
+        "width_m": 0.44210038482016595,
+        "height_m": 0.2903563583472377,
+        "volume_m3": 0.0050009367085716615,
+        "volume_cm3": 5000.936708571661,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 16457,
+        "outside_total_n": 22320
+      },
+      "foundation": {
+        "z_inside_m": 0.9273092150688171,
+        "z_outside_m": 0.8154833316802979,
+        "depth_m": 0.11182588338851929,
+        "width_m": 0.4856420206756437,
+        "height_m": 0.31895301027872314,
+        "volume_m3": 0.01732149211612745,
+        "volume_cm3": 17321.49211612745,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 17268,
+        "outside_total_n": 22320
+      }
+    },
+    {
+      "scene": "excavator_M",
+      "pair_id": "006",
+      "ruler_distance_cm": null,
+      "bbox_w_px": 340,
+      "bbox_h_px": 170,
+      "opencv": {
+        "z_inside_m": 0.7392495274543762,
+        "z_outside_m": 0.49193891882896423,
+        "depth_m": 0.247310608625412,
+        "width_m": 0.43442921752093233,
+        "height_m": 0.21721460876046617,
+        "volume_m3": 0.023337310399963077,
+        "volume_cm3": 23337.310399963077,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 30,
+        "outside_total_n": 427
+      },
+      "dav2": {
+        "z_inside_m": 1.0074034929275513,
+        "z_outside_m": 0.9323906302452087,
+        "depth_m": 0.07501286268234253,
+        "width_m": 0.5920132443877417,
+        "height_m": 0.29600662219387086,
+        "volume_m3": 0.01314524211179927,
+        "volume_cm3": 13145.242111799269,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 15359,
+        "outside_total_n": 22640
+      },
+      "foundation": {
+        "z_inside_m": 0.971859872341156,
+        "z_outside_m": 0.9493893980979919,
+        "depth_m": 0.022470474243164062,
+        "width_m": 0.5711255918350499,
+        "height_m": 0.2855627959175249,
+        "volume_m3": 0.003664759547296633,
+        "volume_cm3": 3664.759547296633,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 15340,
+        "outside_total_n": 22640
+      }
+    },
+    {
+      "scene": "excavator_M",
+      "pair_id": "007",
+      "ruler_distance_cm": null,
+      "bbox_w_px": 500,
+      "bbox_h_px": 413,
+      "opencv": {
+        "z_inside_m": 1.2887678146362305,
+        "z_outside_m": 0.9925209879875183,
+        "depth_m": 0.29624682664871216,
+        "width_m": 1.1137654442419194,
+        "height_m": 0.9199702569438254,
+        "volume_m3": 0.3035437065027754,
+        "volume_cm3": 303543.7065027754,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 530,
+        "outside_total_n": 565
+      },
+      "dav2": {
+        "z_inside_m": 0.9420957565307617,
+        "z_outside_m": 0.9090436697006226,
+        "depth_m": 0.03305208683013916,
+        "width_m": 0.8141681433028962,
+        "height_m": 0.6725028863681923,
+        "volume_m3": 0.01809702319420143,
+        "volume_cm3": 18097.02319420143,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 4331,
+        "outside_total_n": 38760
+      },
+      "foundation": {
+        "z_inside_m": 0.9463058114051819,
+        "z_outside_m": 1.010956048965454,
+        "depth_m": 0.06465023756027222,
+        "width_m": 0.8178065129023224,
+        "height_m": 0.6755081796573184,
+        "volume_m3": 0.035715053265277,
+        "volume_cm3": 35715.053265277,
+        "outside_mode": "fallback_all_outside",
+        "outside_candidates_n": 0,
+        "outside_total_n": 38760
+      }
+    },
+    {
+      "scene": "excavator_M",
+      "pair_id": "008",
+      "ruler_distance_cm": null,
+      "bbox_w_px": 495,
+      "bbox_h_px": 422,
+      "opencv": {
+        "z_inside_m": 0.7054025530815125,
+        "z_outside_m": 0.6443839073181152,
+        "depth_m": 0.06101864576339722,
+        "width_m": 0.6035194619154378,
+        "height_m": 0.5145155816733632,
+        "volume_m3": 0.01894752007247954,
+        "volume_cm3": 18947.52007247954,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 11,
+        "outside_total_n": 500
+      },
+      "dav2": {
+        "z_inside_m": 1.0801954865455627,
+        "z_outside_m": 0.9992781579494476,
+        "depth_m": 0.08091732859611511,
+        "width_m": 0.9241800954016826,
+        "height_m": 0.7878868692111314,
+        "volume_m3": 0.05891990118822483,
+        "volume_cm3": 58919.90118822483,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 34380,
+        "outside_total_n": 38920
+      },
+      "foundation": {
+        "z_inside_m": 0.9615739583969116,
+        "z_outside_m": 0.9548381567001343,
+        "depth_m": 0.006735801696777344,
+        "width_m": 0.8226913773255682,
+        "height_m": 0.7013651742048279,
+        "volume_m3": 0.0038866052764294705,
+        "volume_cm3": 3886.6052764294705,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 3746,
+        "outside_total_n": 38920
+      }
+    },
+    {
+      "scene": "excavator_M",
+      "pair_id": "009",
+      "ruler_distance_cm": null,
+      "bbox_w_px": 515,
+      "bbox_h_px": 429,
+      "opencv": {
+        "z_inside_m": 1.0969123840332031,
+        "z_outside_m": 0.5375827550888062,
+        "depth_m": 0.559329628944397,
+        "width_m": 0.9764010147268491,
+        "height_m": 0.8133515248889676,
+        "volume_m3": 0.44419568233264833,
+        "volume_cm3": 444195.6823326483,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 599,
+        "outside_total_n": 670
+      },
+      "dav2": {
+        "z_inside_m": 0.9893265962600708,
+        "z_outside_m": 0.9530458152294159,
+        "depth_m": 0.03628078103065491,
+        "width_m": 0.8806350502971011,
+        "height_m": 0.7335775467523425,
+        "volume_m3": 0.023437896096872766,
+        "volume_cm3": 23437.896096872766,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 35236,
+        "outside_total_n": 40000
+      },
+      "foundation": {
+        "z_inside_m": 1.0180003643035889,
+        "z_outside_m": 0.8882988691329956,
+        "depth_m": 0.12970149517059326,
+        "width_m": 0.9061585985961838,
+        "height_m": 0.7548389102869182,
+        "volume_m3": 0.08871631155607816,
+        "volume_cm3": 88716.31155607816,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 26615,
+        "outside_total_n": 40000
+      }
+    },
+    {
+      "scene": "excavator_M",
+      "pair_id": "010",
+      "ruler_distance_cm": null,
+      "bbox_w_px": 178,
+      "bbox_h_px": 349,
+      "opencv": {
+        "z_inside_m": 0.634136438369751,
+        "z_outside_m": 0.5475701689720154,
+        "depth_m": 0.0865662693977356,
+        "width_m": 0.19509752715210515,
+        "height_m": 0.38252267964092523,
+        "volume_m3": 0.006460373931958521,
+        "volume_cm3": 6460.373931958521,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 11,
+        "outside_total_n": 174
+      },
+      "dav2": {
+        "z_inside_m": 0.8518997430801392,
+        "z_outside_m": 0.8062411844730377,
+        "depth_m": 0.04565855860710144,
+        "width_m": 0.2620942800317985,
+        "height_m": 0.5138814816353802,
+        "volume_m3": 0.006149541090203337,
+        "volume_cm3": 6149.541090203336,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 20224,
+        "outside_total_n": 23320
+      },
+      "foundation": {
+        "z_inside_m": 0.8870521187782288,
+        "z_outside_m": 0.7937173843383789,
+        "depth_m": 0.09333473443984985,
+        "width_m": 0.27290921063230156,
+        "height_m": 0.535086036576816,
+        "volume_m3": 0.013629662670626444,
+        "volume_cm3": 13629.662670626443,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 20256,
+        "outside_total_n": 23320
+      }
+    },
+    {
+      "scene": "excavator_M",
+      "pair_id": "011",
+      "ruler_distance_cm": null,
+      "bbox_w_px": 486,
+      "bbox_h_px": 403,
+      "opencv": {
+        "z_inside_m": 0.7336491942405701,
+        "z_outside_m": 0.5988444089889526,
+        "depth_m": 0.13480478525161743,
+        "width_m": 0.6162738891679308,
+        "height_m": 0.5110254677668232,
+        "volume_m3": 0.04245429378211289,
+        "volume_cm3": 42454.293782112894,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 379,
+        "outside_total_n": 553
+      },
+      "dav2": {
+        "z_inside_m": 0.7898074984550476,
+        "z_outside_m": 0.7509886920452118,
+        "depth_m": 0.038818806409835815,
+        "width_m": 0.6634475204061644,
+        "height_m": 0.5501426969623132,
+        "volume_m3": 0.014168507523689951,
+        "volume_cm3": 14168.507523689952,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 4184,
+        "outside_total_n": 37800
+      },
+      "foundation": {
+        "z_inside_m": 0.8297186493873596,
+        "z_outside_m": 0.824308454990387,
+        "depth_m": 0.005410194396972656,
+        "width_m": 0.6969733531874363,
+        "height_m": 0.5779429245566601,
+        "volume_m3": 0.0021792848310121077,
+        "volume_cm3": 2179.2848310121076,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 127,
+        "outside_total_n": 37800
+      }
+    },
+    {
+      "scene": "excavator_M",
+      "pair_id": "012",
+      "ruler_distance_cm": null,
+      "bbox_w_px": 484,
+      "bbox_h_px": 423,
+      "opencv": {
+        "z_inside_m": 0.7873308062553406,
+        "z_outside_m": 0.4662254750728607,
+        "depth_m": 0.32110533118247986,
+        "width_m": 0.6586453948554764,
+        "height_m": 0.5756343017022034,
+        "volume_m3": 0.12174351624853685,
+        "volume_cm3": 121743.51624853685,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 204,
+        "outside_total_n": 1063
+      },
+      "dav2": {
+        "z_inside_m": 0.8494228422641754,
+        "z_outside_m": 0.7958536148071289,
+        "depth_m": 0.05356922745704651,
+        "width_m": 0.7105887879622821,
+        "height_m": 0.6210311101405895,
+        "volume_m3": 0.023639979216135976,
+        "volume_cm3": 23639.979216135976,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 4300,
+        "outside_total_n": 38520
+      },
+      "foundation": {
+        "z_inside_m": 0.8566993474960327,
+        "z_outside_m": 0.8168330192565918,
+        "depth_m": 0.03986632823944092,
+        "width_m": 0.7166759836156557,
+        "height_m": 0.6263511179120296,
+        "volume_m3": 0.017895628116729692,
+        "volume_cm3": 17895.62811672969,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 4195,
+        "outside_total_n": 38520
+      }
+    },
+    {
+      "scene": "excavator_M",
+      "pair_id": "013",
+      "ruler_distance_cm": null,
+      "bbox_w_px": 100,
+      "bbox_h_px": 85,
+      "dav2": {
+        "z_inside_m": 0.8033870458602905,
+        "z_outside_m": 0.7904511094093323,
+        "depth_m": 0.012935936450958252,
+        "width_m": 0.13885895036622292,
+        "height_m": 0.1180301078112895,
+        "volume_m3": 0.0002120140075699113,
+        "volume_cm3": 212.0140075699113,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 7015,
+        "outside_total_n": 9640
+      },
+      "foundation": {
+        "z_inside_m": 0.8502146601676941,
+        "z_outside_m": 0.7753623127937317,
+        "depth_m": 0.0748523473739624,
+        "width_m": 0.14695272459918607,
+        "height_m": 0.12490981590930816,
+        "volume_m3": 0.0013739775456282671,
+        "volume_cm3": 1373.977545628267,
+        "outside_mode": "closer_only",
+        "outside_candidates_n": 9640,
+        "outside_total_n": 9640
+      }
+    }
+  ]
+}

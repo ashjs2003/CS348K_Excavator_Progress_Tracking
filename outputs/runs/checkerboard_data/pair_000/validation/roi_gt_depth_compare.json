@@ -1,0 +1,103 @@
+{
+  "run": "pair_000",
+  "scene": "checkerboard_data",
+  "pair_id": "000",
+  "roi_path": "/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/data/checkerboard_data/pair_000_roi.json",
+  "use_wall_gt": true,
+  "target_gt_cm": null,
+  "wall_gt_cm": 100.0,
+  "tolerance_cm": 5.0,
+  "wall_percentile": 90.0,
+  "roi_pixels": 120671,
+  "wall_pixels": 2194,
+  "ruler_pixels": 0,
+  "methods": {
+    "opencv": {
+      "wall": {
+        "n_pixels": 2194,
+        "median_error_cm": 17.02670454978943,
+        "mean_error_cm": 21.68263840805756,
+        "rmse_cm": 27.22608779325329,
+        "frac_within_tolerance_pct": 0.0,
+        "median_depth_cm": 83.07498097419739,
+        "mean_depth_cm": 91.56300454869961
+      },
+      "ruler": {
+        "n_pixels": 0,
+        "median_error_cm": null,
+        "mean_error_cm": null,
+        "rmse_cm": null,
+        "frac_within_tolerance_pct": null,
+        "median_depth_cm": null,
+        "mean_depth_cm": null
+      },
+      "all_roi_compared": {
+        "n_pixels": 2194,
+        "median_error_cm": 17.02670454978943,
+        "mean_error_cm": 21.68263840805756,
+        "rmse_cm": 27.22608779325329,
+        "frac_within_tolerance_pct": 0.0,
+        "median_depth_cm": 83.07498097419739,
+        "mean_depth_cm": 91.56300454869961
+      }
+    },
+    "dav2": {
+      "wall": {
+        "n_pixels": 2194,
+        "median_error_cm": 22.40660786628723,
+        "mean_error_cm": 22.415648777048048,
+        "rmse_cm": 22.418393158195208,
+        "frac_within_tolerance_pct": 0.0,
+        "median_depth_cm": 77.59339213371277,
+        "mean_depth_cm": 77.58435122295195
+      },
+      "ruler": {
+        "n_pixels": 0,
+        "median_error_cm": null,
+        "mean_error_cm": null,
+        "rmse_cm": null,
+        "frac_within_tolerance_pct": null,
+        "median_depth_cm": null,
+        "mean_depth_cm": null
+      },
+      "all_roi_compared": {
+        "n_pixels": 2194,
+        "median_error_cm": 22.40660786628723,
+        "mean_error_cm": 22.415648777048048,
+        "rmse_cm": 22.418393158195208,
+        "frac_within_tolerance_pct": 0.0,
+        "median_depth_cm": 77.59339213371277,
+        "mean_depth_cm": 77.58435122295195
+      }
+    },
+    "foundation": {
+      "wall": {
+        "n_pixels": 2194,
+        "median_error_cm": 21.988308429718018,
+        "mean_error_cm": 21.971839332211093,
+        "rmse_cm": 21.972347877595855,
+        "frac_within_tolerance_pct": 0.0,
+        "median_depth_cm": 78.01169157028198,
+        "mean_depth_cm": 78.02816066778891
+      },
+      "ruler": {
+        "n_pixels": 0,
+        "median_error_cm": null,
+        "mean_error_cm": null,
+        "rmse_cm": null,
+        "frac_within_tolerance_pct": null,
+        "median_depth_cm": null,
+        "mean_depth_cm": null
+      },
+      "all_roi_compared": {
+        "n_pixels": 2194,
+        "median_error_cm": 21.988308429718018,
+        "mean_error_cm": 21.971839332211093,
+        "rmse_cm": 21.972347877595855,
+        "frac_within_tolerance_pct": 0.0,
+        "median_depth_cm": 78.01169157028198,
+        "mean_depth_cm": 78.02816066778891
+      }
+    }
+  }
+}

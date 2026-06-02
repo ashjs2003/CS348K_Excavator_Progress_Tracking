@@ -35,5 +35,447 @@
   },
   "data_source": "data/excavator_S",
   "data_pair_id": "015",
-  "batch_stereo_method": "stereobm"
+  "batch_stereo_method": "stereobm",
+  "evaluation_summary": {
+    "run": "pair_015",
+    "methods": {
+      "opencv": {
+        "valid_lidar_points": 57,
+        "projected_in_image": 57,
+        "associated_pixels": 0,
+        "association_rate": 0.0,
+        "ray_median_error_m": null,
+        "ray_mean_error_m": null,
+        "ray_rmse_m": null,
+        "ray_p90_m": null,
+        "ray_max_error_m": null,
+        "inlier_ratio": 0.0,
+        "ray_inlier_tau_m": 0.05,
+        "free_space_violation_pct": 0.0,
+        "median_free_space_violation_m": null,
+        "free_space_tau_m": 0.03,
+        "error_vs_range": {
+          "bin_edges_m": [
+            0.17378582472081203,
+            0.18669808131027132,
+            0.19961033789973065,
+            0.21252259448918995,
+            0.22543485107864925,
+            0.23834710766810857,
+            0.2512593642575679,
+            0.26417162084702717,
+            0.2770838774364865
+          ],
+          "bins": [],
+          "n_points": 0
+        },
+        "method": "opencv",
+        "depth_coverage_pct": 2.3394097222222223
+      },
+      "dav2": {
+        "valid_lidar_points": 57,
+        "projected_in_image": 57,
+        "associated_pixels": 37,
+        "association_rate": 0.6491228070175439,
+        "ray_median_error_m": 0.5658581920565426,
+        "ray_mean_error_m": 0.5524233555152168,
+        "ray_rmse_m": 0.5540107794643586,
+        "ray_p90_m": 0.6027879330654414,
+        "ray_max_error_m": 0.6102866392256132,
+        "inlier_ratio": 0.0,
+        "ray_inlier_tau_m": 0.05,
+        "free_space_violation_pct": 0.0,
+        "median_free_space_violation_m": null,
+        "free_space_tau_m": 0.03,
+        "error_vs_range": {
+          "bin_edges_m": [
+            0.17378582472081203,
+            0.18669808131027132,
+            0.19961033789973065,
+            0.21252259448918995,
+            0.22543485107864925,
+            0.23834710766810857,
+            0.2512593642575679,
+            0.26417162084702717,
+            0.2770838774364865
+          ],
+          "bins": [
+            {
+              "range_min_m": 0.17378582472081203,
+              "range_max_m": 0.18669808131027132,
+              "range_center_m": 0.1802419530155417,
+              "count": 2,
+              "median_error_m": 0.5661064491541379,
+              "mean_error_m": 0.5661064491541379,
+              "rmse_m": 0.5661077787417879,
+              "p90_error_m": 0.5670879999449092
+            },
+            {
+              "range_min_m": 0.18669808131027132,
+              "range_max_m": 0.19961033789973065,
+              "range_center_m": 0.193154209605001,
+              "count": 1,
+              "median_error_m": 0.5149942765230434,
+              "mean_error_m": 0.5149942765230434,
+              "rmse_m": 0.5149942765230434,
+              "p90_error_m": 0.5149942765230434
+            },
+            {
+              "range_min_m": 0.19961033789973065,
+              "range_max_m": 0.21252259448918995,
+              "range_center_m": 0.20606646619446028,
+              "count": 6,
+              "median_error_m": 0.51405581405868,
+              "mean_error_m": 0.5172526251142342,
+              "rmse_m": 0.5173938711923374,
+              "p90_error_m": 0.5321942764021057
+            },
+            {
+              "range_min_m": 0.21252259448918995,
+              "range_max_m": 0.22543485107864925,
+              "range_center_m": 0.2189787227839196,
+              "count": 1,
+              "median_error_m": 0.5661918574046209,
+              "mean_error_m": 0.5661918574046209,
+              "rmse_m": 0.5661918574046209,
+              "p90_error_m": 0.5661918574046209
+            },
+            {
+              "range_min_m": 0.22543485107864925,
+              "range_max_m": 0.23834710766810857,
+              "range_center_m": 0.2318909793733789,
+              "count": 6,
+              "median_error_m": 0.5042370610700385,
+              "mean_error_m": 0.515787206421347,
+              "rmse_m": 0.5167118484140296,
+              "p90_error_m": 0.548696266345411
+            },
+            {
+              "range_min_m": 0.23834710766810857,
+              "range_max_m": 0.2512593642575679,
+              "range_center_m": 0.24480323596283823,
+              "count": 7,
+              "median_error_m": 0.6036807169915734,
+              "mean_error_m": 0.588572530314132,
+              "rmse_m": 0.5899746129926233,
+              "p90_error_m": 0.6097072453949652
+            },
+            {
+              "range_min_m": 0.2512593642575679,
+              "range_max_m": 0.26417162084702717,
+              "range_center_m": 0.25771549255229753,
+              "count": 7,
+              "median_error_m": 0.5904353591617252,
+              "mean_error_m": 0.5913186798407084,
+              "rmse_m": 0.5913300093136297,
+              "p90_error_m": 0.5964604017139443
+            },
+            {
+              "range_min_m": 0.26417162084702717,
+              "range_max_m": 0.2770838774364865,
+              "range_center_m": 0.2706277491417568,
+              "count": 5,
+              "median_error_m": 0.5009425849009239,
+              "mean_error_m": 0.5268854513150396,
+              "rmse_m": 0.5279926932105093,
+              "p90_error_m": 0.5700898738365944
+            }
+          ],
+          "n_points": 37
+        },
+        "method": "dav2",
+        "depth_coverage_pct": 100.0
+      },
+      "foundation": {
+        "valid_lidar_points": 57,
+        "projected_in_image": 57,
+        "associated_pixels": 37,
+        "association_rate": 0.6491228070175439,
+        "ray_median_error_m": 0.7254602751763118,
+        "ray_mean_error_m": 0.7471824118900503,
+        "ray_rmse_m": 0.7478019248778398,
+        "ray_p90_m": 0.7870312667484491,
+        "ray_max_error_m": 0.8098959990443051,
+        "inlier_ratio": 0.0,
+        "ray_inlier_tau_m": 0.05,
+        "free_space_violation_pct": 0.0,
+        "median_free_space_violation_m": null,
+        "free_space_tau_m": 0.03,
+        "error_vs_range": {
+          "bin_edges_m": [
+            0.17378582472081203,
+            0.18669808131027132,
+            0.19961033789973065,
+            0.21252259448918995,
+            0.22543485107864925,
+            0.23834710766810857,
+            0.2512593642575679,
+            0.26417162084702717,
+            0.2770838774364865
+          ],
+          "bins": [
+            {
+              "range_min_m": 0.17378582472081203,
+              "range_max_m": 0.18669808131027132,
+              "range_center_m": 0.1802419530155417,
+              "count": 2,
+              "median_error_m": 0.8042668209345334,
+              "mean_error_m": 0.8042668209345334,
+              "rmse_m": 0.8042743112823275,
+              "p90_error_m": 0.8070437006247191
+            },
+            {
+              "range_min_m": 0.18669808131027132,
+              "range_max_m": 0.19961033789973065,
+              "range_center_m": 0.193154209605001,
+              "count": 1,
+              "median_error_m": 0.7902024517053859,
+              "mean_error_m": 0.7902024517053859,
+              "rmse_m": 0.7902024517053859,
+              "p90_error_m": 0.7902024517053859
+            },
+            {
+              "range_min_m": 0.19961033789973065,
+              "range_max_m": 0.21252259448918995,
+              "range_center_m": 0.20606646619446028,
+              "count": 6,
+              "median_error_m": 0.7812187157454688,
+              "mean_error_m": 0.7807894260550657,
+              "rmse_m": 0.7807954569753919,
+              "p90_error_m": 0.7841561508402711
+            },
+            {
+              "range_min_m": 0.21252259448918995,
+              "range_max_m": 0.22543485107864925,
+              "range_center_m": 0.2189787227839196,
+              "count": 1,
+              "median_error_m": 0.7696884327601506,
+              "mean_error_m": 0.7696884327601506,
+              "rmse_m": 0.7696884327601506,
+              "p90_error_m": 0.7696884327601506
+            },
+            {
+              "range_min_m": 0.22543485107864925,
+              "range_max_m": 0.23834710766810857,
+              "range_center_m": 0.2318909793733789,
+              "count": 6,
+              "median_error_m": 0.757929310134343,
+              "mean_error_m": 0.7578866703610138,
+              "rmse_m": 0.757892009845751,
+              "p90_error_m": 0.7612183367630034
+            },
+            {
+              "range_min_m": 0.23834710766810857,
+              "range_max_m": 0.2512593642575679,
+              "range_center_m": 0.24480323596283823,
+              "count": 7,
+              "median_error_m": 0.7223391703076838,
+              "mean_error_m": 0.7261730543990407,
+              "rmse_m": 0.7262365735579325,
+              "p90_error_m": 0.7349678058087586
+            },
+            {
+              "range_min_m": 0.2512593642575679,
+              "range_max_m": 0.26417162084702717,
+              "range_center_m": 0.25771549255229753,
+              "count": 7,
+              "median_error_m": 0.7181173545764867,
+              "mean_error_m": 0.7181740021335813,
+              "rmse_m": 0.7181788211336243,
+              "p90_error_m": 0.7211625540207127
+            },
+            {
+              "range_min_m": 0.26417162084702717,
+              "range_max_m": 0.2770838774364865,
+              "range_center_m": 0.2706277491417568,
+              "count": 5,
+              "median_error_m": 0.7223130396673991,
+              "mean_error_m": 0.7214612498265447,
+              "rmse_m": 0.7214629132984687,
+              "p90_error_m": 0.7227013989429143
+            }
+          ],
+          "n_points": 37
+        },
+        "method": "foundation",
+        "depth_coverage_pct": 99.99989149305556,
+        "foundation_disparity": {
+          "vis_path": "/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/excavator_S/pair_015/depth/foundation/vis.png",
+          "vis_shape": [
+            540,
+            1920,
+            3
+          ],
+          "colormap": "COLORMAP_TURBO",
+          "valid_pixel_pct": 100.0,
+          "index_range": [
+            1,
+            255
+          ],
+          "variant": "inverse",
+          "scale": -0.03415272263216119,
+          "shift_m": 1.0402923977330492,
+          "reference_valid_pixels": 21560,
+          "fit_pixels": 21560,
+          "fit_correlation": -0.06151899670646935,
+          "index_variant": "inverted",
+          "opencv_depth_correlation": 0.058595455788941195,
+          "disparity_source": "vis.png_colormap_scaled_to_opencv_depth",
+          "cached_disparity": "/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/excavator_S/pair_015/depth/foundation/work/disparity_from_vis.npy",
+          "from_vis": true,
+          "depth_source": "vis.png_colormap_scaled_to_opencv_depth"
+        }
+      }
+    },
+    "photometric": {
+      "opencv": {
+        "mean_photometric_error": 19.53777539424861,
+        "median_photometric_error": 11.0,
+        "valid_pixel_pct": 2.3394097222222223,
+        "sample_count": 21560
+      },
+      "foundation": {
+        "mean_photometric_error": 37.85775483944063,
+        "median_photometric_error": 14.59375,
+        "valid_pixel_pct": 99.99989149305556,
+        "sample_count": 77230
+      }
+    },
+    "error_vs_range_bin_edges_m": [
+      0.17378582472081203,
+      0.18669808131027132,
+      0.19961033789973065,
+      0.21252259448918995,
+      0.22543485107864925,
+      0.23834710766810857,
+      0.2512593642575679,
+      0.26417162084702717,
+      0.2770838774364865
+    ],
+    "cross_method": {
+      "methods_present": [
+        "opencv",
+        "dav2",
+        "foundation"
+      ],
+      "pairwise_depth": {
+        "opencv_vs_dav2": {
+          "overlap_pixels": 21560,
+          "median_abs_diff_m": 0.3640662133693695,
+          "mean_abs_diff_m": 0.38022575879777076,
+          "fraction_within_eps": 0.027968460111317255,
+          "eps_m": 0.02,
+          "correlation": 0.07079400975880189
+        },
+        "opencv_vs_foundation": {
+          "overlap_pixels": 21560,
+          "median_abs_diff_m": 0.3671064078807831,
+          "mean_abs_diff_m": 0.3813120957056202,
+          "fraction_within_eps": 0.0212430426716141,
+          "eps_m": 0.02,
+          "correlation": 0.061519027454371995
+        },
+        "dav2_vs_foundation": {
+          "overlap_pixels": 921599,
+          "median_abs_diff_m": 0.0347515344619751,
+          "mean_abs_diff_m": 0.06555028590938346,
+          "fraction_within_eps": 0.275930203917322,
+          "eps_m": 0.02,
+          "correlation": -0.1833552017120358
+        }
+      },
+      "consensus": {
+        "pixels_all_methods": 21560,
+        "median_std_m": 0.1737585944114731,
+        "mean_std_m": 0.1805847376874327,
+        "p90_std_m": 0.36812681537784164
+      }
+    },
+    "consensus_map": {
+      "saved": true,
+      "path": "/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/excavator_S/pair_015/validation/consensus_depth_std.png",
+      "overlay_path": "/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/excavator_S/pair_015/validation/consensus_depth_std_on_rgb.png",
+      "overlay_saved": true,
+      "overlay_reason": null,
+      "caption": {
+        "run_id": "pair_015",
+        "method_ids": [
+          "opencv",
+          "dav2",
+          "foundation"
+        ],
+        "title": "Cross-method depth disagreement \u2014 pair_015",
+        "subtitle": "Metric Z, rectified RGB1 (1280\u00d7720) \u2014 OpenCV stereo vs DA-V2 (OpenCV scale) vs FoundationStereo",
+        "colorbar_label": "\u03c3(Z) across 3 depth sources (cm), overlap pixels only",
+        "colorbar_note": "scale max = 16 cm (p95 of \u03c3)",
+        "footer_lines": [
+          "Coverage: overlap (\u22652 valid Z) = 100.0% (921,599 / 921,600 px)",
+          "Overlap \u03c3(Z): <5 cm on 81.9% of px | <15 cm on 94.3% | median 1.8 cm, p95 15.8 cm"
+        ],
+        "summary": "Overlap 100.0% of frame; on overlap: median \u03c3(Z)=1.8 cm, 94.3% of px with \u03c3<15 cm.",
+        "legend_standalone": [
+          "Dark gray: exactly one source has valid Z (no \u03c3 computed)",
+          "Colored: \u22652 sources valid; color = \u03c3(Z) in cm (see colorbar)"
+        ],
+        "legend_overlay": [
+          {
+            "kind": "overlap",
+            "text": "Heatmap: \u22652 sources valid; color = \u03c3(Z) (cm)"
+          }
+        ],
+        "sources": {
+          "opencv": {
+            "label": "OpenCV stereo",
+            "depth_product": "depth/opencv/depth_metric.npy",
+            "description": "rectified pair \u2192 disparity \u2192 metric Z (Q, P1)"
+          },
+          "dav2": {
+            "label": "DA-V2 (OpenCV scale)",
+            "depth_product": "depth/dav2/depth_metric.npy",
+            "description": "rgb1_rectified \u2192 relative depth \u2192 linear fit vs all valid OpenCV Z"
+          },
+          "foundation": {
+            "label": "FoundationStereo",
+            "depth_product": "depth/foundation/disparity.npy \u2192 metric Z",
+            "description": "rectified pair \u2192 learned disparity \u2192 metric Z (Q, P1)"
+          }
+        }
+      },
+      "summary": "Overlap 100.0% of frame; on overlap: median \u03c3(Z)=1.8 cm, 94.3% of px with \u03c3<15 cm.",
+      "methods": [
+        "opencv",
+        "dav2",
+        "foundation"
+      ],
+      "median_std_m": 0.01796463131904602,
+      "p95_std_m": 0.1583990782499313,
+      "median_std_cm": 1.796463131904602,
+      "p95_std_cm": 15.83990782499313,
+      "frac_pixels_compared_pct": 99.99989149305556,
+      "frac_single_method_pct": 0.00010850694444444444,
+      "frac_no_depth_pct": 0.0,
+      "frac_within_5cm_pct": 81.91263228367218,
+      "frac_within_15cm_pct": 94.30706847555173,
+      "alone_pct_by_method": {
+        "opencv": 0.0,
+        "dav2": 0.00010850694444444444,
+        "foundation": 0.0
+      },
+      "colorbar_max_cm": 15.83990782499313
+    },
+    "gt_depth_reference": {
+      "saved": false,
+      "reason": "no valid pair_*.txt target distance (missing or non-numeric)",
+      "txt_path": "/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/data/excavator_S/pair_015.txt",
+      "wall_gt_m": 1.0,
+      "wall_gt_cm": 100.0,
+      "tolerance_m": 0.05,
+      "tolerance_cm": 5.0,
+      "settings_source": {
+        "target": "data/<scene>/pair_<id>.txt",
+        "wall_cm": 100.0,
+        "tolerance_cm": 5.0
+      }
+    }
+  }
 }

@@ -1,0 +1,35 @@
+{
+  "variant": "inverse",
+  "scale": 0.030639778997433583,
+  "shift_m": 0.5062246992874441,
+  "reference_valid_pixels": 29289,
+  "fit_pixels": 3882,
+  "fit_correlation": 0.30166161580274875,
+  "fit_mask_pixels": 3882,
+  "K": [
+    [
+      578.5633866174695,
+      0.0,
+      570.2612476255729
+    ],
+    [
+      0.0,
+      578.5633866174695,
+      390.3019701809129
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "encoder": "vits",
+  "scale_reference": "opencv-gt",
+  "method_id": "dav2_gt",
+  "gt_txt": "/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/data/checkerboard_data/pair_005.txt",
+  "target_gt_cm": 50.0,
+  "wall_gt_cm": 100.0,
+  "tolerance_cm": 5.0,
+  "anchor_pixels": 3882,
+  "anchor_pixels_pct": 0.4212239583333333
+}

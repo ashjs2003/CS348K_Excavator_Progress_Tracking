@@ -1,0 +1,64 @@
+{
+  "methods_present": [
+    "opencv",
+    "dav2",
+    "dav2_gt",
+    "foundation"
+  ],
+  "pairwise_depth": {
+    "opencv_vs_dav2": {
+      "overlap_pixels": 13229,
+      "median_abs_diff_m": 0.2786601781845093,
+      "mean_abs_diff_m": 0.3205367988722423,
+      "fraction_within_eps": 0.02124121248771638,
+      "eps_m": 0.02,
+      "correlation": 0.16603041148212438
+    },
+    "opencv_vs_dav2_gt": {
+      "overlap_pixels": 13229,
+      "median_abs_diff_m": 0.26138949394226074,
+      "mean_abs_diff_m": 0.3137994126218707,
+      "fraction_within_eps": 0.015723032731121023,
+      "eps_m": 0.02,
+      "correlation": 0.1660304102026349
+    },
+    "opencv_vs_foundation": {
+      "overlap_pixels": 13229,
+      "median_abs_diff_m": 0.2723258137702942,
+      "mean_abs_diff_m": 0.3146218236872863,
+      "fraction_within_eps": 0.008995388918285585,
+      "eps_m": 0.02,
+      "correlation": 0.22085158436413688
+    },
+    "dav2_vs_dav2_gt": {
+      "overlap_pixels": 921600,
+      "median_abs_diff_m": 0.06597590446472168,
+      "mean_abs_diff_m": 0.0544695086327071,
+      "fraction_within_eps": 0.20792100694444443,
+      "eps_m": 0.02,
+      "correlation": 0.9999999999999185
+    },
+    "dav2_vs_foundation": {
+      "overlap_pixels": 920411,
+      "median_abs_diff_m": 0.034317612648010254,
+      "mean_abs_diff_m": 0.05811795672825808,
+      "fraction_within_eps": 0.21121433794250613,
+      "eps_m": 0.02,
+      "correlation": 0.8320079541275109
+    },
+    "dav2_gt_vs_foundation": {
+      "overlap_pixels": 920411,
+      "median_abs_diff_m": 0.061325013637542725,
+      "mean_abs_diff_m": 0.08505353472846734,
+      "fraction_within_eps": 0.022112947368077958,
+      "eps_m": 0.02,
+      "correlation": 0.8320079539152917
+    }
+  },
+  "consensus": {
+    "pixels_all_methods": 13229,
+    "median_std_m": 0.11896403626787723,
+    "mean_std_m": 0.1414873528475911,
+    "p90_std_m": 0.2700888831482838
+  }
+}

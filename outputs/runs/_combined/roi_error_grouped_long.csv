@@ -1,0 +1,133 @@
+scene,method,group,median_error_cm,count
+L_carboard_box,OpenCV,Near,47.116,4521
+L_carboard_box,OpenCV,Far,27.227,1079
+L_carboard_box,OpenCV,Very Far,46.327,1142
+L_carboard_box,DA-V2,Near,64.929,4521
+L_carboard_box,DA-V2,Far,6.609,1079
+L_carboard_box,DA-V2,Very Far,7.004,1142
+L_carboard_box,DA-V2 GT,Near,74.695,4521
+L_carboard_box,DA-V2 GT,Far,1.312,1079
+L_carboard_box,DA-V2 GT,Very Far,0.348,909
+L_carboard_box,Foundation,Near,74.622,4521
+L_carboard_box,Foundation,Far,9.636,1079
+L_carboard_box,Foundation,Very Far,4.925,1142
+L_cardboard_box_30,OpenCV,Near,50.154,558
+L_cardboard_box_30,OpenCV,Mid,26.946,983
+L_cardboard_box_30,OpenCV,Far,5.258,219
+L_cardboard_box_30,OpenCV,Very Far,88.303,4692
+L_cardboard_box_30,DA-V2,Near,49.718,558
+L_cardboard_box_30,DA-V2,Mid,42.676,983
+L_cardboard_box_30,DA-V2,Far,22.324,219
+L_cardboard_box_30,DA-V2,Very Far,39.321,4692
+L_cardboard_box_30,DA-V2 GT,Near,74.139,558
+L_cardboard_box_30,DA-V2 GT,Mid,12.417,983
+L_cardboard_box_30,DA-V2 GT,Far,14.453,219
+L_cardboard_box_30,DA-V2 GT,Very Far,2.945,4692
+L_cardboard_box_30,Foundation,Near,60.237,558
+L_cardboard_box_30,Foundation,Mid,42.386,983
+L_cardboard_box_30,Foundation,Far,20.354,219
+L_cardboard_box_30,Foundation,Very Far,36.092,4692
+M_cardboard_box,OpenCV,Near,81.755,13770
+M_cardboard_box,OpenCV,Mid,4.231,5119
+M_cardboard_box,OpenCV,Far,18.245,3012
+M_cardboard_box,OpenCV,Very Far,61.788,3532
+M_cardboard_box,DA-V2,Near,73.743,13770
+M_cardboard_box,DA-V2,Mid,22.631,5119
+M_cardboard_box,DA-V2,Far,5.464,3012
+M_cardboard_box,DA-V2,Very Far,8.474,3532
+M_cardboard_box,DA-V2 GT,Near,80.826,13770
+M_cardboard_box,DA-V2 GT,Mid,14.220,5119
+M_cardboard_box,DA-V2 GT,Far,19.629,3012
+M_cardboard_box,DA-V2 GT,Very Far,1.116,2767
+M_cardboard_box,Foundation,Near,71.866,13770
+M_cardboard_box,Foundation,Mid,31.024,5119
+M_cardboard_box,Foundation,Far,6.912,3012
+M_cardboard_box,Foundation,Very Far,9.700,3532
+M_cardboardbox_30,OpenCV,Near,31.866,4631
+M_cardboardbox_30,OpenCV,Mid,3.791,4669
+M_cardboardbox_30,OpenCV,Far,4.471,54
+M_cardboardbox_30,OpenCV,Very Far,48.335,4449
+M_cardboardbox_30,DA-V2,Near,60.467,4631
+M_cardboardbox_30,DA-V2,Mid,20.325,4669
+M_cardboardbox_30,DA-V2,Far,14.798,54
+M_cardboardbox_30,DA-V2,Very Far,36.970,4449
+M_cardboardbox_30,DA-V2 GT,Near,72.903,4631
+M_cardboardbox_30,DA-V2 GT,Mid,3.948,4669
+M_cardboardbox_30,DA-V2 GT,Far,6.495,54
+M_cardboardbox_30,DA-V2 GT,Very Far,2.407,4449
+M_cardboardbox_30,Foundation,Near,60.324,4631
+M_cardboardbox_30,Foundation,Mid,21.709,4669
+M_cardboardbox_30,Foundation,Far,23.881,54
+M_cardboardbox_30,Foundation,Very Far,36.858,4449
+S_cardboard_box,OpenCV,Near,34.015,2348
+S_cardboard_box,OpenCV,Mid,4.289,421
+S_cardboard_box,OpenCV,Far,16.002,16
+S_cardboard_box,OpenCV,Very Far,35.192,438
+S_cardboard_box,DA-V2,Near,60.862,2348
+S_cardboard_box,DA-V2,Mid,39.601,421
+S_cardboard_box,DA-V2,Far,22.615,16
+S_cardboard_box,DA-V2,Very Far,11.850,438
+S_cardboard_box,DA-V2 GT,Near,78.195,2348
+S_cardboard_box,DA-V2 GT,Mid,11.395,421
+S_cardboard_box,DA-V2 GT,Far,0.668,16
+S_cardboard_box,DA-V2 GT,Very Far,1.805,362
+S_cardboard_box,Foundation,Near,73.689,2348
+S_cardboard_box,Foundation,Mid,40.018,421
+S_cardboard_box,Foundation,Far,31.949,16
+S_cardboard_box,Foundation,Very Far,8.409,438
+S_cardboard_box_30,OpenCV,Near,61.246,419
+S_cardboard_box_30,OpenCV,Mid,4.351,6
+S_cardboard_box_30,OpenCV,Far,97.492,383
+S_cardboard_box_30,OpenCV,Very Far,54.972,116
+S_cardboard_box_30,DA-V2,Near,60.702,419
+S_cardboard_box_30,DA-V2,Mid,28.503,6
+S_cardboard_box_30,DA-V2,Far,30.184,383
+S_cardboard_box_30,DA-V2,Very Far,9.928,116
+S_cardboard_box_30,DA-V2 GT,Near,74.584,419
+S_cardboard_box_30,DA-V2 GT,Mid,5.761,6
+S_cardboard_box_30,DA-V2 GT,Far,13.497,383
+S_cardboard_box_30,DA-V2 GT,Very Far,0.683,116
+S_cardboard_box_30,Foundation,Near,60.688,419
+S_cardboard_box_30,Foundation,Mid,27.931,6
+S_cardboard_box_30,Foundation,Far,29.672,383
+S_cardboard_box_30,Foundation,Very Far,4.672,116
+checkerboard_data,OpenCV,Near,50.742,30952
+checkerboard_data,OpenCV,Mid,31.772,12032
+checkerboard_data,OpenCV,Far,26.579,1093
+checkerboard_data,OpenCV,Very Far,19.966,9021
+checkerboard_data,DA-V2,Near,58.604,30952
+checkerboard_data,DA-V2,Mid,34.017,12032
+checkerboard_data,DA-V2,Far,14.166,1093
+checkerboard_data,DA-V2,Very Far,21.652,9021
+checkerboard_data,DA-V2 GT,Near,81.102,30952
+checkerboard_data,DA-V2 GT,Mid,3.202,12032
+checkerboard_data,DA-V2 GT,Far,7.301,1093
+checkerboard_data,DA-V2 GT,Very Far,2.155,6609
+checkerboard_data,Foundation,Near,57.395,30952
+checkerboard_data,Foundation,Mid,34.293,12032
+checkerboard_data,Foundation,Far,13.251,1093
+checkerboard_data,Foundation,Very Far,19.467,9021
+checkerboard_data_30,OpenCV,Near,89.416,20814
+checkerboard_data_30,OpenCV,Mid,38.152,2374
+checkerboard_data_30,OpenCV,Far,60.578,15243
+checkerboard_data_30,OpenCV,Very Far,66.558,7075
+checkerboard_data_30,DA-V2,Near,82.316,20814
+checkerboard_data_30,DA-V2,Mid,57.410,2374
+checkerboard_data_30,DA-V2,Far,46.958,15243
+checkerboard_data_30,DA-V2,Very Far,22.497,7075
+checkerboard_data_30,DA-V2 GT,Near,79.956,20814
+checkerboard_data_30,DA-V2 GT,Mid,8.473,2374
+checkerboard_data_30,DA-V2 GT,Far,21.752,15243
+checkerboard_data_30,DA-V2 GT,Very Far,1.462,7075
+checkerboard_data_30,Foundation,Near,82.436,20814
+checkerboard_data_30,Foundation,Mid,57.395,2374
+checkerboard_data_30,Foundation,Far,43.949,15243
+checkerboard_data_30,Foundation,Very Far,19.382,7075
+checkerboard_data_60,OpenCV,Near,46.722,7880
+checkerboard_data_60,OpenCV,Very Far,56.196,918
+checkerboard_data_60,DA-V2,Near,69.700,7880
+checkerboard_data_60,DA-V2,Very Far,11.884,918
+checkerboard_data_60,DA-V2 GT,Near,85.444,7880
+checkerboard_data_60,DA-V2 GT,Very Far,0.634,918
+checkerboard_data_60,Foundation,Near,62.087,7880
+checkerboard_data_60,Foundation,Very Far,16.893,918

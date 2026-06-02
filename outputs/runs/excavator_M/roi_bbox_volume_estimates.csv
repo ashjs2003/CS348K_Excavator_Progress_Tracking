@@ -1,0 +1,11 @@
+pair_id,ruler_distance_cm,opencv_volume_cm3,opencv_depth_cm,opencv_w_cm,opencv_h_cm,opencv_outside_mode,opencv_outside_candidates_n,opencv_outside_total_n,dav2_volume_cm3,dav2_depth_cm,dav2_w_cm,dav2_h_cm,dav2_outside_mode,dav2_outside_candidates_n,dav2_outside_total_n,dav2_gt_volume_cm3,dav2_gt_depth_cm,dav2_gt_w_cm,dav2_gt_h_cm,dav2_gt_outside_mode,dav2_gt_outside_candidates_n,dav2_gt_outside_total_n,foundation_volume_cm3,foundation_depth_cm,foundation_w_cm,foundation_h_cm,foundation_outside_mode,foundation_outside_candidates_n,foundation_outside_total_n
+004,,,,,,,,,3901.8,4.23,38.17,24.19,closer_only,4840,20080,,,,,,,,1050.1,1.48,33.51,21.23,closer_only,604,20080
+005,,17601.1,18.13,38.44,25.25,closer_only,352,434,5000.9,3.90,44.21,29.04,closer_only,16457,22320,,,,,,,,17321.5,11.18,48.56,31.90,closer_only,17268,22320
+006,,23337.3,24.73,43.44,21.72,closer_only,30,427,13145.2,7.50,59.20,29.60,closer_only,15359,22640,,,,,,,,3664.8,2.25,57.11,28.56,closer_only,15340,22640
+007,,303543.7,29.62,111.38,92.00,closer_only,530,565,18097.0,3.31,81.42,67.25,closer_only,4331,38760,,,,,,,,35715.1,6.47,81.78,67.55,fallback_all_outside,0,38760
+008,,18947.5,6.10,60.35,51.45,closer_only,11,500,58919.9,8.09,92.42,78.79,closer_only,34380,38920,,,,,,,,3886.6,0.67,82.27,70.14,closer_only,3746,38920
+009,,444195.7,55.93,97.64,81.34,closer_only,599,670,23437.9,3.63,88.06,73.36,closer_only,35236,40000,,,,,,,,88716.3,12.97,90.62,75.48,closer_only,26615,40000
+010,,6460.4,8.66,19.51,38.25,closer_only,11,174,6149.5,4.57,26.21,51.39,closer_only,20224,23320,,,,,,,,13629.7,9.33,27.29,53.51,closer_only,20256,23320
+011,,42454.3,13.48,61.63,51.10,closer_only,379,553,14168.5,3.88,66.34,55.01,closer_only,4184,37800,,,,,,,,2179.3,0.54,69.70,57.79,closer_only,127,37800
+012,,121743.5,32.11,65.86,57.56,closer_only,204,1063,23640.0,5.36,71.06,62.10,closer_only,4300,38520,,,,,,,,17895.6,3.99,71.67,62.64,closer_only,4195,38520
+013,,,,,,,,,212.0,1.29,13.89,11.80,closer_only,7015,9640,,,,,,,,1374.0,7.49,14.70,12.49,closer_only,9640,9640

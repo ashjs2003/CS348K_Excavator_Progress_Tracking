@@ -1,0 +1,141 @@
+scene,method,distance_cm_bin,median_error_cm,count
+L_carboard_box,OpenCV,30,47.116,4521
+L_carboard_box,OpenCV,77,27.227,1079
+L_carboard_box,OpenCV,95,46.327,1142
+L_carboard_box,DA-V2,30,64.929,4521
+L_carboard_box,DA-V2,77,6.609,1079
+L_carboard_box,DA-V2,95,7.004,1142
+L_carboard_box,DA-V2 GT,30,74.695,4521
+L_carboard_box,DA-V2 GT,77,1.312,1079
+L_carboard_box,DA-V2 GT,95,0.348,909
+L_carboard_box,Foundation,30,74.622,4521
+L_carboard_box,Foundation,77,9.636,1079
+L_carboard_box,Foundation,95,4.925,1142
+L_cardboard_box_30,OpenCV,30,50.154,558
+L_cardboard_box_30,OpenCV,48,26.946,983
+L_cardboard_box_30,OpenCV,77,5.258,219
+L_cardboard_box_30,OpenCV,95,88.303,4692
+L_cardboard_box_30,DA-V2,30,49.718,558
+L_cardboard_box_30,DA-V2,48,42.676,983
+L_cardboard_box_30,DA-V2,77,22.324,219
+L_cardboard_box_30,DA-V2,95,39.321,4692
+L_cardboard_box_30,DA-V2 GT,30,74.139,558
+L_cardboard_box_30,DA-V2 GT,48,12.417,983
+L_cardboard_box_30,DA-V2 GT,77,14.453,219
+L_cardboard_box_30,DA-V2 GT,95,2.945,4692
+L_cardboard_box_30,Foundation,30,60.237,558
+L_cardboard_box_30,Foundation,48,42.386,983
+L_cardboard_box_30,Foundation,77,20.354,219
+L_cardboard_box_30,Foundation,95,36.092,4692
+M_cardboard_box,OpenCV,25,81.755,13770
+M_cardboard_box,OpenCV,55,4.231,5119
+M_cardboard_box,OpenCV,75,18.245,3012
+M_cardboard_box,OpenCV,95,61.788,3532
+M_cardboard_box,DA-V2,25,73.743,13770
+M_cardboard_box,DA-V2,55,22.631,5119
+M_cardboard_box,DA-V2,75,5.464,3012
+M_cardboard_box,DA-V2,95,8.474,3532
+M_cardboard_box,DA-V2 GT,25,80.826,13770
+M_cardboard_box,DA-V2 GT,55,14.220,5119
+M_cardboard_box,DA-V2 GT,75,19.629,3012
+M_cardboard_box,DA-V2 GT,95,1.116,2767
+M_cardboard_box,Foundation,25,71.866,13770
+M_cardboard_box,Foundation,55,31.024,5119
+M_cardboard_box,Foundation,75,6.912,3012
+M_cardboard_box,Foundation,95,9.700,3532
+M_cardboardbox_30,OpenCV,25,31.866,4631
+M_cardboardbox_30,OpenCV,55,3.791,4669
+M_cardboardbox_30,OpenCV,75,4.471,54
+M_cardboardbox_30,OpenCV,95,48.335,4449
+M_cardboardbox_30,DA-V2,25,60.467,4631
+M_cardboardbox_30,DA-V2,55,20.325,4669
+M_cardboardbox_30,DA-V2,75,14.798,54
+M_cardboardbox_30,DA-V2,95,36.970,4449
+M_cardboardbox_30,DA-V2 GT,25,72.903,4631
+M_cardboardbox_30,DA-V2 GT,55,3.948,4669
+M_cardboardbox_30,DA-V2 GT,75,6.495,54
+M_cardboardbox_30,DA-V2 GT,95,2.407,4449
+M_cardboardbox_30,Foundation,25,60.324,4631
+M_cardboardbox_30,Foundation,55,21.709,4669
+M_cardboardbox_30,Foundation,75,23.881,54
+M_cardboardbox_30,Foundation,95,36.858,4449
+S_cardboard_box,OpenCV,25,34.015,2348
+S_cardboard_box,OpenCV,55,4.289,421
+S_cardboard_box,OpenCV,75,16.002,16
+S_cardboard_box,OpenCV,95,35.192,438
+S_cardboard_box,DA-V2,25,60.862,2348
+S_cardboard_box,DA-V2,55,39.601,421
+S_cardboard_box,DA-V2,75,22.615,16
+S_cardboard_box,DA-V2,95,11.850,438
+S_cardboard_box,DA-V2 GT,25,78.195,2348
+S_cardboard_box,DA-V2 GT,55,11.395,421
+S_cardboard_box,DA-V2 GT,75,0.668,16
+S_cardboard_box,DA-V2 GT,95,1.805,362
+S_cardboard_box,Foundation,25,73.689,2348
+S_cardboard_box,Foundation,55,40.018,421
+S_cardboard_box,Foundation,75,31.949,16
+S_cardboard_box,Foundation,95,8.409,438
+S_cardboard_box_30,OpenCV,25,61.246,419
+S_cardboard_box_30,OpenCV,55,4.351,6
+S_cardboard_box_30,OpenCV,75,97.492,383
+S_cardboard_box_30,OpenCV,95,54.972,116
+S_cardboard_box_30,DA-V2,25,60.702,419
+S_cardboard_box_30,DA-V2,55,28.503,6
+S_cardboard_box_30,DA-V2,75,30.184,383
+S_cardboard_box_30,DA-V2,95,9.928,116
+S_cardboard_box_30,DA-V2 GT,25,74.584,419
+S_cardboard_box_30,DA-V2 GT,55,5.761,6
+S_cardboard_box_30,DA-V2 GT,75,13.497,383
+S_cardboard_box_30,DA-V2 GT,95,0.683,116
+S_cardboard_box_30,Foundation,25,60.688,419
+S_cardboard_box_30,Foundation,55,27.931,6
+S_cardboard_box_30,Foundation,75,29.672,383
+S_cardboard_box_30,Foundation,95,4.672,116
+checkerboard_data,OpenCV,16,51.265,22929
+checkerboard_data,OpenCV,27,49.249,8023
+checkerboard_data,OpenCV,49,31.772,12032
+checkerboard_data,OpenCV,72,26.579,1093
+checkerboard_data,OpenCV,94,19.966,9021
+checkerboard_data,DA-V2,16,58.740,22929
+checkerboard_data,DA-V2,27,58.215,8023
+checkerboard_data,DA-V2,49,34.017,12032
+checkerboard_data,DA-V2,72,14.166,1093
+checkerboard_data,DA-V2,94,21.652,9021
+checkerboard_data,DA-V2 GT,16,82.843,22929
+checkerboard_data,DA-V2 GT,27,76.128,8023
+checkerboard_data,DA-V2 GT,49,3.202,12032
+checkerboard_data,DA-V2 GT,72,7.301,1093
+checkerboard_data,DA-V2 GT,94,2.155,6609
+checkerboard_data,Foundation,16,57.950,22929
+checkerboard_data,Foundation,27,55.807,8023
+checkerboard_data,Foundation,49,34.293,12032
+checkerboard_data,Foundation,72,13.251,1093
+checkerboard_data,Foundation,94,19.467,9021
+checkerboard_data_30,OpenCV,16,88.463,13765
+checkerboard_data_30,OpenCV,27,91.276,7049
+checkerboard_data_30,OpenCV,49,38.152,2374
+checkerboard_data_30,OpenCV,72,60.578,15243
+checkerboard_data_30,OpenCV,94,66.558,7075
+checkerboard_data_30,DA-V2,16,81.825,13765
+checkerboard_data_30,DA-V2,27,83.276,7049
+checkerboard_data_30,DA-V2,49,57.410,2374
+checkerboard_data_30,DA-V2,72,46.958,15243
+checkerboard_data_30,DA-V2,94,22.497,7075
+checkerboard_data_30,DA-V2 GT,16,83.082,13765
+checkerboard_data_30,DA-V2 GT,27,73.851,7049
+checkerboard_data_30,DA-V2 GT,49,8.473,2374
+checkerboard_data_30,DA-V2 GT,72,21.752,15243
+checkerboard_data_30,DA-V2 GT,94,1.462,7075
+checkerboard_data_30,Foundation,16,80.169,13765
+checkerboard_data_30,Foundation,27,86.862,7049
+checkerboard_data_30,Foundation,49,57.395,2374
+checkerboard_data_30,Foundation,72,43.949,15243
+checkerboard_data_30,Foundation,94,19.382,7075
+checkerboard_data_60,OpenCV,16,46.722,7880
+checkerboard_data_60,OpenCV,94,56.196,918
+checkerboard_data_60,DA-V2,16,69.700,7880
+checkerboard_data_60,DA-V2,94,11.884,918
+checkerboard_data_60,DA-V2 GT,16,85.444,7880
+checkerboard_data_60,DA-V2 GT,94,0.634,918
+checkerboard_data_60,Foundation,16,62.087,7880
+checkerboard_data_60,Foundation,94,16.893,918

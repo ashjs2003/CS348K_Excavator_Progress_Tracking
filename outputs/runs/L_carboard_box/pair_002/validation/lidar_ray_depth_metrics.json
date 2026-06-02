@@ -1,0 +1,114 @@
+{
+  "valid_lidar_points": 136,
+  "projected_in_image": 71,
+  "associated_pixels": 1,
+  "association_rate": 0.014084507042253521,
+  "ray_median_error_m": 0.018493421824543832,
+  "ray_mean_error_m": 0.018493421824543832,
+  "ray_rmse_m": 0.018493421824543832,
+  "ray_p90_m": 0.018493421824543832,
+  "ray_max_error_m": 0.018493421824543832,
+  "inlier_ratio": 1.0,
+  "ray_inlier_tau_m": 0.05,
+  "free_space_violation_pct": 0.0,
+  "median_free_space_violation_m": null,
+  "free_space_tau_m": 0.03,
+  "error_vs_range": {
+    "bin_edges_m": [
+      0.5895140483471344,
+      0.6135831652026319,
+      0.6376522820581294,
+      0.6617213989136268,
+      0.6857905157691243,
+      0.7098596326246218,
+      0.7339287494801192,
+      0.7579978663356167,
+      0.7820669831911142
+    ],
+    "bins": [
+      {
+        "range_min_m": 0.5895140483471344,
+        "range_max_m": 0.6135831652026319,
+        "range_center_m": 0.6015486067748832,
+        "count": 0,
+        "median_error_m": null,
+        "mean_error_m": null,
+        "rmse_m": null,
+        "p90_error_m": null
+      },
+      {
+        "range_min_m": 0.6135831652026319,
+        "range_max_m": 0.6376522820581294,
+        "range_center_m": 0.6256177236303806,
+        "count": 1,
+        "median_error_m": 0.018493421824543832,
+        "mean_error_m": 0.018493421824543832,
+        "rmse_m": 0.018493421824543832,
+        "p90_error_m": 0.018493421824543832
+      },
+      {
+        "range_min_m": 0.6376522820581294,
+        "range_max_m": 0.6617213989136268,
+        "range_center_m": 0.6496868404858781,
+        "count": 0,
+        "median_error_m": null,
+        "mean_error_m": null,
+        "rmse_m": null,
+        "p90_error_m": null
+      },
+      {
+        "range_min_m": 0.6617213989136268,
+        "range_max_m": 0.6857905157691243,
+        "range_center_m": 0.6737559573413756,
+        "count": 0,
+        "median_error_m": null,
+        "mean_error_m": null,
+        "rmse_m": null,
+        "p90_error_m": null
+      },
+      {
+        "range_min_m": 0.6857905157691243,
+        "range_max_m": 0.7098596326246218,
+        "range_center_m": 0.697825074196873,
+        "count": 0,
+        "median_error_m": null,
+        "mean_error_m": null,
+        "rmse_m": null,
+        "p90_error_m": null
+      },
+      {
+        "range_min_m": 0.7098596326246218,
+        "range_max_m": 0.7339287494801192,
+        "range_center_m": 0.7218941910523705,
+        "count": 0,
+        "median_error_m": null,
+        "mean_error_m": null,
+        "rmse_m": null,
+        "p90_error_m": null
+      },
+      {
+        "range_min_m": 0.7339287494801192,
+        "range_max_m": 0.7579978663356167,
+        "range_center_m": 0.745963307907868,
+        "count": 0,
+        "median_error_m": null,
+        "mean_error_m": null,
+        "rmse_m": null,
+        "p90_error_m": null
+      },
+      {
+        "range_min_m": 0.7579978663356167,
+        "range_max_m": 0.7820669831911142,
+        "range_center_m": 0.7700324247633654,
+        "count": 0,
+        "median_error_m": null,
+        "mean_error_m": null,
+        "rmse_m": null,
+        "p90_error_m": null
+      }
+    ],
+    "n_points": 1
+  },
+  "method": "opencv",
+  "depth_coverage_pct": 1.6787109375
+}

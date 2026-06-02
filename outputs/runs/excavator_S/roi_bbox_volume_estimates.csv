@@ -1,0 +1,12 @@
+pair_id,ruler_distance_cm,opencv_volume_cm3,opencv_depth_cm,opencv_w_cm,opencv_h_cm,opencv_outside_mode,opencv_outside_candidates_n,opencv_outside_total_n,dav2_volume_cm3,dav2_depth_cm,dav2_w_cm,dav2_h_cm,dav2_outside_mode,dav2_outside_candidates_n,dav2_outside_total_n,dav2_gt_volume_cm3,dav2_gt_depth_cm,dav2_gt_w_cm,dav2_gt_h_cm,dav2_gt_outside_mode,dav2_gt_outside_candidates_n,dav2_gt_outside_total_n,foundation_volume_cm3,foundation_depth_cm,foundation_w_cm,foundation_h_cm,foundation_outside_mode,foundation_outside_candidates_n,foundation_outside_total_n
+014,,593.5,3.83,13.76,11.26,closer_only,120,337,3082.6,5.34,26.56,21.75,closer_only,10778,13080,,,,,,,,7428.8,11.92,27.58,22.59,closer_only,13080,13080
+015,,2768.5,5.30,22.85,22.85,closer_only,207,1037,1047.8,2.79,19.38,19.38,closer_only,2397,12960,,,,,,,,4637.9,12.01,19.65,19.65,fallback_all_outside,0,12960
+016,,247445.9,117.48,57.96,36.34,closer_only,485,552,876.9,2.08,25.95,16.27,closer_only,1917,14280,,,,,,,,454.6,0.92,28.13,17.64,closer_only,7484,14280
+017,,228973.5,70.58,56.24,57.68,closer_only,392,451,14923.2,9.39,39.37,40.38,closer_only,21200,21200,,,,,,,,48293.8,24.59,43.76,44.88,closer_only,21200,21200
+018,,1831.3,4.95,19.46,19.02,closer_only,206,356,7682.4,9.82,28.29,27.65,fallback_all_outside,0,19880,,,,,,,,12483.8,17.88,26.73,26.13,fallback_all_outside,7,19878
+019,,,,,,,,,89.6,1.21,5.21,14.17,closer_only,2899,7600,,,,,,,,0.0,0.00,4.82,13.11,fallback_all_outside,0,7600
+020,,2958.9,18.95,21.26,7.35,closer_only,164,301,180.6,0.81,25.37,8.77,closer_only,2137,10960,,,,,,,,13.3,0.05,26.45,9.14,fallback_all_outside,0,10960
+021,,178723.5,114.17,54.50,28.72,closer_only,439,439,668.6,1.90,25.88,13.64,closer_only,4391,12440,,,,,,,,306.2,0.93,25.06,13.20,closer_only,2549,12440
+022,,10782.0,59.65,19.62,9.21,fallback_all_outside,0,274,437.1,1.09,29.25,13.74,closer_only,3086,12880,,,,,,,,297.0,0.98,25.38,11.92,closer_only,2798,12880
+023,,,,,,,,,292.3,1.74,18.44,9.09,closer_only,5571,10720,,,,,,,,37.2,0.23,18.33,9.03,fallback_all_outside,0,10720
+024,,5184.7,21.33,21.82,11.14,closer_only,201,1010,258.7,0.57,29.80,15.22,closer_only,669,13480,,,,,,,,1133.8,2.54,29.56,15.10,fallback_all_outside,0,13480

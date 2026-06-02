@@ -1,0 +1,14 @@
+{
+  "opencv": {
+    "mean_photometric_error": 22.068917487011213,
+    "median_photometric_error": 16.875,
+    "valid_pixel_pct": 1.5872395833333333,
+    "sample_count": 14628
+  },
+  "foundation": {
+    "mean_photometric_error": 33.7817687194297,
+    "median_photometric_error": 13.0,
+    "valid_pixel_pct": 99.1533203125,
+    "sample_count": 76872
+  }
+}

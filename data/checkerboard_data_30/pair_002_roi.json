@@ -1,0 +1,41 @@
+{
+  "scene": "checkerboard_data_30",
+  "pair_id": "002",
+  "image_path": "/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/checkerboard_data_30/pair_002/depth/shared/rgb1_rectified.png",
+  "polygon_xy": [
+    [
+      469,
+      90
+    ],
+    [
+      469,
+      502
+    ],
+    [
+      293,
+      533
+    ],
+    [
+      213,
+      485
+    ],
+    [
+      72,
+      439
+    ],
+    [
+      21,
+      150
+    ],
+    [
+      5,
+      43
+    ],
+    [
+      467,
+      90
+    ]
+  ],
+  "wall_depth_percentile": 90.0,
+  "notes": "Polygon in image pixel coords. Wall = farthest depth band inside ROI (top percentile)."
+}
