@@ -100,7 +100,7 @@ Per-run folder layout: `outputs/runs/<timestamp>_<label>/` (see `outputs/README.
 
 **Three depth strategies tested on the same rectified pair:**
 
-1. **OpenCV** — StereoBM tuned for low texture (`--method carpet`) or SGBM / optical flow.
+1. **OpenCV** — StereoBM tuned for low texture (`--method stereobm`) or SGBM / optical flow.
 2. **Depth Anything V2** — Monocular dense depth on RGB1, scaled to meters using OpenCV depth on the same frame.
 3. **FoundationStereo** — Learned stereo.
 
@@ -112,8 +112,8 @@ Validation compares the **downsampled stereo point cloud** to **2D LiDAR points*
 
 | Run | Scene / method | OpenCV disparity coverage | Stereo points (downsampled) | LiDAR points | Median error | RMSE | Notes |
 |-----|----------------|---------------------------|----------------------------|--------------|--------------|------|--------|
-| `20260521_222300_legacy_import` | Legacy import, StereoBM carpet | ~15.3% | 6,548 | 385 | **0.65 m** | 2.12 m | Max error spike to ~9.15 m on outliers |
-| `20260521_235229_carpet` | Carpet, StereoBM carpet | ~4.3% | 1,204 | 406 | **0.84 m** | 0.87 m | Very sparse stereo coverage on textureless surface |
+| `20260521_222300_legacy_import` | Legacy import, StereoBM (`stereobm`) | ~15.3% | 6,548 | 385 | **0.65 m** | 2.12 m | Max error spike to ~9.15 m on outliers |
+| `20260521_235229_carpet` | Carpet scene, StereoBM (`stereobm`) | ~4.3% | 1,204 | 406 | **0.84 m** | 0.87 m | Very sparse stereo coverage on textureless surface |
 | `20260521_235229_carpet` | + Depth Anything V2 | 100% depth pixels | 2,253 (downsampled) | — | *(run `03_validate_with_lidar.py --stereo-suffix _dav2` for metrics)* | — | Metric scaling fit **correlation ≈ −0.05** (`depth_scaling_dav2.json` in run folder). Weak alignment to OpenCV/LiDAR. |
 | `20260521_222300_legacy_import` or `20260521_235229_carpet` | + FoundationStereo | *(after Windows run)* | *(after Windows run)* | 385 / 406 | *(pending)* | *(pending)* | Requires **Windows + NVIDIA CUDA**. Copy the run folder from Mac after OpenCV step. Outputs: `disparity_foundation.npy`, `stereo_pointcloud_downsampled_foundation.ply`, `validation/lidar_stereo_error_metrics_foundation.json`. Not run in repo yet. |
 
@@ -151,7 +151,7 @@ Our LiDAR versus stereo checks show median errors near **0.65 - 0.84 m** on a wo
 cd stereo_lidar_pointcloud
 
 python 01_capture_one_set.py --label carpet
-python 02_make_stereo_pointcloud.py --run latest --method carpet
+python 02_make_stereo_pointcloud.py --run latest --method stereobm
 python 02_make_depth_anything_pointcloud.py --run latest --reuse-rectified
 
 python 03_validate_with_lidar.py --run latest
@@ -171,7 +171,7 @@ Copy `outputs/runs/<run_id>/` from Mac after OpenCV has been generated, then:
 ```powershell
 cd stereo_lidar_pointcloud
 
-python 02_make_stereo_pointcloud.py --run 20260521_235229_carpet --method carpet
+python 02_make_stereo_pointcloud.py --run 20260521_235229_carpet --method stereobm
 python 02_make_stereo_pointcloud_foundation.py --run 20260521_235229_carpet --reuse-rectified
 
 python 03_validate_with_lidar.py --run 20260521_235229_carpet --stereo-suffix _foundation --metrics-suffix _foundation

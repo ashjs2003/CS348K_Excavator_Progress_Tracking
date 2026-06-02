@@ -1,0 +1,636 @@
+{
+  "generated_at": "2026-06-02T01:00:06.791695+00:00",
+  "path_base": "repo_root",
+  "data_root": "data",
+  "runs_root": "outputs/runs",
+  "layout": "outputs/runs/<data_folder>/pair_<id>/",
+  "stereo_method": "stereobm",
+  "depth_band_m": [
+    0.45,
+    2.0
+  ],
+  "pairs": [
+    {
+      "folder": "L_carboard_box",
+      "pair_id": "000",
+      "run_id": "L_carboard_box/pair_000",
+      "status": "ok",
+      "output": "outputs/runs/L_carboard_box/pair_000",
+      "fit_correlation": -0.41614322974898216,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "L_carboard_box",
+      "pair_id": "001",
+      "run_id": "L_carboard_box/pair_001",
+      "status": "ok",
+      "output": "outputs/runs/L_carboard_box/pair_001",
+      "fit_correlation": 0.12730084431985894,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "L_carboard_box",
+      "pair_id": "002",
+      "run_id": "L_carboard_box/pair_002",
+      "status": "ok",
+      "output": "outputs/runs/L_carboard_box/pair_002",
+      "fit_correlation": -0.07462679204839086,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "L_carboard_box",
+      "pair_id": "003",
+      "run_id": "L_carboard_box/pair_003",
+      "status": "ok",
+      "output": "outputs/runs/L_carboard_box/pair_003",
+      "fit_correlation": -0.13511126420662198,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "L_carboard_box",
+      "pair_id": "004",
+      "run_id": "L_carboard_box/pair_004",
+      "status": "ok",
+      "output": "outputs/runs/L_carboard_box/pair_004",
+      "fit_correlation": 0.12855503027527204,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "L_cardboard_box_30",
+      "pair_id": "000",
+      "run_id": "L_cardboard_box_30/pair_000",
+      "status": "ok",
+      "output": "outputs/runs/L_cardboard_box_30/pair_000",
+      "fit_correlation": 0.22191404324714648,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "L_cardboard_box_30",
+      "pair_id": "001",
+      "run_id": "L_cardboard_box_30/pair_001",
+      "status": "ok",
+      "output": "outputs/runs/L_cardboard_box_30/pair_001",
+      "fit_correlation": -0.12121915476063906,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "L_cardboard_box_30",
+      "pair_id": "002",
+      "run_id": "L_cardboard_box_30/pair_002",
+      "status": "ok",
+      "output": "outputs/runs/L_cardboard_box_30/pair_002",
+      "fit_correlation": 0.16603040634259686,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "L_cardboard_box_30",
+      "pair_id": "003",
+      "run_id": "L_cardboard_box_30/pair_003",
+      "status": "ok",
+      "output": "outputs/runs/L_cardboard_box_30/pair_003",
+      "fit_correlation": -0.5004718186924055,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "M_cardboard_box",
+      "pair_id": "000",
+      "run_id": "M_cardboard_box/pair_000",
+      "status": "ok",
+      "output": "outputs/runs/M_cardboard_box/pair_000",
+      "fit_correlation": -0.2170661371350451,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "M_cardboard_box",
+      "pair_id": "001",
+      "run_id": "M_cardboard_box/pair_001",
+      "status": "ok",
+      "output": "outputs/runs/M_cardboard_box/pair_001",
+      "fit_correlation": -0.17960877600526878,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "M_cardboard_box",
+      "pair_id": "002",
+      "run_id": "M_cardboard_box/pair_002",
+      "status": "ok",
+      "output": "outputs/runs/M_cardboard_box/pair_002",
+      "fit_correlation": -0.2719678822412931,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "M_cardboard_box",
+      "pair_id": "003",
+      "run_id": "M_cardboard_box/pair_003",
+      "status": "ok",
+      "output": "outputs/runs/M_cardboard_box/pair_003",
+      "fit_correlation": 0.21183944232752705,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "M_cardboard_box",
+      "pair_id": "004",
+      "run_id": "M_cardboard_box/pair_004",
+      "status": "ok",
+      "output": "outputs/runs/M_cardboard_box/pair_004",
+      "fit_correlation": -0.08482297388245261,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "M_cardboard_box",
+      "pair_id": "005",
+      "run_id": "M_cardboard_box/pair_005",
+      "status": "ok",
+      "output": "outputs/runs/M_cardboard_box/pair_005",
+      "fit_correlation": -0.03668187119257409,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "M_cardboardbox_30",
+      "pair_id": "000",
+      "run_id": "M_cardboardbox_30/pair_000",
+      "status": "ok",
+      "output": "outputs/runs/M_cardboardbox_30/pair_000",
+      "fit_correlation": -0.10740277424902737,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "M_cardboardbox_30",
+      "pair_id": "001",
+      "run_id": "M_cardboardbox_30/pair_001",
+      "status": "ok",
+      "output": "outputs/runs/M_cardboardbox_30/pair_001",
+      "fit_correlation": 0.03761577046526531,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "M_cardboardbox_30",
+      "pair_id": "002",
+      "run_id": "M_cardboardbox_30/pair_002",
+      "status": "ok",
+      "output": "outputs/runs/M_cardboardbox_30/pair_002",
+      "fit_correlation": -0.1473242775771045,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "M_cardboardbox_30",
+      "pair_id": "003",
+      "run_id": "M_cardboardbox_30/pair_003",
+      "status": "ok",
+      "output": "outputs/runs/M_cardboardbox_30/pair_003",
+      "fit_correlation": 0.16220454946430918,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "M_cardboardbox_30",
+      "pair_id": "004",
+      "run_id": "M_cardboardbox_30/pair_004",
+      "status": "ok",
+      "output": "outputs/runs/M_cardboardbox_30/pair_004",
+      "fit_correlation": 0.5443561196687076,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "S_cardboard_box",
+      "pair_id": "000",
+      "run_id": "S_cardboard_box/pair_000",
+      "status": "ok",
+      "output": "outputs/runs/S_cardboard_box/pair_000",
+      "fit_correlation": 0.26172185883910976,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "S_cardboard_box",
+      "pair_id": "001",
+      "run_id": "S_cardboard_box/pair_001",
+      "status": "ok",
+      "output": "outputs/runs/S_cardboard_box/pair_001",
+      "fit_correlation": 0.04478895483169243,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "S_cardboard_box",
+      "pair_id": "002",
+      "run_id": "S_cardboard_box/pair_002",
+      "status": "ok",
+      "output": "outputs/runs/S_cardboard_box/pair_002",
+      "fit_correlation": -0.2170913773832017,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "S_cardboard_box",
+      "pair_id": "003",
+      "run_id": "S_cardboard_box/pair_003",
+      "status": "ok",
+      "output": "outputs/runs/S_cardboard_box/pair_003",
+      "fit_correlation": 0.024261932623499384,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "S_cardboard_box",
+      "pair_id": "004",
+      "run_id": "S_cardboard_box/pair_004",
+      "status": "ok",
+      "output": "outputs/runs/S_cardboard_box/pair_004",
+      "fit_correlation": 0.31944988865315693,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "S_cardboard_box",
+      "pair_id": "005",
+      "run_id": "S_cardboard_box/pair_005",
+      "status": "ok",
+      "output": "outputs/runs/S_cardboard_box/pair_005",
+      "fit_correlation": -0.12181830153638284,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "S_cardboard_box_30",
+      "pair_id": "000",
+      "run_id": "S_cardboard_box_30/pair_000",
+      "status": "ok",
+      "output": "outputs/runs/S_cardboard_box_30/pair_000",
+      "fit_correlation": 0.16478890608764862,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "S_cardboard_box_30",
+      "pair_id": "001",
+      "run_id": "S_cardboard_box_30/pair_001",
+      "status": "ok",
+      "output": "outputs/runs/S_cardboard_box_30/pair_001",
+      "fit_correlation": -0.09211022808825292,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "S_cardboard_box_30",
+      "pair_id": "002",
+      "run_id": "S_cardboard_box_30/pair_002",
+      "status": "ok",
+      "output": "outputs/runs/S_cardboard_box_30/pair_002",
+      "fit_correlation": 0.08769291980425603,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "S_cardboard_box_30",
+      "pair_id": "003",
+      "run_id": "S_cardboard_box_30/pair_003",
+      "status": "ok",
+      "output": "outputs/runs/S_cardboard_box_30/pair_003",
+      "fit_correlation": 0.2197561968267265,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "S_cardboard_box_30",
+      "pair_id": "004",
+      "run_id": "S_cardboard_box_30/pair_004",
+      "status": "ok",
+      "output": "outputs/runs/S_cardboard_box_30/pair_004",
+      "fit_correlation": -0.10919998078187307,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "checkerboard_data",
+      "pair_id": "000",
+      "run_id": "checkerboard_data/pair_000",
+      "status": "skipped",
+      "output": "outputs/runs/checkerboard_data/pair_000"
+    },
+    {
+      "folder": "checkerboard_data",
+      "pair_id": "001",
+      "run_id": "checkerboard_data/pair_001",
+      "status": "skipped",
+      "output": "outputs/runs/checkerboard_data/pair_001"
+    },
+    {
+      "folder": "checkerboard_data",
+      "pair_id": "002",
+      "run_id": "checkerboard_data/pair_002",
+      "status": "skipped",
+      "output": "outputs/runs/checkerboard_data/pair_002"
+    },
+    {
+      "folder": "checkerboard_data",
+      "pair_id": "003",
+      "run_id": "checkerboard_data/pair_003",
+      "status": "skipped",
+      "output": "outputs/runs/checkerboard_data/pair_003"
+    },
+    {
+      "folder": "checkerboard_data",
+      "pair_id": "004",
+      "run_id": "checkerboard_data/pair_004",
+      "status": "skipped",
+      "output": "outputs/runs/checkerboard_data/pair_004"
+    },
+    {
+      "folder": "checkerboard_data",
+      "pair_id": "005",
+      "run_id": "checkerboard_data/pair_005",
+      "status": "skipped",
+      "output": "outputs/runs/checkerboard_data/pair_005"
+    },
+    {
+      "folder": "checkerboard_data",
+      "pair_id": "006",
+      "run_id": "checkerboard_data/pair_006",
+      "status": "skipped",
+      "output": "outputs/runs/checkerboard_data/pair_006"
+    },
+    {
+      "folder": "checkerboard_data",
+      "pair_id": "007",
+      "run_id": "checkerboard_data/pair_007",
+      "status": "skipped",
+      "output": "outputs/runs/checkerboard_data/pair_007"
+    },
+    {
+      "folder": "checkerboard_data",
+      "pair_id": "008",
+      "run_id": "checkerboard_data/pair_008",
+      "status": "skipped",
+      "output": "outputs/runs/checkerboard_data/pair_008"
+    },
+    {
+      "folder": "checkerboard_data_30",
+      "pair_id": "000",
+      "run_id": "checkerboard_data_30/pair_000",
+      "status": "ok",
+      "output": "outputs/runs/checkerboard_data_30/pair_000",
+      "fit_correlation": -0.15675490667393618,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "checkerboard_data_30",
+      "pair_id": "001",
+      "run_id": "checkerboard_data_30/pair_001",
+      "status": "ok",
+      "output": "outputs/runs/checkerboard_data_30/pair_001",
+      "fit_correlation": -0.22806249634541625,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "checkerboard_data_30",
+      "pair_id": "002",
+      "run_id": "checkerboard_data_30/pair_002",
+      "status": "ok",
+      "output": "outputs/runs/checkerboard_data_30/pair_002",
+      "fit_correlation": -0.2495063612520187,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "checkerboard_data_30",
+      "pair_id": "003",
+      "run_id": "checkerboard_data_30/pair_003",
+      "status": "ok",
+      "output": "outputs/runs/checkerboard_data_30/pair_003",
+      "fit_correlation": -0.058213120139447086,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "checkerboard_data_30",
+      "pair_id": "004",
+      "run_id": "checkerboard_data_30/pair_004",
+      "status": "ok",
+      "output": "outputs/runs/checkerboard_data_30/pair_004",
+      "fit_correlation": -0.16645928966814275,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "checkerboard_data_30",
+      "pair_id": "005",
+      "run_id": "checkerboard_data_30/pair_005",
+      "status": "ok",
+      "output": "outputs/runs/checkerboard_data_30/pair_005",
+      "fit_correlation": 0.367343212481134,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "checkerboard_data_30",
+      "pair_id": "006",
+      "run_id": "checkerboard_data_30/pair_006",
+      "status": "ok",
+      "output": "outputs/runs/checkerboard_data_30/pair_006",
+      "fit_correlation": -0.37018813178339965,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "checkerboard_data_60",
+      "pair_id": "000",
+      "run_id": "checkerboard_data_60/pair_000",
+      "status": "ok",
+      "output": "outputs/runs/checkerboard_data_60/pair_000",
+      "fit_correlation": -0.29697924376851675,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "checkerboard_data_60",
+      "pair_id": "001",
+      "run_id": "checkerboard_data_60/pair_001",
+      "status": "ok",
+      "output": "outputs/runs/checkerboard_data_60/pair_001",
+      "fit_correlation": -0.07389331019798795,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "checkerboard_data_60",
+      "pair_id": "002",
+      "run_id": "checkerboard_data_60/pair_002",
+      "status": "ok",
+      "output": "outputs/runs/checkerboard_data_60/pair_002",
+      "fit_correlation": -0.041716297021580834,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_M",
+      "pair_id": "004",
+      "run_id": "excavator_M/pair_004",
+      "status": "ok",
+      "output": "outputs/runs/excavator_M/pair_004",
+      "fit_correlation": -0.10871707206573988,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_M",
+      "pair_id": "005",
+      "run_id": "excavator_M/pair_005",
+      "status": "ok",
+      "output": "outputs/runs/excavator_M/pair_005",
+      "fit_correlation": 0.29813294009134506,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_M",
+      "pair_id": "006",
+      "run_id": "excavator_M/pair_006",
+      "status": "ok",
+      "output": "outputs/runs/excavator_M/pair_006",
+      "fit_correlation": 0.14957550915106588,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_M",
+      "pair_id": "007",
+      "run_id": "excavator_M/pair_007",
+      "status": "ok",
+      "output": "outputs/runs/excavator_M/pair_007",
+      "fit_correlation": -0.12429169794741086,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_M",
+      "pair_id": "008",
+      "run_id": "excavator_M/pair_008",
+      "status": "ok",
+      "output": "outputs/runs/excavator_M/pair_008",
+      "fit_correlation": -0.1395719270565712,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_M",
+      "pair_id": "009",
+      "run_id": "excavator_M/pair_009",
+      "status": "ok",
+      "output": "outputs/runs/excavator_M/pair_009",
+      "fit_correlation": -0.09441976883511355,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_M",
+      "pair_id": "010",
+      "run_id": "excavator_M/pair_010",
+      "status": "ok",
+      "output": "outputs/runs/excavator_M/pair_010",
+      "fit_correlation": -0.13699140171252708,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_M",
+      "pair_id": "011",
+      "run_id": "excavator_M/pair_011",
+      "status": "ok",
+      "output": "outputs/runs/excavator_M/pair_011",
+      "fit_correlation": -0.139253956495233,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_M",
+      "pair_id": "012",
+      "run_id": "excavator_M/pair_012",
+      "status": "ok",
+      "output": "outputs/runs/excavator_M/pair_012",
+      "fit_correlation": 0.18959940759273317,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_M",
+      "pair_id": "013",
+      "run_id": "excavator_M/pair_013",
+      "status": "ok",
+      "output": "outputs/runs/excavator_M/pair_013",
+      "fit_correlation": 0.049388892111168745,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_S",
+      "pair_id": "014",
+      "run_id": "excavator_S/pair_014",
+      "status": "ok",
+      "output": "outputs/runs/excavator_S/pair_014",
+      "fit_correlation": -0.07586893804136273,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_S",
+      "pair_id": "015",
+      "run_id": "excavator_S/pair_015",
+      "status": "ok",
+      "output": "outputs/runs/excavator_S/pair_015",
+      "fit_correlation": -0.07079401525839414,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_S",
+      "pair_id": "016",
+      "run_id": "excavator_S/pair_016",
+      "status": "ok",
+      "output": "outputs/runs/excavator_S/pair_016",
+      "fit_correlation": -0.09364527151421179,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_S",
+      "pair_id": "017",
+      "run_id": "excavator_S/pair_017",
+      "status": "ok",
+      "output": "outputs/runs/excavator_S/pair_017",
+      "fit_correlation": 0.1384149868642542,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_S",
+      "pair_id": "018",
+      "run_id": "excavator_S/pair_018",
+      "status": "ok",
+      "output": "outputs/runs/excavator_S/pair_018",
+      "fit_correlation": -0.11871473645964295,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_S",
+      "pair_id": "019",
+      "run_id": "excavator_S/pair_019",
+      "status": "ok",
+      "output": "outputs/runs/excavator_S/pair_019",
+      "fit_correlation": 0.1619683344904325,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_S",
+      "pair_id": "020",
+      "run_id": "excavator_S/pair_020",
+      "status": "ok",
+      "output": "outputs/runs/excavator_S/pair_020",
+      "fit_correlation": -0.047530361629321956,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_S",
+      "pair_id": "021",
+      "run_id": "excavator_S/pair_021",
+      "status": "ok",
+      "output": "outputs/runs/excavator_S/pair_021",
+      "fit_correlation": -0.2693267300991671,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_S",
+      "pair_id": "022",
+      "run_id": "excavator_S/pair_022",
+      "status": "ok",
+      "output": "outputs/runs/excavator_S/pair_022",
+      "fit_correlation": -0.31580889214313673,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_S",
+      "pair_id": "023",
+      "run_id": "excavator_S/pair_023",
+      "status": "ok",
+      "output": "outputs/runs/excavator_S/pair_023",
+      "fit_correlation": 0.13683922082316335,
+      "scale_reference": "auto"
+    },
+    {
+      "folder": "excavator_S",
+      "pair_id": "024",
+      "run_id": "excavator_S/pair_024",
+      "status": "ok",
+      "output": "outputs/runs/excavator_S/pair_024",
+      "fit_correlation": -0.1061995446602362,
+      "scale_reference": "auto"
+    }
+  ],
+  "failures": []
+}

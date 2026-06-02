@@ -1,0 +1,39 @@
+{
+  "disparity_method": "stereobm",
+  "disparity_coverage_pct": 1.7277560763888888,
+  "stereo_point_count": 15923,
+  "stereo_point_count_downsampled": 973,
+  "run_dir": "outputs/runs/L_carboard_box/pair_003",
+  "dav2_coverage_pct": 94.02907986111111,
+  "dav2_point_count": 856040,
+  "dav2_point_count_downsampled": 7127,
+  "dav2_scale_info": {
+    "variant": "inverse",
+    "scale": -0.08606436263272228,
+    "shift_m": 0.9195369464696229,
+    "reference_valid_pixels": 15923,
+    "fit_correlation": -0.13511126420662198,
+    "K": [
+      [
+        578.5633866174695,
+        0.0,
+        570.2612476255729
+      ],
+      [
+        0.0,
+        578.5633866174695,
+        390.3019701809129
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "scale_reference": "auto",
+    "encoder": "vits"
+  },
+  "data_source": "data/L_carboard_box",
+  "data_pair_id": "003",
+  "batch_stereo_method": "stereobm"
+}

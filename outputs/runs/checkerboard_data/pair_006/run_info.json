@@ -1,0 +1,6 @@
+{
+  "data_source": "data/checkerboard_data",
+  "data_pair_id": "006",
+  "migrated_from": "data/checkerboard_data/depth/pair_006",
+  "run_dir": "outputs/runs/checkerboard_data/pair_006"
+}

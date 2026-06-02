@@ -1,0 +1,39 @@
+{
+  "disparity_method": "stereobm",
+  "disparity_coverage_pct": 2.826931423611111,
+  "stereo_point_count": 26053,
+  "stereo_point_count_downsampled": 1257,
+  "run_dir": "outputs/runs/M_cardboard_box/pair_003",
+  "dav2_coverage_pct": 100.0,
+  "dav2_point_count": 921600,
+  "dav2_point_count_downsampled": 7032,
+  "dav2_scale_info": {
+    "variant": "direct",
+    "scale": 0.03550256491306952,
+    "shift_m": 0.694275935345349,
+    "reference_valid_pixels": 26053,
+    "fit_correlation": 0.21183944232752705,
+    "K": [
+      [
+        578.5633866174695,
+        0.0,
+        570.2612476255729
+      ],
+      [
+        0.0,
+        578.5633866174695,
+        390.3019701809129
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "scale_reference": "auto",
+    "encoder": "vits"
+  },
+  "data_source": "data/M_cardboard_box",
+  "data_pair_id": "003",
+  "batch_stereo_method": "stereobm"
+}

@@ -1,0 +1,22 @@
+{
+  "methods_present": [
+    "opencv",
+    "dav2"
+  ],
+  "pairwise_depth": {
+    "opencv_vs_dav2": {
+      "overlap_pixels": 55479,
+      "median_abs_diff_m": 0.30089783668518066,
+      "mean_abs_diff_m": 0.30510778329808125,
+      "fraction_within_eps": 0.01447394509634276,
+      "eps_m": 0.02,
+      "correlation": 0.14733377321687138
+    }
+  },
+  "consensus": {
+    "pixels_all_methods": 55479,
+    "median_std_m": 0.15044891834259033,
+    "mean_std_m": 0.15255389164904062,
+    "p90_std_m": 0.2910873770713806
+  }
+}

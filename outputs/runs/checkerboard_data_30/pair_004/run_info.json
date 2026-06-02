@@ -1,0 +1,39 @@
+{
+  "disparity_method": "stereobm",
+  "disparity_coverage_pct": 1.6022135416666667,
+  "stereo_point_count": 14766,
+  "stereo_point_count_downsampled": 1062,
+  "run_dir": "outputs/runs/checkerboard_data_30/pair_004",
+  "dav2_coverage_pct": 100.0,
+  "dav2_point_count": 921600,
+  "dav2_point_count_downsampled": 9331,
+  "dav2_scale_info": {
+    "variant": "direct",
+    "scale": -0.03844237250439362,
+    "shift_m": 1.126235692841346,
+    "reference_valid_pixels": 14766,
+    "fit_correlation": -0.16645928966814275,
+    "K": [
+      [
+        578.5633866174695,
+        0.0,
+        570.2612476255729
+      ],
+      [
+        0.0,
+        578.5633866174695,
+        390.3019701809129
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "scale_reference": "auto",
+    "encoder": "vits"
+  },
+  "data_source": "data/checkerboard_data_30",
+  "data_pair_id": "004",
+  "batch_stereo_method": "stereobm"
+}

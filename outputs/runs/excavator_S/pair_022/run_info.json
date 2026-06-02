@@ -1,0 +1,39 @@
+{
+  "disparity_method": "stereobm",
+  "disparity_coverage_pct": 0.6780598958333334,
+  "stereo_point_count": 6249,
+  "stereo_point_count_downsampled": 352,
+  "run_dir": "outputs/runs/excavator_S/pair_022",
+  "dav2_coverage_pct": 99.91764322916667,
+  "dav2_point_count": 899999,
+  "dav2_point_count_downsampled": 9126,
+  "dav2_scale_info": {
+    "variant": "inverse",
+    "scale": -0.31669889534609286,
+    "shift_m": 1.073109586442102,
+    "reference_valid_pixels": 6249,
+    "fit_correlation": -0.31580889214313673,
+    "K": [
+      [
+        578.5633866174695,
+        0.0,
+        570.2612476255729
+      ],
+      [
+        0.0,
+        578.5633866174695,
+        390.3019701809129
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "scale_reference": "auto",
+    "encoder": "vits"
+  },
+  "data_source": "data/excavator_S",
+  "data_pair_id": "022",
+  "batch_stereo_method": "stereobm"
+}

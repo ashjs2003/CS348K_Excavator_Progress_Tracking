@@ -1,0 +1,16 @@
+{
+  "disparity_method": "stereobm",
+  "disparity_coverage_pct": 15.251844618055555,
+  "stereo_point_count": 117669,
+  "stereo_point_count_downsampled": 6548,
+  "run_dir": "/Users/yashasvinigopalan/Documents/College/Spring 2026/Visual Computing Systems/Final Project/CS348K_Excavator_Progress_Tracking/outputs/runs/20260521_222300_legacy_import",
+  "lidar_validation": {
+    "valid_lidar_points": 385,
+    "stereo_point_count": 6548,
+    "mean_error": 1.047998556139912,
+    "median_error": 0.6534498776332064,
+    "rmse": 2.1236082849963824,
+    "90th_percentile": 0.9722469228209776,
+    "max_error": 9.14949564448773
+  }
+}
