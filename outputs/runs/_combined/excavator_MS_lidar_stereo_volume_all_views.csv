@@ -1,0 +1,13 @@
+scene,pair_id,gt_volume_cm3,opencv_volume_cm3,dav2_volume_cm3,foundation_volume_cm3
+excavator_M,004,4940.0,,1430.2,500.4
+excavator_M,005,4940.0,5248.7,1129.1,3236.6
+excavator_M,006,4940.0,4829.8,1464.8,439.4
+excavator_M,008,4940.0,306.0,405.8,33.6
+excavator_M,010,4940.0,832.1,439.1,896.5
+excavator_M,013,4940.0,,259.2,1505.0
+excavator_S,014,294.0,350.3,488.4,1090.1
+excavator_S,016,294.0,6287.8,111.3,49.2
+excavator_S,018,294.0,358.4,710.9,1294.4
+excavator_S,020,294.0,598.7,25.6,1.6
+excavator_S,022,294.0,1537.1,28.1,25.3
+excavator_S,024,294.0,997.1,26.6,118.7

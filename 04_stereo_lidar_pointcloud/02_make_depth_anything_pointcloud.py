@@ -130,7 +130,7 @@ def save_dav2_outputs(
     mdir = method_dir(out_dir, method_id)
     mdir.mkdir(parents=True, exist_ok=True)
     np.save(mdir / "depth_metric.npy", depth_m)
-    save_depth_preview(mdir / "depth_preview.png", depth_m)
+    save_depth_preview(mdir / "depth_preview.png", depth_m, vmin_m=depth_min, vmax_m=depth_max)
     write_scale_info(mdir / "scaling.json", scale_info)
 
     K = np.asarray(scale_info["K"], dtype=np.float64)

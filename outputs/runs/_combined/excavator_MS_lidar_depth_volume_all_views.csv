@@ -1,0 +1,3 @@
+scene,pair_id,gt_volume_cm3,lidar_volume_cm3
+excavator_M,004,4940.0,283.2
+excavator_M,005,4940.0,139.0

@@ -1,0 +1,113 @@
+{
+  "scene": "checkerboard_data",
+  "vmin_m": 0.0,
+  "vmax_m": 1.0,
+  "colormap": "turbo",
+  "unit": "m",
+  "colorbar_label": "metric depth",
+  "colorbar_ticks_cm": "0\u2013100",
+  "pairs": [
+    {
+      "pair": "pair_001",
+      "gt_cm": 10,
+      "methods": {
+        "dav2_gt": {
+          "source": "depth/dav2_gt/depth_metric.npy",
+          "valid_px": 830879,
+          "min_m": 1.8835067749023438e-05,
+          "p50_m": 1.0145889520645142,
+          "max_m": 1.0788803100585938
+        },
+        "dav2": {
+          "source": "depth/dav2/depth_metric.npy",
+          "valid_px": 921600,
+          "min_m": 0.6986653804779053,
+          "p50_m": 0.758872777223587,
+          "max_m": 0.8781530261039734
+        },
+        "foundation": {
+          "source": "depth/foundation/disparity.npy",
+          "valid_px": 518400,
+          "min_m": 0.10342396795749664,
+          "p50_m": 0.2307119220495224,
+          "max_m": 0.2739696204662323
+        },
+        "opencv": {
+          "source": "depth/opencv/depth_metric.npy",
+          "valid_px": 8395,
+          "min_m": 0.45012739300727844,
+          "p50_m": 0.6242098212242126,
+          "max_m": 1.9423835277557373
+        }
+      }
+    },
+    {
+      "pair": "pair_005",
+      "gt_cm": 50,
+      "methods": {
+        "dav2_gt": {
+          "source": "depth/dav2_gt/depth_metric.npy",
+          "valid_px": 921600,
+          "min_m": 0.5096855163574219,
+          "p50_m": 0.522338479757309,
+          "max_m": 0.7466040849685669
+        },
+        "dav2": {
+          "source": "depth/dav2/depth_metric.npy",
+          "valid_px": 921600,
+          "min_m": 0.8268090486526489,
+          "p50_m": 0.8343805074691772,
+          "max_m": 0.9685799479484558
+        },
+        "foundation": {
+          "source": "depth/foundation/disparity.npy",
+          "valid_px": 518400,
+          "min_m": 0.08514387160539627,
+          "p50_m": 0.22279315441846848,
+          "max_m": 1.0436408519744873
+        },
+        "opencv": {
+          "source": "depth/opencv/depth_metric.npy",
+          "valid_px": 29289,
+          "min_m": 0.45012739300727844,
+          "p50_m": 0.8060545325279236,
+          "max_m": 1.999680995941162
+        }
+      }
+    },
+    {
+      "pair": "pair_006",
+      "gt_cm": 75,
+      "methods": {
+        "dav2_gt": {
+          "source": "depth/dav2_gt/depth_metric.npy",
+          "valid_px": 921600,
+          "min_m": 0.7608209848403931,
+          "p50_m": 0.8172299861907959,
+          "max_m": 0.8267336487770081
+        },
+        "dav2": {
+          "source": "depth/dav2/depth_metric.npy",
+          "valid_px": 921600,
+          "min_m": 0.8210211992263794,
+          "p50_m": 0.8850957453250885,
+          "max_m": 0.8958908915519714
+        },
+        "foundation": {
+          "source": "depth/foundation/disparity.npy",
+          "valid_px": 518400,
+          "min_m": 0.08342894166707993,
+          "p50_m": 0.22150836884975433,
+          "max_m": 1.5100902318954468
+        },
+        "opencv": {
+          "source": "depth/opencv/depth_metric.npy",
+          "valid_px": 17664,
+          "min_m": 0.45012739300727844,
+          "p50_m": 0.7098343968391418,
+          "max_m": 1.999680995941162
+        }
+      }
+    }
+  ]
+}

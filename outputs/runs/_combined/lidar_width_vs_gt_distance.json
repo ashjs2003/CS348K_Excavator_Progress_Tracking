@@ -1,0 +1,341 @@
+{
+  "scenes": [
+    "S_cardboard_box",
+    "S_cardboard_box_30",
+    "M_cardboard_box",
+    "M_cardboardbox_30",
+    "L_carboard_box",
+    "L_cardboard_box_30"
+  ],
+  "scene_by_size_angle": {
+    "S_0.0": "S_cardboard_box",
+    "S_-30.0": "S_cardboard_box_30",
+    "M_0.0": "M_cardboard_box",
+    "M_-30.0": "M_cardboardbox_30",
+    "L_0.0": "L_carboard_box",
+    "L_-30.0": "L_cardboard_box_30"
+  },
+  "gt_width_formula": "BOX_SPECS[width_nominal_cm] (physical face; same at all placement angles)",
+  "points_by_scene": {
+    "S_cardboard_box": [
+      {
+        "pair_id": "000",
+        "ruler_cm": 20.0,
+        "width_lidar_cm": 2.9845166813637403,
+        "gt_width_cm": 7.0,
+        "width_error_cm": -4.01548331863626,
+        "placement_angle_deg": 0.0,
+        "size_class": "S",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      },
+      {
+        "pair_id": "002",
+        "ruler_cm": 25.0,
+        "width_lidar_cm": 4.666372995921271,
+        "gt_width_cm": 7.0,
+        "width_error_cm": -2.3336270040787293,
+        "placement_angle_deg": 0.0,
+        "size_class": "S",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      },
+      {
+        "pair_id": "003",
+        "ruler_cm": 50.0,
+        "width_lidar_cm": 5.028805204710364,
+        "gt_width_cm": 7.0,
+        "width_error_cm": -1.9711947952896356,
+        "placement_angle_deg": 0.0,
+        "size_class": "S",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "longest_plateau_fallback"
+      },
+      {
+        "pair_id": "004",
+        "ruler_cm": 75.0,
+        "width_lidar_cm": 4.983996274644655,
+        "gt_width_cm": 7.0,
+        "width_error_cm": -2.016003725355345,
+        "placement_angle_deg": 0.0,
+        "size_class": "S",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "longest_plateau_fallback"
+      },
+      {
+        "pair_id": "005",
+        "ruler_cm": 100.0,
+        "width_lidar_cm": null,
+        "gt_width_cm": 7.0,
+        "width_error_cm": null,
+        "placement_angle_deg": 0.0,
+        "size_class": "S",
+        "gate_bearing_mode": null,
+        "edge_method_detail": null
+      }
+    ],
+    "S_cardboard_box_30": [
+      {
+        "pair_id": "000",
+        "ruler_cm": 20.0,
+        "width_lidar_cm": 2.759105418019597,
+        "gt_width_cm": 7.0,
+        "width_error_cm": -4.2408945819804025,
+        "placement_angle_deg": -30.0,
+        "size_class": "S",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "longest_plateau_fallback"
+      },
+      {
+        "pair_id": "001",
+        "ruler_cm": 25.0,
+        "width_lidar_cm": 3.1179968865387844,
+        "gt_width_cm": 7.0,
+        "width_error_cm": -3.8820031134612156,
+        "placement_angle_deg": -30.0,
+        "size_class": "S",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "longest_plateau_fallback"
+      },
+      {
+        "pair_id": "002",
+        "ruler_cm": 50.0,
+        "width_lidar_cm": 5.060125380767415,
+        "gt_width_cm": 7.0,
+        "width_error_cm": -1.9398746192325849,
+        "placement_angle_deg": -30.0,
+        "size_class": "S",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      },
+      {
+        "pair_id": "003",
+        "ruler_cm": 75.0,
+        "width_lidar_cm": 5.529143537539611,
+        "gt_width_cm": 7.0,
+        "width_error_cm": -1.4708564624603886,
+        "placement_angle_deg": -30.0,
+        "size_class": "S",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "longest_plateau_fallback"
+      },
+      {
+        "pair_id": "004",
+        "ruler_cm": 100.0,
+        "width_lidar_cm": 4.0353853083054085,
+        "gt_width_cm": 7.0,
+        "width_error_cm": -2.9646146916945915,
+        "placement_angle_deg": -30.0,
+        "size_class": "S",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "longest_plateau_fallback"
+      }
+    ],
+    "M_cardboard_box": [
+      {
+        "pair_id": "001",
+        "ruler_cm": 20.0,
+        "width_lidar_cm": null,
+        "gt_width_cm": 26.0,
+        "width_error_cm": null,
+        "placement_angle_deg": 0.0,
+        "size_class": "M",
+        "gate_bearing_mode": null,
+        "edge_method_detail": null
+      },
+      {
+        "pair_id": "002",
+        "ruler_cm": 25.0,
+        "width_lidar_cm": 10.307875658956442,
+        "gt_width_cm": 26.0,
+        "width_error_cm": -15.692124341043558,
+        "placement_angle_deg": 0.0,
+        "size_class": "M",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      },
+      {
+        "pair_id": "003",
+        "ruler_cm": 50.0,
+        "width_lidar_cm": 13.521583856689373,
+        "gt_width_cm": 26.0,
+        "width_error_cm": -12.478416143310627,
+        "placement_angle_deg": 0.0,
+        "size_class": "M",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      },
+      {
+        "pair_id": "004",
+        "ruler_cm": 75.0,
+        "width_lidar_cm": 21.609430563108255,
+        "gt_width_cm": 26.0,
+        "width_error_cm": -4.390569436891745,
+        "placement_angle_deg": 0.0,
+        "size_class": "M",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      },
+      {
+        "pair_id": "005",
+        "ruler_cm": 100.0,
+        "width_lidar_cm": 21.18628141926048,
+        "gt_width_cm": 26.0,
+        "width_error_cm": -4.813718580739518,
+        "placement_angle_deg": 0.0,
+        "size_class": "M",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      }
+    ],
+    "M_cardboardbox_30": [
+      {
+        "pair_id": "000",
+        "ruler_cm": 20.0,
+        "width_lidar_cm": 16.56044752446995,
+        "gt_width_cm": 26.0,
+        "width_error_cm": -9.43955247553005,
+        "placement_angle_deg": -30.0,
+        "size_class": "M",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "longest_plateau_fallback"
+      },
+      {
+        "pair_id": "001",
+        "ruler_cm": 25.0,
+        "width_lidar_cm": 18.348854581456255,
+        "gt_width_cm": 26.0,
+        "width_error_cm": -7.651145418543745,
+        "placement_angle_deg": -30.0,
+        "size_class": "M",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      },
+      {
+        "pair_id": "002",
+        "ruler_cm": 50.0,
+        "width_lidar_cm": 23.943141237630744,
+        "gt_width_cm": 26.0,
+        "width_error_cm": -2.056858762369256,
+        "placement_angle_deg": -30.0,
+        "size_class": "M",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      },
+      {
+        "pair_id": "003",
+        "ruler_cm": 75.0,
+        "width_lidar_cm": 22.747131316270007,
+        "gt_width_cm": 26.0,
+        "width_error_cm": -3.252868683729993,
+        "placement_angle_deg": -30.0,
+        "size_class": "M",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      },
+      {
+        "pair_id": "004",
+        "ruler_cm": 100.0,
+        "width_lidar_cm": 23.15547046619529,
+        "gt_width_cm": 26.0,
+        "width_error_cm": -2.8445295338047103,
+        "placement_angle_deg": -30.0,
+        "size_class": "M",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "longest_plateau_fallback"
+      }
+    ],
+    "L_carboard_box": [
+      {
+        "pair_id": "000",
+        "ruler_cm": 25.0,
+        "width_lidar_cm": 12.05065913358669,
+        "gt_width_cm": 40.0,
+        "width_error_cm": -27.94934086641331,
+        "placement_angle_deg": 0.0,
+        "size_class": "L",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      },
+      {
+        "pair_id": "001",
+        "ruler_cm": 50.0,
+        "width_lidar_cm": 22.9851871065568,
+        "gt_width_cm": 40.0,
+        "width_error_cm": -17.0148128934432,
+        "placement_angle_deg": 0.0,
+        "size_class": "L",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      },
+      {
+        "pair_id": "002",
+        "ruler_cm": 75.0,
+        "width_lidar_cm": 21.798064864802583,
+        "gt_width_cm": 40.0,
+        "width_error_cm": -18.201935135197417,
+        "placement_angle_deg": 0.0,
+        "size_class": "L",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      },
+      {
+        "pair_id": "004",
+        "ruler_cm": 100.0,
+        "width_lidar_cm": 35.68337623989959,
+        "gt_width_cm": 40.0,
+        "width_error_cm": -4.316623760100413,
+        "placement_angle_deg": 0.0,
+        "size_class": "L",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      }
+    ],
+    "L_cardboard_box_30": [
+      {
+        "pair_id": "000",
+        "ruler_cm": 25.0,
+        "width_lidar_cm": 26.032206592829922,
+        "gt_width_cm": 40.0,
+        "width_error_cm": -13.967793407170078,
+        "placement_angle_deg": -30.0,
+        "size_class": "L",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      },
+      {
+        "pair_id": "001",
+        "ruler_cm": 50.0,
+        "width_lidar_cm": 38.34190008582918,
+        "gt_width_cm": 40.0,
+        "width_error_cm": -1.658099914170819,
+        "placement_angle_deg": -30.0,
+        "size_class": "L",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      },
+      {
+        "pair_id": "002",
+        "ruler_cm": 75.0,
+        "width_lidar_cm": 36.890468004707714,
+        "gt_width_cm": 40.0,
+        "width_error_cm": -3.1095319952922864,
+        "placement_angle_deg": -30.0,
+        "size_class": "L",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      },
+      {
+        "pair_id": "003",
+        "ruler_cm": 100.0,
+        "width_lidar_cm": 34.50647293350418,
+        "gt_width_cm": 40.0,
+        "width_error_cm": -5.4935270664958225,
+        "placement_angle_deg": -30.0,
+        "size_class": "L",
+        "gate_bearing_mode": "placement",
+        "edge_method_detail": "range_jump_edges"
+      }
+    ]
+  }
+}

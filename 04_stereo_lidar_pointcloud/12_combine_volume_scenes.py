@@ -58,6 +58,13 @@ def parse_args():
         default=1,
         help="Side-by-side blocks for embedded table (use 2 for slides)",
     )
+    p.add_argument(
+        "--exclude-pair",
+        nargs="*",
+        default=[],
+        metavar="SCENE/PAIR",
+        help="Omit rows, e.g. excavator_M/007 or excavator_S=021 (pair may be 7 or 007)",
+    )
     return p.parse_args()
 
 
@@ -92,6 +99,36 @@ def combine_rows(scenes: list[str], runs_root: Path) -> tuple[list[dict], list[s
     rows.sort(key=lambda r: (to_float_or_inf(r.get("ruler_distance_cm", "")), r.get("scene", ""), r.get("pair_id", "")))
     method_cols = sorted(set(method_cols))
     return rows, method_cols
+
+
+def _norm_pair_id(pair: str) -> str:
+    p = str(pair).strip().removeprefix("pair_")
+    if p.isdigit():
+        return p.zfill(3)
+    return p
+
+
+def parse_exclude_pairs(entries: list[str]) -> set[tuple[str, str]]:
+    out: set[tuple[str, str]] = set()
+    for e in entries:
+        if "/" in e:
+            scene, pair = e.split("/", 1)
+        elif "=" in e:
+            scene, pair = e.split("=", 1)
+        else:
+            continue
+        out.add((scene.strip(), _norm_pair_id(pair)))
+    return out
+
+
+def filter_excluded_rows(rows: list[dict], exclude: set[tuple[str, str]]) -> list[dict]:
+    if not exclude:
+        return rows
+    return [
+        r
+        for r in rows
+        if (r.get("scene", ""), _norm_pair_id(r.get("pair_id", ""))) not in exclude
+    ]
 
 
 def parse_scene_gt_entries(entries: list[str]) -> dict[str, float]:
@@ -163,18 +200,59 @@ def _method_header_short(col: str) -> str:
         "dav2": "DA-V2",
         "dav2_gt": "DA-V2 GT",
         "foundation": "Foundation",
+        "lidar_volume": "LiDAR",
     }
     return mapping.get(name, name.replace("_", " ").title())
 
 
+# Five bands: (max_pct_inclusive, color, legend_label)
+ERROR_BANDS: list[tuple[float, str, str]] = [
+    (10.0, "#d8f3dc", "≤10%"),
+    (25.0, "#b7e4c7", "10–25%"),
+    (50.0, "#ffeaa7", "25–50%"),
+    (100.0, "#fab1a0", "50–100%"),
+    (float("inf"), "#e17055", ">100%"),
+]
+
+
 def _error_cell_color(pct: float | None) -> str:
     if pct is None:
-        return "white"
-    if pct <= 10.0:
-        return "#c6efce"  # green
-    if pct <= 25.0:
-        return "#ffeb9c"  # yellow
-    return "#ffc7ce"  # red
+        return "#f5f5f5"
+    for max_pct, color, _label in ERROR_BANDS:
+        if pct <= max_pct:
+            return color
+    return ERROR_BANDS[-1][1]
+
+
+def _error_text_color(pct: float) -> str:
+    """Light backgrounds get dark text; strong orange/red get white text."""
+    if pct <= 50.0:
+        return "#111111"
+    return "#ffffff"
+
+
+def _draw_percent_error_legend(fig) -> None:
+    from matplotlib.patches import Patch
+
+    handles = [
+        Patch(facecolor=color, edgecolor="#666666", linewidth=0.8, label=label)
+        for _max_pct, color, label in ERROR_BANDS
+    ]
+    fig.legend(
+        handles=handles,
+        loc="lower center",
+        ncol=len(ERROR_BANDS),
+        frameon=True,
+        fontsize=14,
+        title="Percent error vs GT volume",
+        title_fontsize=16,
+        handlelength=2.4,
+        handleheight=1.6,
+        labelspacing=0.7,
+        borderpad=1.0,
+        bbox_to_anchor=(0.5, 0.0),
+        borderaxespad=0.0,
+    )
 
 
 def write_png(
@@ -317,7 +395,7 @@ def write_png_with_embedded_images(
     for _ in range(table_columns):
         width_ratios += [2.8] + [1.25] * (n_cols_block - 1)
     fig_w = max(13.5, 2.0 * n_cols)
-    fig_h = max(6.0, 1.8 * n_rows)
+    fig_h = max(6.5, 1.8 * n_rows + 0.9)  # extra space for legend
     fig, axes = plt.subplots(
         n_rows,
         n_cols,
@@ -382,12 +460,23 @@ def write_png_with_embedded_images(
             else:
                 try:
                     v = float(val)
-                    ax.text(0.5, 0.5, f"{v:,.0f}", ha="center", va="center", fontsize=11, fontweight="bold")
                     if gt_row is not None and gt_row > 0:
                         pct = abs(v - gt_row) * 100.0 / gt_row
                         ax.set_facecolor(_error_cell_color(pct))
+                        tcolor = _error_text_color(pct)
                     else:
                         ax.set_facecolor("white")
+                        tcolor = "#111111"
+                    ax.text(
+                        0.5,
+                        0.5,
+                        f"{v:,.0f}",
+                        ha="center",
+                        va="center",
+                        fontsize=11,
+                        fontweight="bold",
+                        color=tcolor,
+                    )
                 except ValueError:
                     ax.set_facecolor("white")
                     ax.text(0.5, 0.5, val, ha="center", va="center", fontsize=11)
@@ -410,12 +499,8 @@ def write_png_with_embedded_images(
                 spine.set_edgecolor("#b0b0b0")
                 spine.set_linewidth(0.8)
 
-    # GT key only (requested: remove first footer line)
-    if scene_gt:
-        key_txt = "GT key: " + ", ".join(f"{k}={v:,.0f} cm³" for k, v in sorted(scene_gt.items()))
-        fig.text(0.5, 0.01, key_txt, ha="center", fontsize=10, color="#555")
-
-    fig.tight_layout(rect=[0, 0.02, 1, 0.985])
+    _draw_percent_error_legend(fig)
+    fig.tight_layout(rect=[0, 0.13, 1, 0.985])
     out_png.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_png, dpi=145, bbox_inches="tight", facecolor="white")
     plt.close(fig)
@@ -424,7 +509,9 @@ def write_png_with_embedded_images(
 def main():
     args = parse_args()
     scene_gt = parse_scene_gt_entries(args.gt_scene_volume)
+    exclude = parse_exclude_pairs(args.exclude_pair)
     rows, method_cols = combine_rows(args.scenes, args.runs_root)
+    rows = filter_excluded_rows(rows, exclude)
     if not rows:
         print("No rows found to combine.")
         return 1

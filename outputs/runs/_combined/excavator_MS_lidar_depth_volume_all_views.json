@@ -1,0 +1,32 @@
+{
+  "combined_scenes": [
+    "excavator_M",
+    "excavator_S"
+  ],
+  "gt_volume_cm3": null,
+  "gt_volume_by_scene_cm3": {
+    "excavator_M": 4940.0,
+    "excavator_S": 294.0
+  },
+  "n_rows": 2,
+  "rows": [
+    {
+      "scene": "excavator_M",
+      "pair_id": "004",
+      "gt_volume_cm3": 4940.0,
+      "width_lidar_cm": 17.79474982563426,
+      "height_cm": 19.0,
+      "depth_lidar_cm": 0.8374999999999966,
+      "lidar_volume_cm3": "283.2"
+    },
+    {
+      "scene": "excavator_M",
+      "pair_id": "005",
+      "gt_volume_cm3": 4940.0,
+      "width_lidar_cm": 15.236926173605283,
+      "height_cm": 19.0,
+      "depth_lidar_cm": 0.48000000000000265,
+      "lidar_volume_cm3": "139.0"
+    }
+  ]
+}

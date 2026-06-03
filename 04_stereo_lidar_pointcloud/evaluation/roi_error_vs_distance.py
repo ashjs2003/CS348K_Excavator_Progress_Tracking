@@ -24,6 +24,48 @@ METHOD_COLORS = {
     "foundation": "#54A24B",
 }
 
+# Shared GT-depth bins (m) for cross-scene pooled / grouped summaries.
+POOLED_BIN_EDGES_M = np.array([0.15, 0.30, 0.60, 0.85, 1.00], dtype=float)
+
+# Per-scene style: hue family + linestyle/marker so 0° vs 30° stay distinguishable.
+# 0° = solid; 30°/60° = dashed or dash-dot.
+SCENE_PLOT_STYLE: dict[str, dict[str, str]] = {
+    # L — blue / cyan
+    "L_carboard_box": {"color": "#0047ff", "linestyle": "-", "marker": "o"},
+    "L_cardboard_box_30": {"color": "#00d4ff", "linestyle": "--", "marker": "s"},
+    # M — red / orange
+    "M_cardboard_box": {"color": "#ff0000", "linestyle": "-", "marker": "o"},
+    "M_cardboardbox_30": {"color": "#ff8c00", "linestyle": "--", "marker": "^"},
+    # S — green / lime
+    "S_cardboard_box": {"color": "#008000", "linestyle": "-", "marker": "o"},
+    "S_cardboard_box_30": {"color": "#9acd32", "linestyle": "--", "marker": "D"},
+    # Checkerboard — violet / magenta / coral
+    "checkerboard_data": {"color": "#7b00ff", "linestyle": "-", "marker": "o"},
+    "checkerboard_data_30": {"color": "#ff00aa", "linestyle": "--", "marker": "s"},
+    "checkerboard_data_60": {"color": "#ff4466", "linestyle": "-.", "marker": "v"},
+}
+
+
+def scene_plot_style(scene: str) -> dict[str, str]:
+    return SCENE_PLOT_STYLE.get(
+        scene,
+        {"color": "#333333", "linestyle": "-", "marker": "o"},
+    )
+
+
+def _median_error_curve_cm(error_vs_gt: dict) -> tuple[list[float], list[float]]:
+    """X = bin midpoint (cm), Y = median |Z−GT| (cm)."""
+    centers, med_cm = [], []
+    for b in error_vs_gt.get("bins", []):
+        if b["count"] == 0 or b["median_error_m"] is None:
+            continue
+        lo_cm = 100.0 * b["range_min_m"]
+        hi_cm = 100.0 * b["range_max_m"]
+        centers.append(0.5 * (lo_cm + hi_cm))
+        med_cm.append(100.0 * b["median_error_m"])
+    return centers, med_cm
+
+
 ROI_PER_POINT_PREFIX = "roi_gt_per_point_"
 
 
@@ -133,6 +175,91 @@ def aggregate_scene_roi_error_vs_gt(
     }
 
 
+def aggregate_pooled_roi_error_vs_gt(
+    runs_root: Path,
+    *,
+    scenes: list[str] | None = None,
+) -> dict | None:
+    """Pool ROI pixels across scenes; bin with POOLED_BIN_EDGES_M."""
+    runs_root = Path(runs_root)
+    pooled_gt: dict[str, list[np.ndarray]] = {}
+    pooled_err: dict[str, list[np.ndarray]] = {}
+    scenes_used: list[str] = []
+
+    candidates = [runs_root / s for s in scenes] if scenes else sorted(runs_root.iterdir())
+    for scene_dir in candidates:
+        scene_dir = Path(scene_dir)
+        if not scene_dir.is_dir():
+            continue
+        series = collect_scene_roi_pairs(scene_dir)
+        if not series:
+            continue
+        scenes_used.append(scene_dir.name)
+        for method, (gt_m, err_m) in series.items():
+            pooled_gt.setdefault(method, []).append(gt_m)
+            pooled_err.setdefault(method, []).append(err_m)
+
+    if not pooled_gt:
+        return None
+
+    methods_out: dict[str, dict] = {}
+    for method in sorted(pooled_gt.keys(), key=lambda m: METHOD_ORDER.index(m) if m in METHOD_ORDER else 99):
+        gt_m = np.concatenate(pooled_gt[method])
+        err_m = np.concatenate(pooled_err[method])
+        order_key = METHOD_ORDER.index(method) if method in METHOD_ORDER else 99
+        methods_out[method] = {
+            "order": order_key,
+            "n_points": int(len(gt_m)),
+            "error_vs_gt": binned_error_vs_range(gt_m, err_m, POOLED_BIN_EDGES_M),
+        }
+
+    return {
+        "kind": "pooled",
+        "scenes": scenes_used,
+        "n_scenes": len(scenes_used),
+        "bin_edges_m": [float(x) for x in POOLED_BIN_EDGES_M],
+        "methods": methods_out,
+    }
+
+
+def aggregate_per_scene_roi_error_by_method(
+    runs_root: Path,
+    *,
+    scenes: list[str] | None = None,
+) -> dict | None:
+    """Per scene × method: median error in POOLED_BIN_EDGES_M (not merged across scenes)."""
+    runs_root = Path(runs_root)
+    scenes_used: list[str] = []
+    methods_out: dict[str, dict[str, dict]] = {}
+
+    candidates = [runs_root / s for s in scenes] if scenes else sorted(runs_root.iterdir())
+    for scene_dir in candidates:
+        scene_dir = Path(scene_dir)
+        if not scene_dir.is_dir():
+            continue
+        series = collect_scene_roi_pairs(scene_dir)
+        if not series:
+            continue
+        scene_name = scene_dir.name
+        scenes_used.append(scene_name)
+        for method, (gt_m, err_m) in series.items():
+            methods_out.setdefault(method, {})[scene_name] = {
+                "n_points": int(len(gt_m)),
+                "error_vs_gt": binned_error_vs_range(gt_m, err_m, POOLED_BIN_EDGES_M),
+            }
+
+    if not scenes_used:
+        return None
+
+    return {
+        "kind": "per_scene_by_method",
+        "scenes": scenes_used,
+        "n_scenes": len(scenes_used),
+        "bin_edges_m": [float(x) for x in POOLED_BIN_EDGES_M],
+        "methods": methods_out,
+    }
+
+
 def render_scene_roi_error_vs_gt_chart(
     summary: dict,
     out_path: Path,
@@ -140,7 +267,6 @@ def render_scene_roi_error_vs_gt_chart(
     show_p90: bool = True,
 ) -> bool:
     import matplotlib.pyplot as plt
-    from matplotlib.lines import Line2D
 
     methods_data = summary.get("methods", {})
     if not methods_data:
@@ -165,22 +291,21 @@ def render_scene_roi_error_vs_gt_chart(
         evr = methods_data[method]["error_vs_gt"]
         color = METHOD_COLORS.get(method, "#333")
         label = METHOD_LABELS.get(method, method)
-        centers, med_cm, p90_cm, counts = [], [], [], []
+        centers, med_cm, p90_cm = [], [], []
         for b in evr["bins"]:
             if b["count"] == 0 or b["median_error_m"] is None:
                 continue
             centers.append(100.0 * b["range_center_m"])
             med_cm.append(100.0 * b["median_error_m"])
-            p90_cm.append(100.0 * b["p90_error_m"])
-            counts.append(b["count"])
+            p90 = b.get("p90_error_m")
+            p90_cm.append(100.0 * p90 if p90 is not None else np.nan)
         if not centers:
             continue
         centers = np.asarray(centers)
         med_cm = np.asarray(med_cm)
         p90_cm = np.asarray(p90_cm)
-        counts = np.asarray(counts)
-        ax.plot(centers, med_cm, "o-", color=color, linewidth=2, markersize=7, label=f"{label} · median")
-        if show_p90:
+        ax.plot(centers, med_cm, "o-", color=color, linewidth=2, markersize=7, label=label)
+        if show_p90 and np.any(np.isfinite(p90_cm)):
             ax.plot(
                 centers,
                 p90_cm,
@@ -188,50 +313,131 @@ def render_scene_roi_error_vs_gt_chart(
                 color=color,
                 linewidth=1.2,
                 alpha=0.75,
-                label=f"{label} · p90",
-            )
-        for x, y, n in zip(centers, med_cm, counts):
-            ax.annotate(
-                str(n),
-                (x, y),
-                textcoords="offset points",
-                xytext=(0, 6),
-                ha="center",
-                fontsize=7,
-                color=color,
+                label=f"{label} (p90)",
             )
 
     ax.set_xlabel("Ground truth depth in ROI (cm)")
     ax.set_ylabel("|Z_est − GT| (cm)")
-    ax.set_title(
-        f"{summary.get('n_pairs', 0)} annotated captures · n = ROI pixels per bin"
-    )
-    ax.axhline(5, color="#888", linestyle=":", linewidth=0.9, alpha=0.7)
-    ax.axhline(15, color="#888", linestyle="--", linewidth=0.9, alpha=0.7)
     ax.grid(True, alpha=0.3)
-
-    style_handles = [
-        Line2D([0], [0], color="#555", linestyle="-", marker="o", markersize=6, label="Solid = median"),
-        Line2D(
-            [0],
-            [0],
-            color="#555",
-            linestyle="--",
-            linewidth=1.5,
-            label="Dashed = p90",
-        ),
-    ]
-    method_handles, method_labels = ax.get_legend_handles_labels()
-    ax.legend(
-        style_handles + method_handles,
-        [h.get_label() for h in style_handles] + list(method_labels),
-        loc="best",
-        fontsize=8,
-    )
+    ax.legend(loc="best", fontsize=9)
     fig.tight_layout()
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_path, dpi=150, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return True
+
+
+def render_pooled_roi_error_chart(summary: dict, out_path: Path) -> bool:
+    """One chart: median ROI error vs GT distance, all scenes pooled per method."""
+    import matplotlib.pyplot as plt
+
+    methods_data = summary.get("methods", {})
+    if not methods_data:
+        return False
+
+    methods = sorted(methods_data.keys(), key=lambda m: methods_data[m].get("order", 99))
+    fig, ax = plt.subplots(figsize=(9.5, 5.2))
+    n_scenes = summary.get("n_scenes", len(summary.get("scenes", [])))
+
+    for method in methods:
+        evr = methods_data[method]["error_vs_gt"]
+        color = METHOD_COLORS.get(method, "#333")
+        label = METHOD_LABELS.get(method, method)
+        centers, med_cm = _median_error_curve_cm(evr)
+        if not centers:
+            continue
+        ax.plot(centers, med_cm, "o-", color=color, linewidth=2.2, markersize=8, label=label)
+
+    ax.set_xlabel("Ground-truth depth in ROI (cm)")
+    ax.set_ylabel("Median |Z_est − GT| (cm)")
+    ax.set_title(f"Pooled across {n_scenes} scenes · fixed bins [15–30, 30–60, 60–85, 85–100] cm")
+    ax.grid(True, alpha=0.3)
+    ax.legend(loc="best", fontsize=10)
+    fig.suptitle("ROI depth error vs GT distance (all scenes)", fontsize=13, fontweight="bold", y=1.02)
+    fig.tight_layout()
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=160, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return True
+
+
+def render_method_faceted_roi_error_chart(summary: dict, out_path: Path) -> bool:
+    """2×2 panels: one stereo method each; one line per scene (same GT bins)."""
+    import matplotlib.pyplot as plt
+
+    methods_data = summary.get("methods", {})
+    scenes = summary.get("scenes", [])
+    if not methods_data or not scenes:
+        return False
+
+    fig, axes = plt.subplots(2, 2, figsize=(14.5, 9.0), sharex=True, sharey=True, constrained_layout=False)
+
+    for ax, method in zip(axes.ravel(), METHOD_ORDER):
+        scene_dict = methods_data.get(method, {})
+        if not scene_dict:
+            ax.axis("off")
+            continue
+        for scene in scenes:
+            entry = scene_dict.get(scene)
+            if not entry:
+                continue
+            centers, med_cm = _median_error_curve_cm(entry["error_vs_gt"])
+            if not centers:
+                continue
+            st = scene_plot_style(scene)
+            ax.plot(
+                centers,
+                med_cm,
+                color=st["color"],
+                linestyle=st["linestyle"],
+                marker=st["marker"],
+                linewidth=1.2,
+                markersize=4.5,
+                alpha=1.0,
+            )
+        ax.set_title(METHOD_LABELS.get(method, method), fontsize=12, fontweight="bold")
+        ax.grid(True, alpha=0.3)
+
+    axes[1, 0].set_xlabel("Ground-truth depth in ROI (cm)", fontsize=10)
+    axes[1, 1].set_xlabel("Ground-truth depth in ROI (cm)", fontsize=10)
+    axes[0, 0].set_ylabel("Median |Z_est − GT| (cm)", fontsize=10)
+    axes[1, 0].set_ylabel("Median |Z_est − GT| (cm)", fontsize=10)
+
+    handles = []
+    for s in scenes:
+        if not any(s in methods_data.get(m, {}) for m in METHOD_ORDER):
+            continue
+        st = scene_plot_style(s)
+        handles.append(
+            plt.Line2D(
+                [0],
+                [0],
+                color=st["color"],
+                marker=st["marker"],
+                linestyle=st["linestyle"],
+                linewidth=1.2,
+                markersize=4.5,
+                label=s,
+            )
+        )
+    n_legend = len(handles)
+    fig.legend(
+        handles=handles,
+        loc="lower center",
+        ncol=n_legend,
+        fontsize=7.5,
+        frameon=True,
+        bbox_to_anchor=(0.5, 0.0),
+        columnspacing=1.0,
+        handletextpad=0.35,
+    )
+    fig.suptitle("ROI depth error vs GT distance", fontsize=13, fontweight="bold", y=0.98)
+    fig.subplots_adjust(left=0.07, right=0.98, top=0.90, bottom=0.20, hspace=0.22, wspace=0.12)
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=160, bbox_inches="tight", facecolor="white")
     plt.close(fig)
     return True
 

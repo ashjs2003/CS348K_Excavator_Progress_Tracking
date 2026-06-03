@@ -23,8 +23,9 @@ Parameters not fully tuned:+
 [Depth Anything V2](https://github.com/DepthAnything/Depth-Anything-V2) was used as a **monocular** dense-depth method. It takes rectified RGB-L as input and predicts a dense relative depth map. Because monocular depth is not naturally metric, we scaled its output into meters using the OpenCV stereo depth from the same frame as the reference.
 
 ### 3. Depth Anything V2 with Ground Truth Anchoring
-TODO
 
-### 3. FoundationStereo
+Same DA-V2 relative map as Section 2. Metric scale is fit with `metric = scale × relative + shift` using only OpenCV pixels that match the target or wall distances in `data/<scene>/pair_<id>.txt` instead of all valid stereo pixels. The fit chooses direct, inverse, or flipped relative depth by correlation, then applies scale and shift to the full frame. This improves mid/far metric alignment in evaluation but needs ruler text files and reasonable OpenCV depth at the anchors, so we use it as a calibrated reference rather than a field method.
+
+### 4. FoundationStereo
 
 [NVIDIA FoundationStereo](https://github.com/NVlabs/FoundationStereo) was included as a learned **stereo method**. Like OpenCV stereo, it takes the rectified RGB1/RGB2 pair as input and predicts disparity. This made it a useful learned alternative to the classical stereo baseline.

@@ -3,6 +3,7 @@
   "scale": 0.07359947223910321,
   "shift_m": 0.8327248455820142,
   "reference_valid_pixels": 25809,
+  "fit_pixels": 25809,
   "fit_correlation": 0.33872568832711586,
   "K": [
     [
@@ -21,6 +22,7 @@
       1.0
     ]
   ],
-  "scale_reference": "auto",
-  "encoder": "vits"
+  "encoder": "vits",
+  "scale_reference": "opencv",
+  "method_id": "dav2"
 }

@@ -154,16 +154,32 @@ def pointcloud_from_depth_map(
     return points, colors
 
 
-def save_depth_preview(path, depth_m: np.ndarray):
+def save_depth_preview(
+    path,
+    depth_m: np.ndarray,
+    *,
+    vmin_m: float | None = None,
+    vmax_m: float | None = None,
+):
+    """
+    Turbo colormap preview of metric depth (m).
+
+    When vmin_m/vmax_m are set, the same color scale is used across methods/captures
+    so absolute depth differences are visible. Otherwise falls back to per-image
+    5–95 percentile stretch (relative shape only).
+    """
     valid = np.isfinite(depth_m) & (depth_m > 0)
     preview = np.zeros(depth_m.shape, dtype=np.uint8)
     if np.any(valid):
-        values = depth_m[valid]
-        lo, hi = np.percentile(values, [5, 95])
-        if hi <= lo:
-            lo, hi = float(np.min(values)), float(np.max(values))
-        scaled = np.clip((values - lo) / max(hi - lo, 1e-6), 0.0, 1.0)
-        preview[valid] = (scaled * 255.0).astype(np.uint8)
+        if vmin_m is not None and vmax_m is not None:
+            lo, hi = float(vmin_m), float(vmax_m)
+        else:
+            values = depth_m[valid]
+            lo, hi = np.percentile(values, [5, 95])
+            if hi <= lo:
+                lo, hi = float(np.min(values)), float(np.max(values))
+        scaled = np.clip((depth_m - lo) / max(hi - lo, 1e-6), 0.0, 1.0)
+        preview[valid] = (scaled[valid] * 255.0).astype(np.uint8)
     cv2.imwrite(str(path), cv2.applyColorMap(preview, cv2.COLORMAP_TURBO))
 
 
