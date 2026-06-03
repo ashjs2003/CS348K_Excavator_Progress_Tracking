@@ -19,14 +19,13 @@ Ground truth for cardboard uses measured box volumes (S 294, M 4940, L 15360 cm�
 
 ## Out of scope
 
-- Production excavation volumetry or progress tracking without trench ground truth.
-- Treating near-proxy excavator cells or occasional near-GT cardboard cells as validated volume.
-- Using DA-V2 GT as a deployable volume method. 
+- Volume tracking without trench ground truth.
+- Box Height caluculation. The current method uses ground truth height and relies on LiDAR for width and Camera(s) for box depth.
 
 ## Evaluation data
 
 - S/M/L cardboard at 0° and 30°, with multiple ruler distances per scene.
-- `excavator_M` and `excavator_S`, six captures each, with range gating via stereo `z_inside` because excavator scenes have no GT ruler.
+- `excavator_M` and `excavator_S`, six captures each.
 
 ---
 
