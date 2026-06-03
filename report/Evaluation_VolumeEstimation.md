@@ -82,7 +82,7 @@ Ground truth for cardboard uses measured box volumes (S 294, M 4940, L 15360 cmÂ
 | Depth driver | Most scatter comes from stereo depth using the legacy heuristic, not box flap-to-back depth. |
 | OpenCV | It is inconsistent across M versus S. It sometimes lands near the proxy on M and can overshoot badly on S (for example pair 016). |
 | DA-V2 / Foundation | They keep depth thin and underestimate versus the proxy. |
-| vs `excavator_MS_all_views` | The stereo depths are the same. This table swaps bbox width for LiDAR width. |
+
 
 **Summary:** On excavator captures, LiDAR width does not make volume reliable. Stereo depth still drives most of the error. OpenCV is unstable across trench size, DA-V2 and Foundation stay low.
 
