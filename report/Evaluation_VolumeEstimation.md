@@ -98,5 +98,5 @@ Ground truth for cardboard uses measured box volumes (S 294, M 4940, L 15360 cmÂ
 
 ## Future work
 
-- Add multi-point depth anchoring for DA-V2 and re-evaluate flap depth.
+- Add multi-point depth anchoring for DA-V2 and re-evaluate box flap-to-back depth.
 - Fix LiDARâ€“RGB calibration if projecting width into the image is required later.
