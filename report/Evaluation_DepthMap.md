@@ -32,3 +32,5 @@ Overall model interpretation:
 - **DA-V2:** DA-V2 is more consistent than OpenCV. It does not always win, but it avoids some of OpenCV's largest failures, improves in 30 degree box scenes, and handles far ranges better. Best characterization: more robust than OpenCV, but not necessarily more accurate in metric scale.
 - **FoundationStereo:** Foundation is very close to DA-V2 in aggregate. It is stable, but does not clearly dominate DA-V2 and still has high near-field errors. Best characterization: comparable to DA-V2; stable, but not clearly superior from this dataset.
 - **DA-V2 GT:** DA-V2 GT has the best global summary after scaling, especially in mid/far/very-far bands. But it is not uniformly best and performs poorly near the camera. Best characterization: best after GT alignment, especially at farther ranges, but near-field errors remain a major weakness. Since it uses GT scaling/alignment, it should be framed as a calibrated reference rather than a deployable baseline.
+
+**But all models have error margins comparable to the target object dimensions!**
