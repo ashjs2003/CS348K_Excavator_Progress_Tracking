@@ -20,11 +20,11 @@ Parameters not fully tuned:+
 
 ### 2. Depth Anything V2
 
-Depth Anything V2 was used as a **monocular** dense-depth method. It takes rectified RGB-L as input and predicts a dense relative depth map. Because monocular depth is not naturally metric, we scaled its output into meters using the OpenCV stereo depth from the same frame as the reference.
+[Depth Anything V2](https://github.com/DepthAnything/Depth-Anything-V2) was used as a **monocular** dense-depth method. It takes rectified RGB-L as input and predicts a dense relative depth map. Because monocular depth is not naturally metric, we scaled its output into meters using the OpenCV stereo depth from the same frame as the reference.
 
 ### 3. Depth Anything V2 with Ground Truth Anchoring
 TODO
 
 ### 3. FoundationStereo
 
-[NVIDIA FoundationStereo](https://github.com/NVlabs/FoundationStereo) was included as a learned stereo method. Like OpenCV stereo, it takes the rectified RGB1/RGB2 pair as input and predicts disparity. This made it a useful learned alternative to the classical stereo baseline.
+[NVIDIA FoundationStereo](https://github.com/NVlabs/FoundationStereo) was included as a learned **stereo method**. Like OpenCV stereo, it takes the rectified RGB1/RGB2 pair as input and predicts disparity. This made it a useful learned alternative to the classical stereo baseline.
