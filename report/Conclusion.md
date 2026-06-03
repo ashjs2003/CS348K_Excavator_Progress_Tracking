@@ -14,3 +14,7 @@ The limiting factor was metric depth. Best cases reached a few centimeters of er
 - **Threats:** Toy-scale artifacts may dominate algorithm behavior; low texture and occlusion can break stereo; GT-anchored methods may not transfer to deployment.
 
 Overall, the toy excavator is best understood as a **failure-finding and design-learning platform**. The next testbed should increase the geometric signal with a larger workspace, larger stereo baseline, and better depth or cross-sensor calibration.
+
+# Contributions:
+- Ashmitha: Captured Data. Built the hardware setup. Callibrated the sensors. Established evals for captured data and calibration. OpenCV and NVIDIA depth maps.
+- Yashasvini: Captured Data. DepthAnything V2 and DepthAnything V2 with Groundtruth anchoring. Established evals for depth and volume estimation.
