@@ -1,14 +1,12 @@
 # Volume Estimation Evaluation 
 
-This document evaluates a diagnostic pipeline on controlled cardboard boxes and excavator trench captures. It is not a deployable volumetry product.
-
 ## Method
 
 | Component | Cardboard (Figures 1–2) | Excavator (Figure 3) |
 | --- | --- | --- |
 | Width | Raw 2D LiDAR face span | LiDAR edge profile, with gate-span fallback if the profile fails |
-| Height | Ground truth prior (S 7 cm, M 19 cm, L 24 cm) | Ground truth M/S priors (19 cm / 7 cm) |
-| Depth | Stereo flap-to-back: median Z in ROI minus median Z in outside ring | Legacy ROI inside/outside Z from `roi_bbox_volume_estimates` |
+| Height | Ground truth prior (S = 7 cm, M = 19 cm, L = 24 cm) | Ground truth prior (S = 7 cm, M = 19 cm) |
+| Depth | Stereo box flap-to-back: median Z in ROI minus median Z in outside ring | ROI inside/outside heuristics Z from `roi_bbox_volume_estimates` |
 | Volume | LiDAR width × ground truth height × depth | Same product |
 
 Ground truth for cardboard uses measured box volumes (S 294, M 4940, L 15360 cm³). 
@@ -42,22 +40,14 @@ Ground truth for cardboard uses measured box volumes (S 294, M 4940, L 15360 cm�
 
 | Observation | Detail |
 | --- | --- |
-| Bias | LiDAR generally underestimates ground truth width because the face has sparse hits and the span depends on edge detection. |
-| Angle | −30° helps M and L. Width tracks ground truth more closely than at 0°. |
-| Small targets | The S box stays resolution-limited in both angles. |
+| Overall bias | The LiDAR recovers a rough width trend but usually underestimates the true face width. |
+| Cause of bias | The face has few scan points, and the measured span depends on where the scan line cuts the box and how clear the edges are in the range profile. |
+| Placement angle | −30° works better than 0° for the M and L boxes. |
+| M box at −30° | Width stays close to the measured value and is more stable as distance changes. |
+| L box at −30° | Width is much closer to ground truth than at 0°. |
+| S box | Both angles stay difficult. The true width is small, so the face has too few points and the estimate is resolution-limited. LiDAR width stays below catalog width and barely changes with distance. |
 
-**Summary:** Raw 2D LiDAR scan can recover a rough width trend, but it generally underestimates the true box width. 
-This is expected because the box face is represented by a small number of scan points, and the detected span depends on where the scan 
-line intersects the object and how cleanly the face edges appear in the range profile.
-
-The -30 degree placement performs better than the 0 degree placement for the medium and large boxes. For the M box, the LiDAR width at -30 
-degrees rises close to the measured width and stays more stable across distance. For the L box, the -30 degree placement also gets much 
-closer to the true width than the 0 degree placement. This suggests that the angled view can expose a more usable range profile or 
-stronger face edges for larger boxes.
-
-The S box remains difficult in both placements. Its true width is small, so the LiDAR has fewer points across the face and the estimate 
-becomes resolution-limited. The measured LiDAR width stays below the catalog width and changes only slightly with distance, showing that 
-small targets are near the limit of what this LiDAR setup can resolve.
+**Summary:** LiDAR width is useful for testing sensing limits but is not reliable enough to use alone. When it is multiplied by depth in the volume formula, both errors combine.
 
 ---
 
