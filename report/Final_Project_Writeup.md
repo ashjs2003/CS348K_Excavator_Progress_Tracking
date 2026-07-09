@@ -5,6 +5,7 @@
 
 ## Sections
 
+# Stage 1: CS348K Project, Understanding Camera Setup on toy Excavator
 1. [Background and Setup](Background_and_Setup.md)
 2. Approach
    - [Data](Data.md)
@@ -16,3 +17,6 @@
    - [Depth Map Evaluation](Evaluation_DepthMap.md)
    - [Volume Evaluation](Evaluation_VolumeEstimation.md)
 4. [Conclusion](Conclusion.md)
+
+# Stage 2: Real Camera Setup at Excavator Height
+1. [SensorSetup](SensorSetup.md)
